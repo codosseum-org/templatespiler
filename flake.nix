@@ -1,5 +1,5 @@
 {
-  description = "srid/haskell-template: Nix template for Haskell projects";
+  description = "codosseum/templatespliler: Nix template for Haskell projects";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     systems.url = "github:nix-systems/default";
@@ -79,12 +79,12 @@
         };
 
         # Default package & app.
-        packages.default = self'.packages.haskell-template;
-        apps.default = self'.apps.haskell-template;
+        packages.default = self'.packages.templatespliler;
+        apps.default = self'.apps.templatespliler;
 
         # Default shell.
         devShells.default = pkgs.mkShell {
-          name = "haskell-template";
+          name = "templatespliler";
           nativeBuildInputs = with pkgs; [
             just
             config.treefmt.build.wrapper

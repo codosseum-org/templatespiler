@@ -1,10 +1,10 @@
-cabal-version:      2.4
-name:               haskell-template
+cabal-version:      3.4
+name:               templatespiler
 version:            0.1.0.0
 license:            MIT
-copyright:          2022 Sridhar Ratnakumar
-maintainer:         srid@srid.ca
-author:             Sridhar Ratnakumar
+copyright:          2023 Alexander Wood
+maintainer:         alexwood2403@gmail.com
+author:             Alexander Wood
 category:           Web
 
 -- TODO: Before hackage release.
@@ -89,7 +89,7 @@ common shared
     , with-utf8
 
   hs-source-dirs:     src
-  default-language:   Haskell2010
+  default-language:   GHC2021
 
 executable haskell-template
   import:  shared

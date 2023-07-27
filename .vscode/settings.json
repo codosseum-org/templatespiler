@@ -5,5 +5,8 @@
   "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
   // "nixEnvSelector.args": "--pure"
   "haskell.formattingProvider": "fourmolu",
-  "haskell.manageHLS": "PATH"
+  "haskell.manageHLS": "PATH",
+  "cSpell.words": [
+    "Templatespiler"
+  ]
 }

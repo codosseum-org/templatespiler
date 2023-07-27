@@ -1,23 +1,117 @@
-# haskell-template
+# Templatespiler
 
-Get a Haskell development environment up and running quickly. Thanks to Nix, this template is optimized for a fully reproducible and friendly development environment. It is based on:
+A transpiler from a template language to many popular programming languages
 
-- [Nix](https://srid.ca/haskell-nix) + [Flakes](https://serokell.io/blog/practical-nix-flakes) (via [`github:srid/haskell-flake`](https://github.com/srid/haskell-flake)) + GHC 9.2
-- VSCode + [HLS](https://github.com/haskell/haskell-language-server)
-- [fourmolu](https://github.com/fourmolu/fourmolu) autoformatting 
-- [Relude](https://github.com/kowainik/relude#relude) as Prelude.
-  - `.hlint.yaml` is [from relude](https://github.com/kowainik/relude/blob/main/.hlint.yaml)
-- Devshell commands are provided via [just](https://just.systems/); run `just` in devshell.
+## Motivation
 
-If you have an *existing* Haskell project, you should probably use https://github.com/srid/haskell-flake instead.
+For coding challenges, it's useful to be able to provide a template solution that handles the stdio boilerplate.
+It would be reasonable to expect challenge authors to write a template in *every* language, so an alternative is needed.
+
+Templatespiler provides a DSL for describing stdio which can then be transpiled into many popular programming languages, as idiomatically as possible. Note that Templatespiler is *not* a fully-fledged programming language, and so only provides the basic stdio functionality.
+
+For example, suppose we have a challenge to return the sum of all the prime numbers in a list.
+We can describe the inputs using Templatespiler like so 
+```
+count = readln Integer
+inputs = for count as i { 
+    num = readln Integer
+}
+
+println "solution"
+```
+
+which we can turn into Python: 
+```py
+count = int(input())
+for i in range(0, count):
+  num = int(input())
+
+print("solution")
+```,
+
+C: 
+```c
+#include <stdio.h>
+
+int main() {
+    int count;
+    scanf("%d\n", &count);
+
+    for (int i = 0; i < count; i++) {
+        int num;
+        scanf("%d\n", &num);
+    }
+    printf("%s\n", "solution");
+}
+```
+
+or Haskell:
+```hs
+import Control.Monad
+
+main :: IO ()
+main = do
+    count <- readLn @Int
+    inputs <- replicateM count $ do
+        num <- readLn @Int
+        pure num
+  
+    putStrLn "solution"
+```
+
+Notice that the parameter names are not always needed - for example, Python and C do not put the inputs into a list, since it's usually more idiomatic to do the processing in the for loop in imperative languages. On the other hand, we do put the inputs into a list for Haskell, since it usually enables more idiomatic usage.
+
+For a more advanced example, suppose we have a challenge where a set of coordinate translations are given, and we need to find the final position of a point after applying all the translations. 
+
+We can describe the inputs using Templatespiler like so 
+```
+start = readln Integer Integer
+count = readln Integer
+
+inputs = for count as i { 
+    x, y = readln Integer Integer
+    yield x, y
+}
+
+println "(x, y)"
+```
+
+which we can turn into Python: 
+```py
+start = input().split()
+start = (int(start[0]), int(start[1]))
+
+count = int(input())
+
+for i in range(0, count):
+  x, y = input().split()
+  x, y = int(x), int(y)
+
+print("(x, y)")
+``` or Haskell:
+```hs
+import Control.Monad
+
+
+
+main :: IO ()
+main = do
+  start <- fmap read . words <$> getLine
+  count <- readLn @Int
+
+  inputs <- replicateM count $ do
+    (x, y) <- fmap read . words <$> getLine
+    pure (x, y)
+  
+  putStrLn "(x, y)"
+```
+
+The `yield` keyword is primarily for functional languages and will often be ignored in imperative languages. It is used to describe the "return value" of the for loop that is added to the list of inputs.
+If no `yield` is present, the last expression in the for loop will be implicitly yielded. 
 
 ## Getting Started
 
 *tldr: Install Nix, enable Flakes, open in VSCode and run `just run`.*
-
-Full instructions: https://srid.ca/haskell-template/start
-
-Recommended dev environment setup: https://zero-to-flakes.com/direnv
 
 ## Tips
 
@@ -29,7 +123,3 @@ Recommended dev environment setup: https://zero-to-flakes.com/direnv
 - Common workflows
   - Adding library dependencies in Nix: https://zero-to-flakes.com/haskell-flake/dependency
   - Adding tests: https://srid.ca/haskell-template/tests
-
-## Discussions
-
-Questions? Ideas? Suggestions? You may post them here: https://github.com/srid/haskell-template/discussions

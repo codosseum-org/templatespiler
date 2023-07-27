@@ -1,0 +1,9 @@
+start = readln Integer Integer
+count = readln Integer
+
+inputs = for count as i {
+    x, y = readln Integer Integer
+    yield x, y
+}
+
+println "(x, y)"

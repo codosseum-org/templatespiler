@@ -80,6 +80,7 @@ common shared
     , data-default
     , directory
     , filepath
+    , megaparsec
     , mtl
     , optics-core
     , profunctors
@@ -88,9 +89,9 @@ common shared
     , time
     , with-utf8
 
-  hs-source-dirs:     src
   default-language:   GHC2021
 
-executable haskell-template
-  import:  shared
-  main-is: Main.hs
+executable templatespiler
+  import:         shared
+  main-is:        Main.hs
+  hs-source-dirs: src

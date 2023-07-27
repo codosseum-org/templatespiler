@@ -27,9 +27,10 @@ for i in range(0, count):
   num = int(input())
 
 print("solution")
-```,
+```
 
-C: 
+, C:
+
 ```c
 #include <stdio.h>
 
@@ -88,7 +89,9 @@ for i in range(0, count):
   x, y = int(x), int(y)
 
 print("(x, y)")
-``` or Haskell:
+``` 
+or Haskell:
+
 ```hs
 import Control.Monad
 

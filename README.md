@@ -112,6 +112,58 @@ main = do
 The `yield` keyword is primarily for functional languages and will often be ignored in imperative languages. It is used to describe the "return value" of the for loop that is added to the list of inputs.
 If no `yield` is present, the last expression in the for loop will be implicitly yielded. 
 
+### Complex Example
+Let's do an example with heavily nested inputs. For this challenge, we have a list of item names and prices, and then a list of people, who all have their own shopping list. We need to find the total cost of all the items on all the shopping lists.
+
+
+An example input will look like this: 
+```
+5
+apple 1
+milk 2
+bread 2.5
+cheese 3
+chocolate 4
+3
+Alice
+2
+2 apple
+1 milk
+Bob
+4
+1 apple
+1 milk
+3 bread
+2 cheese
+Charlie
+1
+1 chocolate
+```
+
+We can describe the inputs using Templatespiler like so 
+```
+item_count = readln Integer
+items = for item_count as i { 
+    name, price = readln String Float
+    yield name, price
+}
+
+person_count = readln Integer
+people = for person_count as i { 
+    name = readln String
+    shopping_list_count = readln Integer
+    shopping_list = for shopping_list_count as j {
+        count = readln Integer
+        name = readln String
+        yield count, name
+    }
+    yield name, shopping_list
+}
+
+println "solution"
+```
+
+
 ## Getting Started
 
 *tldr: Install Nix, enable Flakes, open in VSCode and run `just run`.*

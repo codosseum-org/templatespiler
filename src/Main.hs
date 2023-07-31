@@ -9,6 +9,6 @@ main :: IO ()
 main = do
   Utf8.withUtf8 $ do
     contents <- readFileText "test.tmpspl"
-    case (runParser (parseBlock <* eof) "test.tmpspl" contents) of
+    case runParser (parseBlock <* eof) "test.tmpspl" contents of
       Left err -> putStrLn $ errorBundlePretty err
       Right ast -> putStrLn $ shower ast

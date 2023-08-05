@@ -4,15 +4,16 @@ FloatType. Type ::= "Float" ;
 CombinatorType. Type ::= Combinator ;
 
 
--- Bindings that have a finite length and can't recurse forever, fixes ambiguity
-SingleBinding. TerminalBinding ::= Ident ":" Type ;
-ParenBinding. TerminalBinding ::= "(" TerminalBinding ")" ;
+
+Binding. Binding ::= Ident ":" Type  ;
+
 
 -- A list of bindings surrounded by [] and separated by commas
-BindingGroup. BindingGroup ::= "[" [TerminalBinding] "]" ;
-separator TerminalBinding "," ;
+BindingGroup. BindingGroup ::= "[" [Binding] "]" ;
+separator Binding "," ;
 
-NamedBinding. BindingOrCombinator ::= TerminalBinding;
+NamedBinding. BindingOrCombinator ::= Binding;
+ParenBinding . BindingOrCombinator ::= "(" Binding ")" ;
 UnnamedBinding. BindingOrCombinator ::= Combinator;
 
 
@@ -24,8 +25,7 @@ ListCombinator. Combinator ::= "list" BindingOrCombinator ;
 ConstInt. VarOrConstInt ::= Integer;
 ConstVar. VarOrConstInt ::= Ident;
 
-BindingList. BindingList ::= [BindingListEntry] ;
-BindingListEntry. BindingListEntry ::= TerminalBinding;
-separator BindingListEntry "\n" ;
+BindingList. BindingList ::= [Binding] ;
+separator Binding "\n" ;
 
 entrypoints BindingList; 

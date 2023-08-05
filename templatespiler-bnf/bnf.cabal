@@ -1,20 +1,20 @@
-cabal-version:      3.4
-name:               bnf
-version:            0.1.0.0
-license:            MIT
-copyright:          2023 Alexander Wood
-maintainer:         alexwood2403@gmail.com
-author:             Alexander Wood
-category:           Web
+cabal-version: 3.4
+name:          bnf
+version:       0.1.0.0
+license:       MIT
+copyright:     2023 Alexander Wood
+maintainer:    alexwood2403@gmail.com
+author:        Alexander Wood
+category:      Web
 
 common shared
-  hs-source-dirs: src
+  hs-source-dirs:     .src
   build-depends:
+    , array
     , base
     , BNFC
     , text
-    , array
-  
+
   build-tool-depends:
     , alex:alex
     , happy:happy
@@ -22,9 +22,7 @@ common shared
   default-language:   GHC2021
 
 library
-  import: shared
-  hs-source-dirs: src
-  
+  import:          shared
   exposed-modules:
     Language.Templatespiler.Abs
     Language.Templatespiler.ErrM
@@ -34,9 +32,8 @@ library
     Language.Templatespiler.Skel
 
 executable bnf-test
-  import: shared
-  main-is:        Main.hs
-
+  import:        shared
+  main-is:       Main.hs
   other-modules:
     Language.Templatespiler.Abs
     Language.Templatespiler.ErrM

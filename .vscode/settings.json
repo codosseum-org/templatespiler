@@ -8,5 +8,9 @@
   "cSpell.words": [
     "Templatespiler"
   ],
-  "nixEnvSelector.suggestion": false
+  "nixEnvSelector.suggestion": false,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "python.formatting.provider": "none"
 }

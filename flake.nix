@@ -46,6 +46,7 @@
           programs.cabal-fmt.enable = true;
           programs.hlint.enable = true;
 
+
           # We use fourmolu
           programs.ormolu.package = pkgs.haskellPackages.fourmolu;
           settings.formatter.ormolu = {
@@ -57,8 +58,8 @@
         };
 
         # Default package & app.
-        # packages.default = self'.packages.templatespliler;
-        # apps.default = self'.apps.templatespliler;
+        packages.default = self'.packages.converter;
+        apps.default = self'.apps.converter;
 
         # Default shell.
         devShells.default = pkgs.mkShell {

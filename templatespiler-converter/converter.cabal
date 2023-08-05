@@ -1,11 +1,11 @@
-cabal-version:      3.4
-name:               converter
-version:            0.1.0.0
-license:            MIT
-copyright:          2023 Alexander Wood
-maintainer:         alexwood2403@gmail.com
-author:             Alexander Wood
-category:           Web
+cabal-version: 3.4
+name:          converter
+version:       0.1.0.0
+license:       MIT
+copyright:     2023 Alexander Wood
+maintainer:    alexwood2403@gmail.com
+author:        Alexander Wood
+category:      Web
 
 common shared
   ghc-options:
@@ -18,67 +18,26 @@ common shared
     relude (Relude as Prelude, Relude.Container.One),
     relude
 
-  default-extensions:
-    NoStarIsType
-    BangPatterns
-    ConstraintKinds
-    DataKinds
-    DeriveDataTypeable
-    DeriveFoldable
-    DeriveFunctor
-    DeriveGeneric
-    DeriveLift
-    DeriveTraversable
-    DerivingStrategies
-    DerivingVia
-    EmptyCase
-    EmptyDataDecls
-    EmptyDataDeriving
-    ExistentialQuantification
-    ExplicitForAll
-    FlexibleContexts
-    FlexibleInstances
-    GADTSyntax
-    GeneralisedNewtypeDeriving
-    ImportQualifiedPost
-    KindSignatures
-    LambdaCase
-    MultiParamTypeClasses
-    MultiWayIf
-    NumericUnderscores
-    OverloadedStrings
-    PolyKinds
-    PostfixOperators
-    RankNTypes
-    ScopedTypeVariables
-    StandaloneDeriving
-    StandaloneKindSignatures
-    TupleSections
-    TypeApplications
-    TypeFamilies
-    TypeOperators
-    ViewPatterns
-
-
+  default-extensions: OverloadedStrings
   build-depends:
     , base
-    , BNFC          ==2.9.5
     , bnf
+    , BNFC           ==2.9.5
     , data-default
     , directory
     , filepath
-    , relude        >=1.0
+    , mtl
+    , prettyprinter
+    , relude         >=1.0
     , shower
     , time
     , with-utf8
-    , prettyprinter
 
   default-language:   GHC2021
 
 library
   import:         shared
   hs-source-dirs: src
-
 
 executable converter
   import:         shared

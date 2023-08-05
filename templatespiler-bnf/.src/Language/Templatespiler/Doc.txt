@@ -34,8 +34,8 @@ The reserved words used in templatespiler are the following:
   | ``list`` |  |  |
 
 The symbols used in templatespiler are the following:
-  | : | ( | ) | [
-  | ] | , | sep-by |
+  | : | [ | ] | ,
+  | ( | ) | sep-by |
 
 ===Comments===
 There are no single-line comments in the grammar.There are no multiple-line comments in the grammar.
@@ -50,13 +50,15 @@ All other symbols are terminals.
   |  |  **|**  | ``String``
   |  |  **|**  | ``Float``
   |  |  **|**  | //Combinator//
-  | //TerminalBinding// | -> | //Ident// ``:`` //Type//
-  |  |  **|**  | ``(`` //TerminalBinding// ``)``
-  | //BindingGroup// | -> | ``[`` //[TerminalBinding]// ``]``
-  | //[TerminalBinding]// | -> | **eps**
-  |  |  **|**  | //TerminalBinding//
-  |  |  **|**  | //TerminalBinding// ``,`` //[TerminalBinding]//
-  | //BindingOrCombinator// | -> | //TerminalBinding//
+  | //Binding// | -> | //Ident// ``:`` //Type//
+  | //BindingGroup// | -> | ``[`` //[Binding]// ``]``
+  | //[Binding]// | -> | **eps**
+  |  |  **|**  | //Binding//
+  |  |  **|**  | //Binding// ``,`` //[Binding]//
+  |  |  **|**  | **eps**
+  |  |  **|**  | //Binding// //[Binding]//
+  | //BindingOrCombinator// | -> | //Binding//
+  |  |  **|**  | ``(`` //Binding// ``)``
   |  |  **|**  | //Combinator//
   | //Combinator// | -> | ``(`` //Combinator// ``)``
   |  |  **|**  | ``array`` //VarOrConstInt// //BindingOrCombinator//
@@ -64,10 +66,7 @@ All other symbols are terminals.
   |  |  **|**  | ``list`` //BindingOrCombinator//
   | //VarOrConstInt// | -> | //Integer//
   |  |  **|**  | //Ident//
-  | //BindingList// | -> | //[BindingListEntry]//
-  | //BindingListEntry// | -> | //TerminalBinding//
-  | //[BindingListEntry]// | -> | **eps**
-  |  |  **|**  | //BindingListEntry// //[BindingListEntry]//
+  | //BindingList// | -> | //[Binding]//
 
 
 

@@ -58,24 +58,26 @@ Type
   | 'Float' { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.FloatType (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1))) }
   | Combinator { (fst $1, Language.Templatespiler.Abs.CombinatorType (fst $1) (snd $1)) }
 
-TerminalBinding :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.TerminalBinding) }
-TerminalBinding
-  : Ident ':' Type { (fst $1, Language.Templatespiler.Abs.SingleBinding (fst $1) (snd $1) (snd $3)) }
-  | '(' TerminalBinding ')' { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ParenBinding (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+Binding :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.Binding) }
+Binding
+  : Ident ':' Type { (fst $1, Language.Templatespiler.Abs.Binding (fst $1) (snd $1) (snd $3)) }
 
 BindingGroup :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.BindingGroup) }
 BindingGroup
-  : '[' ListTerminalBinding ']' { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.BindingGroup (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+  : '[' ListBinding ']' { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.BindingGroup (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2)) }
 
-ListTerminalBinding :: { (Language.Templatespiler.Abs.BNFC'Position, [Language.Templatespiler.Abs.TerminalBinding]) }
-ListTerminalBinding
+ListBinding :: { (Language.Templatespiler.Abs.BNFC'Position, [Language.Templatespiler.Abs.Binding]) }
+ListBinding
   : {- empty -} { (Language.Templatespiler.Abs.BNFC'NoPosition, []) }
-  | TerminalBinding { (fst $1, (:[]) (snd $1)) }
-  | TerminalBinding ',' ListTerminalBinding { (fst $1, (:) (snd $1) (snd $3)) }
+  | Binding { (fst $1, (:[]) (snd $1)) }
+  | Binding ',' ListBinding { (fst $1, (:) (snd $1) (snd $3)) }
+  | {- empty -} { (Language.Templatespiler.Abs.BNFC'NoPosition, []) }
+  | Binding ListBinding { (fst $1, (:) (snd $1) (snd $2)) }
 
 BindingOrCombinator :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.BindingOrCombinator) }
 BindingOrCombinator
-  : TerminalBinding { (fst $1, Language.Templatespiler.Abs.NamedBinding (fst $1) (snd $1)) }
+  : Binding { (fst $1, Language.Templatespiler.Abs.NamedBinding (fst $1) (snd $1)) }
+  | '(' Binding ')' { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ParenBinding (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | Combinator { (fst $1, Language.Templatespiler.Abs.UnnamedBinding (fst $1) (snd $1)) }
 
 Combinator :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.Combinator) }
@@ -92,16 +94,7 @@ VarOrConstInt
 
 BindingList :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.BindingList) }
 BindingList
-  : ListBindingListEntry { (fst $1, Language.Templatespiler.Abs.BindingList (fst $1) (snd $1)) }
-
-BindingListEntry :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.BindingListEntry) }
-BindingListEntry
-  : TerminalBinding { (fst $1, Language.Templatespiler.Abs.BindingListEntry (fst $1) (snd $1)) }
-
-ListBindingListEntry :: { (Language.Templatespiler.Abs.BNFC'Position, [Language.Templatespiler.Abs.BindingListEntry]) }
-ListBindingListEntry
-  : {- empty -} { (Language.Templatespiler.Abs.BNFC'NoPosition, []) }
-  | BindingListEntry ListBindingListEntry { (fst $1, (:) (snd $1) (snd $2)) }
+  : ListBinding { (fst $1, Language.Templatespiler.Abs.BindingList (fst $1) (snd $1)) }
 
 {
 

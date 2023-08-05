@@ -11,13 +11,9 @@ Templatespiler provides a DSL for describing stdio which can then be transpiled 
 
 For example, suppose we have a challenge to return the sum of all the prime numbers in a list.
 We can describe the inputs using Templatespiler like so 
-```
-count = readln Integer
-inputs = for count as i { 
-    num = readln Integer
-}
-
-println "solution"
+```js
+count : Integer
+inputs: array count (num : Integer)
 ```
 
 which we can turn into Python: 
@@ -60,22 +56,30 @@ main = do
     putStrLn "solution"
 ```
 
+Templatespiler is defined as a dictionary of variable names to inputs, which may be combined using *combinators*. For example, we have the `array` combinator, which takes a length, a type, and then parses that many inputs into an array, each on its own line.
+
 Notice that the parameter names are not always needed - for example, Python and C do not put the inputs into a list, since it's usually more idiomatic to do the processing in the for loop in imperative languages. On the other hand, we do put the inputs into a list for Haskell, since it usually enables more idiomatic usage.
 
 For a more advanced example, suppose we have a challenge where a set of coordinate translations are given, and we need to find the final position of a point after applying all the translations. 
 
+For example, an input might look like this: 
+```
+0 0
+3
+3 2
+-1 1
+2 0
+```
+
 We can describe the inputs using Templatespiler like so 
+```js
+start: sep-by " " [x : Integer, y : Integer]
+inputs: list (sep-by " " [x : Integer, y : Integer])
 ```
-start = readln Integer Integer
-count = readln Integer
 
-inputs = for count as i { 
-    x, y = readln Integer Integer
-    yield x, y
-}
 
-println "(x, y)"
-```
+The `sep-by` combinator combines inputs separated by a separator, in this case `" "`. 
+The `list` combinator is a dynamic version of `array`, where the length is specified as the first input
 
 which we can turn into Python: 
 ```py
@@ -94,8 +98,6 @@ or Haskell:
 
 ```hs
 import Control.Monad
-
-
 
 main :: IO ()
 main = do
@@ -141,27 +143,23 @@ Charlie
 ```
 
 We can describe the inputs using Templatespiler like so 
+```js
+prices: list (sep-by " " [item : String, price : Integer])
+orders: list (sep-by " " [
+  name: String,
+  order: list (sep-by " " [quantity : Integer, item : String])
+])
 ```
-item_count = readln Integer
-items = for item_count as i { 
-    name, price = readln String Float
-    yield name, price
-}
 
-person_count = readln Integer
-people = for person_count as i { 
-    name = readln String
-    shopping_list_count = readln Integer
-    shopping_list = for shopping_list_count as j {
-        count = readln Integer
-        name = readln String
-        yield count, name
-    }
-    yield name, shopping_list
-}
+### Types 
 
-println "solution"
-```
+Templatespiler also employs a basic type system to validate that inputs are correct. 
+
+- `array : (integer | variable) -> Type -> Type`
+- `list : Type -> Type`
+- `sep-by : string -> [Type] -> Type`
+
+### Formal Definition
 
 
 ## Getting Started

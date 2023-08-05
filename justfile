@@ -17,3 +17,6 @@ fmt:
 # Run ghcid -- auto-recompile and run `main` function
 run:
     ghcid -c "cabal repl exe:templatespiler" --warnings -T :main
+
+bnfc:
+    bnfc --haskell --text-token --functor --generic -o src -d -p Language templatespiler.cf

@@ -2,11 +2,11 @@
   "search.useIgnoreFiles": true,
   "editor.formatOnType": true,
   "editor.formatOnSave": true,
-  "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
   // "nixEnvSelector.args": "--pure"
   "haskell.formattingProvider": "fourmolu",
   "haskell.manageHLS": "PATH",
   "cSpell.words": [
     "Templatespiler"
-  ]
+  ],
+  "nixEnvSelector.suggestion": false
 }

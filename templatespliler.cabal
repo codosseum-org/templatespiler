@@ -73,10 +73,27 @@ common shared
     TypeOperators
     ViewPatterns
 
+  build-tool-depends:
+    , alex:alex
+    , happy:happy
+
+  -- cabal-fmt: expand src
+  exposed-modules:
+    Language.Templatespiler.Abs
+    Language.Templatespiler.Doc
+    Language.Templatespiler.ErrM
+    Language.Templatespiler.Lex
+    Language.Templatespiler.Par
+    Language.Templatespiler.Print
+    Language.Templatespiler.Skel
+    Language.Templatespiler.Test
+    Main
+
   build-depends:
     , aeson
     , async
     , base          >=4.13.0.0 && <4.18.0.0.0
+    , BNFC
     , data-default
     , directory
     , filepath

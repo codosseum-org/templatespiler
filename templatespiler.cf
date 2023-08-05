@@ -1,0 +1,31 @@
+IntegerType. Type ::= "Integer" ;
+StringType. Type ::= "String" ;
+FloatType. Type ::= "Float" ;
+CombinatorType. Type ::= Combinator ;
+
+
+-- Bindings that have a finite length and can't recurse forever, fixes ambiguity
+SingleBinding. TerminalBinding ::= Ident ":" Type ;
+ParenBinding. TerminalBinding ::= "(" TerminalBinding ")" ;
+
+-- A list of bindings surrounded by [] and separated by commas
+BindingGroup. BindingGroup ::= "[" [TerminalBinding] "]" ;
+separator TerminalBinding "," ;
+
+NamedBinding. BindingOrCombinator ::= TerminalBinding;
+UnnamedBinding. BindingOrCombinator ::= Combinator;
+
+
+ParenCombinator. Combinator ::= "(" Combinator ")" ;
+ArrayCombinator. Combinator ::= "array" VarOrConstInt BindingOrCombinator;
+SepByCombinator. Combinator ::= "sep-by" String BindingGroup ;
+ListCombinator. Combinator ::= "list" BindingOrCombinator ;
+
+ConstInt. VarOrConstInt ::= Integer;
+ConstVar. VarOrConstInt ::= Ident;
+
+BindingList. BindingList ::= [BindingListEntry] ;
+BindingListEntry. BindingListEntry ::= TerminalBinding;
+separator BindingListEntry "\n" ;
+
+entrypoints BindingList; 

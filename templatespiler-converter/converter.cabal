@@ -22,7 +22,7 @@ common shared
   build-depends:
     , base
     , bnf
-    , BNFC           ==2.9.5
+    , BNFC
     , data-default
     , directory
     , filepath
@@ -36,8 +36,17 @@ common shared
   default-language:   GHC2021
 
 library
-  import:         shared
-  hs-source-dirs: src
+  import:          shared
+  hs-source-dirs:  src
+
+  -- cabal-fmt: expand src
+  exposed-modules:
+    Main
+    Templatespiler.Convert
+    Templatespiler.Convert.Common
+    Templatespiler.Convert.Python
+    Templatespiler.IR.Imperative
+    Templatespiler.Validate
 
 executable converter
   import:         shared

@@ -16,7 +16,7 @@ fmt:
 
 # Run ghcid -- auto-recompile and run `main` function
 run:
-    ghcid -c "cabal repl exe:templatespiler" --warnings -T :main
+    ghcid -c "cabal v2-repl exe:converter" --warnings -T :main
 
 bnfc:
-    bnfc --haskell --text-token --functor --generic -o src -d -p Language templatespiler.cf
+    rm -rf templatespiler-bnf/src && bnfc --haskell --text-token --functor --generic -d  -p Language -o templatespiler-bnf/src templatespiler.cf && mv templatespiler-bnf/src/Language/Templatespiler/Test.hs templatespiler-bnf/src/Main.hs # stupid dumb hack to make cabal work

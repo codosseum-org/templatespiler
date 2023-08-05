@@ -1,0 +1,5 @@
+packages:
+  templatespiler-bnf/*.cabal
+  templatespiler-converter/*.cabal
+  
+tests: true

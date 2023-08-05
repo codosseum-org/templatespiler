@@ -1,25 +1,11 @@
 cabal-version:      3.4
-name:               templatespiler
+name:               converter
 version:            0.1.0.0
 license:            MIT
 copyright:          2023 Alexander Wood
 maintainer:         alexwood2403@gmail.com
 author:             Alexander Wood
 category:           Web
-
--- TODO: Before hackage release.
--- A short (one-line) description of the package.
--- synopsis:
-
--- A longer description of the package.
--- description:
-
--- A URL where users can report bugs.
--- bug-reports:
-
-extra-source-files:
-  LICENSE
-  README.md
 
 common shared
   ghc-options:
@@ -73,42 +59,28 @@ common shared
     TypeOperators
     ViewPatterns
 
-  build-tool-depends:
-    , alex:alex
-    , happy:happy
-
-  -- cabal-fmt: expand src
-  exposed-modules:
-    Language.Templatespiler.Abs
-    Language.Templatespiler.Doc
-    Language.Templatespiler.ErrM
-    Language.Templatespiler.Lex
-    Language.Templatespiler.Par
-    Language.Templatespiler.Print
-    Language.Templatespiler.Skel
-    Language.Templatespiler.Test
-    Main
 
   build-depends:
-    , aeson
-    , async
-    , base          >=4.13.0.0 && <4.18.0.0.0
-    , BNFC
+    , base
+    , BNFC          ==2.9.5
+    , bnf
     , data-default
     , directory
     , filepath
-    , megaparsec
-    , mtl
-    , optics-core
-    , profunctors
     , relude        >=1.0
     , shower
     , time
     , with-utf8
+    , prettyprinter
 
   default-language:   GHC2021
 
-executable templatespiler
+library
+  import:         shared
+  hs-source-dirs: src
+
+
+executable converter
   import:         shared
   main-is:        Main.hs
   hs-source-dirs: src

@@ -1,9 +1,5 @@
-start = readln Integer Integer
-count = readln Integer
-
-inputs = for count as i {
-    x, y = readln Integer Integer
-    yield x, y
-}
-
-println "(x, y)"
+prices: list (sep-by " " [item : String, price : Integer])
+orders: list (sep-by " " [
+  name: String,
+  order: list (sep-by " " [quantity : Integer, item : String])
+])

@@ -26,28 +26,6 @@
           # The base package set (this value is the default)
           basePackages = pkgs.haskell.packages.ghc92;
 
-          # Packages to add on top of `basePackages`
-          packages = {
-            # Add source or Hackage overrides here
-            # (Local packages are added automatically)
-            /*
-            aeson.source = "1.5.0.0" # Hackage version
-            shower.source = inputs.shower; # Flake input
-            */
-          };
-
-          # Add your package overrides here
-          settings = {
-            /*
-            haskell-template = {
-              haddock = false;
-            };
-            aeson = {
-              check = false;
-            };
-            */
-          };
-
           # Development shell configuration
           devShell = {
             hlsCheck.enable = false;
@@ -79,8 +57,8 @@
         };
 
         # Default package & app.
-        packages.default = self'.packages.templatespliler;
-        apps.default = self'.apps.templatespliler;
+        # packages.default = self'.packages.templatespliler;
+        # apps.default = self'.apps.templatespliler;
 
         # Default shell.
         devShells.default = pkgs.mkShell {

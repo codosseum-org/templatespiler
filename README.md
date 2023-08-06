@@ -121,11 +121,11 @@ Let's do an example with heavily nested inputs. For this challenge, we have a li
 An example input will look like this: 
 ```
 5
-apple 1
-milk 2
+apple 1.0
+milk 2.0
 bread 2.5
-cheese 3
-chocolate 4
+cheese 3.0
+chocolate 4.0
 3
 Alice
 2
@@ -144,7 +144,7 @@ Charlie
 
 We can describe the inputs using Templatespiler like so 
 ```js
-prices: list (sep-by " " [item : String, price : Integer])
+prices: list (sep-by " " [item : String, price : Float])
 orders: list (sep-by " " [
   name: String,
   order: list (sep-by " " [quantity : Integer, item : String])

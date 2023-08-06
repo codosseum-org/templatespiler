@@ -8,15 +8,21 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
     flake-root.url = "github:srid/flake-root";
+    devenv.url = "github:cachix/devenv/latest";
   };
 
-  outputs = inputs:
+  nixConfig = {
+    extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
+    extra-substituters = "https://devenv.cachix.org";
+  };
+  outputs = { devenv, ... } @ inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = import inputs.systems;
       imports = [
         inputs.haskell-flake.flakeModule
         inputs.treefmt-nix.flakeModule
         inputs.flake-root.flakeModule
+        inputs.devenv.flakeModule
       ];
       perSystem = { self', system, lib, config, pkgs, ... }: {
         # Our only Haskell project. You can have multiple projects, but this template
@@ -62,19 +68,30 @@
         apps.default = self'.apps.converter;
 
         # Default shell.
-        devShells.default = pkgs.mkShell {
-          name = "templatespliler";
-          nativeBuildInputs = with pkgs; [
-            just
-            config.treefmt.build.wrapper
-          ];
-          # See https://zero-to-flakes.com/haskell-flake/devshell#composing-devshells
-          inputsFrom = [
-            config.haskellProjects.default.outputs.devShell
-            config.flake-root.devShell
-            config.treefmt.build.devShell
+        devShells.default = devenv.lib.mkShell {
+          inherit inputs pkgs;
+
+
+          modules = [
+            ({ pkgs, ... }: {
+              packages = [
+                pkgs.just
+                config.treefmt.build.wrapper
+              ];
+
+              pre-commit = {
+                settings = {
+                  treefmt.package = config.treefmt.build.wrapper;
+                };
+                hooks = {
+                  treefmt.enable = true;
+                };
+              };
+            })
           ];
         };
+
+
       };
     };
 }

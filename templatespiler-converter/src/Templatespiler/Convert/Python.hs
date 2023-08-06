@@ -26,6 +26,7 @@ writeCombinator (ParenCombinator _ c) = writeCombinator c
 writeCombinator (ArrayCombinator _ len c) = do
   tell "for i"
   tell " in range(0, "
+
   writeVarOrConstInt len
   tell "):\n"
   indented $ do

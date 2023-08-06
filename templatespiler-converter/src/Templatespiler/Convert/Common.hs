@@ -2,7 +2,7 @@ module Templatespiler.Convert.Common (tell, identToText, identToDoc, indented, i
 
 import Control.Monad.Writer
 import Language.Templatespiler.Abs (Ident (..))
-import Prettyprinter (Doc, Pretty (pretty), indent, nest)
+import Prettyprinter (Doc, Pretty (pretty), indent)
 
 type Ann = ()
 

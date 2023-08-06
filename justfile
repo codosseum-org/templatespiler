@@ -19,4 +19,7 @@ run:
     ghcid -c "cabal v2-repl exe:converter" --warnings -T :main
 
 bnfc:
-    rm -rf templatespiler-bnf/src && bnfc --haskell --text-token --functor --generic -d  -p Language -o templatespiler-bnf/src templatespiler.cf && mv templatespiler-bnf/src/Language/Templatespiler/Test.hs templatespiler-bnf/src/Main.hs # stupid dumb hack to make cabal work
+    rm -rf templatespiler-bnf/src
+    bnfc --haskell --text-token --functor --generic -d  -p Language -o templatespiler-bnf/src templatespiler.cf
+    mv templatespiler-bnf/src/Language/Templatespiler/Test.hs templatespiler-bnf/src/Main.hs # stupid dumb hack to make cabal work
+    find templatespiler-bnf -name "*.hs" -exec sed -i "1s/^/{- HLINT ignore -}\n{- FOURMOLU_DISABLE -}\n/" {} + # stupid dumb hack to make hlint and fourmolu work (we just skip them for generated code)

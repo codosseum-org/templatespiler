@@ -8,7 +8,7 @@ author:        Alexander Wood
 category:      Web
 
 common shared
-  hs-source-dirs:     .src
+  hs-source-dirs:     src
   build-depends:
     , array
     , base

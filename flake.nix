@@ -8,22 +8,18 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
     flake-root.url = "github:srid/flake-root";
-    devenv.url = "github:cachix/devenv/latest";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
-  nixConfig = {
-    extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
-    extra-substituters = "https://devenv.cachix.org";
-  };
-  outputs = { devenv, ... } @ inputs:
+  outputs = { self, pre-commit-hooks, ... } @ inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = import inputs.systems;
       imports = [
         inputs.haskell-flake.flakeModule
         inputs.treefmt-nix.flakeModule
         inputs.flake-root.flakeModule
-        inputs.devenv.flakeModule
       ];
+
       perSystem = { self', system, lib, config, pkgs, ... }: {
         # Our only Haskell project. You can have multiple projects, but this template
         # has only one.
@@ -39,6 +35,18 @@
 
           # What should haskell-flake add to flake outputs?
           autoWire = [ "packages" "apps" "checks" ]; # Wire all but the devShell
+        };
+
+        checks = {
+          pre-commit-check = pre-commit-hooks.lib.${system}.run {
+            src = ./.;
+            settings = {
+              treefmt.package = config.treefmt.build.wrapper;
+            };
+            hooks = {
+              treefmt.enable = true;
+            };
+          };
         };
 
         # Auto formatters. This also adds a flake check to ensure that the
@@ -68,26 +76,18 @@
         apps.default = self'.apps.converter;
 
         # Default shell.
-        devShells.default = devenv.lib.mkShell {
-          inherit inputs pkgs;
-
-
-          modules = [
-            ({ pkgs, ... }: {
-              packages = [
-                pkgs.just
-                config.treefmt.build.wrapper
-              ];
-
-              pre-commit = {
-                settings = {
-                  treefmt.package = config.treefmt.build.wrapper;
-                };
-                hooks = {
-                  treefmt.enable = true;
-                };
-              };
-            })
+        devShells.default = pkgs.mkShell {
+          name = "templatespliler";
+          inherit (self.checks.${system}.pre-commit-check) shellHook;
+          nativeBuildInputs = with pkgs; [
+            just
+            config.treefmt.build.wrapper
+          ];
+          # See https://zero-to-flakes.com/haskell-flake/devshell#composing-devshells
+          inputsFrom = [
+            config.haskellProjects.default.outputs.devShell
+            config.flake-root.devShell
+            config.treefmt.build.devShell
           ];
         };
 

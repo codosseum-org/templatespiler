@@ -14,8 +14,8 @@ prettyType :: VarType -> FallibleDocBuilder ()
 prettyType StringType = write "char*"
 prettyType IntType = write "int"
 prettyType FloatType = write "double"
-prettyType UnknownType = do
-  warn (CantConvertType UnknownType C)
+prettyType t@(UnknownType _) = do
+  warn (CantConvertType t C)
   fail ""
 prettyType (ArrayType len t) = do
   y <- prettyType t

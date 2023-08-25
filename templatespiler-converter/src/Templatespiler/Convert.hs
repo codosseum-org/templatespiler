@@ -81,11 +81,11 @@ toVarName' s = Imp.VarName (toText s :| [])
 tryFigureOutTypeOf :: BindingOrCombinator -> Imp.VarType
 tryFigureOutTypeOf (NamedBinding _ (Binding _ _ t)) = toVarType t
 tryFigureOutTypeOf (ParenBinding _ (Binding _ _ t)) = toVarType t
-tryFigureOutTypeOf (UnnamedBinding _ _) = Imp.UnknownType
-tryFigureOutTypeOf (GroupBinding _ _) = Imp.UnknownType
+tryFigureOutTypeOf (UnnamedBinding s c) = Imp.UnknownType (UnnamedBinding s c)
+tryFigureOutTypeOf (GroupBinding s c) = Imp.UnknownType (GroupBinding s c)
 
 toVarType :: Type -> Imp.VarType
 toVarType (StringType _) = Imp.StringType
 toVarType (IntegerType _) = Imp.IntType
 toVarType (FloatType _) = Imp.FloatType
-toVarType (CombinatorType _ _) = Imp.UnknownType
+toVarType (CombinatorType s c) = Imp.UnknownType (UnnamedBinding s c)

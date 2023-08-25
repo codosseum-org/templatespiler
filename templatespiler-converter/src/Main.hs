@@ -10,7 +10,7 @@ import Templatespiler.Convert.Python (convertToPython)
 main :: IO ()
 main = do
   Utf8.withUtf8 $ do
-    file <- readFileText "../test.tmpspl"
+    file <- readFileText "./test.tmpspl"
     let tokens = myLexer file
     case pBindingList tokens of
       Left err -> putStrLn $ shower err

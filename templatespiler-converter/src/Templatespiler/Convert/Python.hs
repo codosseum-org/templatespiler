@@ -2,7 +2,7 @@ module Templatespiler.Convert.Python where
 
 import Control.Monad (foldM)
 import Language.Templatespiler.Abs as Abs
-import Prettyprinter (Doc, Pretty (pretty), hang)
+import Prettyprinter (Pretty (pretty))
 import Templatespiler.Convert.Common
 
 convertToPython :: BindingList -> DocBuilder ()

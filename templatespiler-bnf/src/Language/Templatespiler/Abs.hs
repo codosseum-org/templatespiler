@@ -45,6 +45,7 @@ data BindingGroup' a = BindingGroup a [Binding' a]
 type BindingOrCombinator = BindingOrCombinator' BNFC'Position
 data BindingOrCombinator' a
     = NamedBinding a (Binding' a)
+    | GroupBinding a (BindingGroup' a)
     | ParenBinding a (Binding' a)
     | UnnamedBinding a (Combinator' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
@@ -101,6 +102,7 @@ instance HasPosition BindingGroup where
 instance HasPosition BindingOrCombinator where
   hasPosition = \case
     NamedBinding p _ -> p
+    GroupBinding p _ -> p
     ParenBinding p _ -> p
     UnnamedBinding p _ -> p
 

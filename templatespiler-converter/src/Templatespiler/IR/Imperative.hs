@@ -7,26 +7,47 @@ module Templatespiler.IR.Imperative where
 newtype VarName
   = VarName
       (NonEmpty Text)
+  deriving (Show)
 
 withSuffix :: VarName -> Text -> VarName
 withSuffix (VarName (n :| ns)) suffix = VarName (n :| (ns <> [suffix]))
 
 data Statement
-  = Decl VarName Expr
+  = -- | Variable declaration. This may be a C-style declaration (@int x@) or an assignment (@x = 0@) depending on the target language.
+    Decl
+      VarName
+      -- ^ The variable name
+      VarType
+      -- ^ The type
+  | Assign VarName VarType Expr
+  | MultiReadAssign
+      Text -- Separator
+      [(VarName, ReadType)]
   | For
       VarName -- variable name
       Expr -- start
       Expr -- end
       [Statement] -- body
+  deriving (Show)
+
+data VarType
+  = IntType
+  | FloatType
+  | StringType
+  | ArrayType VarType
+  | UnknownType
+  deriving (Show)
 
 data Expr
   = ConstInt Int
   | Var VarName
-  | Read VarName [ReadType]
+  | ReadAtom ReadType
   | TupleOrStruct (Maybe VarName) (NonEmpty Expr)
+  deriving (Show)
 
 data ReadType
   = ReadInt
   | ReadFloat
   | ReadString
   | ReadConst Text
+  deriving (Show)

@@ -168,6 +168,7 @@ instance Print [Language.Templatespiler.Abs.Binding' a] where
 instance Print (Language.Templatespiler.Abs.BindingOrCombinator' a) where
   prt i = \case
     Language.Templatespiler.Abs.NamedBinding _ binding -> prPrec i 0 (concatD [prt 0 binding])
+    Language.Templatespiler.Abs.GroupBinding _ bindinggroup -> prPrec i 0 (concatD [prt 0 bindinggroup])
     Language.Templatespiler.Abs.ParenBinding _ binding -> prPrec i 0 (concatD [doc (showString "("), prt 0 binding, doc (showString ")")])
     Language.Templatespiler.Abs.UnnamedBinding _ combinator -> prPrec i 0 (concatD [prt 0 combinator])
 

@@ -13,6 +13,7 @@ BindingGroup. BindingGroup ::= "[" [Binding] "]" ;
 separator Binding "," ;
 
 NamedBinding. BindingOrCombinator ::= Binding;
+GroupBinding. BindingOrCombinator ::= BindingGroup;
 ParenBinding . BindingOrCombinator ::= "(" Binding ")" ;
 UnnamedBinding. BindingOrCombinator ::= Combinator;
 

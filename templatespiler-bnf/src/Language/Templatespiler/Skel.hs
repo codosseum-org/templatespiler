@@ -39,6 +39,7 @@ transBindingGroup x = case x of
 transBindingOrCombinator :: Show a => Language.Templatespiler.Abs.BindingOrCombinator' a -> Result
 transBindingOrCombinator x = case x of
   Language.Templatespiler.Abs.NamedBinding _ binding -> failure x
+  Language.Templatespiler.Abs.GroupBinding _ bindinggroup -> failure x
   Language.Templatespiler.Abs.ParenBinding _ binding -> failure x
   Language.Templatespiler.Abs.UnnamedBinding _ combinator -> failure x
 

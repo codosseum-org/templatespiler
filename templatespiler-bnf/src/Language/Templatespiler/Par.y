@@ -77,6 +77,7 @@ ListBinding
 BindingOrCombinator :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.BindingOrCombinator) }
 BindingOrCombinator
   : Binding { (fst $1, Language.Templatespiler.Abs.NamedBinding (fst $1) (snd $1)) }
+  | BindingGroup { (fst $1, Language.Templatespiler.Abs.GroupBinding (fst $1) (snd $1)) }
   | '(' Binding ')' { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ParenBinding (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | Combinator { (fst $1, Language.Templatespiler.Abs.UnnamedBinding (fst $1) (snd $1)) }
 

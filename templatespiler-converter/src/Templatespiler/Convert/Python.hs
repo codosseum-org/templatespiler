@@ -1,48 +1,75 @@
 module Templatespiler.Convert.Python where
 
 import Control.Monad (foldM)
-import Language.Templatespiler.Abs as Abs
 import Prettyprinter (Pretty (pretty))
 import Templatespiler.Convert.Common
+import Templatespiler.IR.Imperative as IR
 
-convertToPython :: BindingList -> DocBuilder ()
-convertToPython (BindingList _ bindings) = foldM (\_ b -> writeBinding b) () bindings
+convertToPython :: [Statement] -> DocBuilder ()
+convertToPython = foldM (\_ b -> writeBinding b) ()
 
-writeBinding :: Binding -> DocBuilder ()
-writeBinding (Binding _ n t) = do
-  tell (identToDoc n)
-  tell " = "
-  writeType t
-  tell "\n"
+writeBinding :: Statement -> DocBuilder ()
+writeBinding (Decl name t) = do
+  writeVarName name
+  write " = "
+  writeDefaultVarType t
+  write "\n"
+writeBinding (Assign name t val) = do
+  writeVarName name
+  write " = "
+  writeExpr val
+  write "\n"
+writeBinding (For name start end body) = do
+  write "for "
+  writeVarName name
+  write " in range("
+  writeExpr start
+  write ", "
+  writeExpr end
+  write "):\n"
+  indented $ mapM_ writeBinding body
+  write "\n"
+writeBinding (MultiReadAssign sep parts) = do
+  write "line = input()\n"
+  write "parts = line.split("
+  write (pretty $ toPyStrLit sep)
+  write ")\n"
+  mapM_ writeMultiReadAssignPart (zip [0 ..] parts)
+  where
+    writeMultiReadAssignPart :: (Int, (VarName, ReadType)) -> DocBuilder ()
+    writeMultiReadAssignPart (idx, (name, rt)) = do
+      writeVarName name
+      write " = "
+      writeReadAtom ("parts[" <> pretty idx <> "]") rt
+      write "\n"
 
-writeType :: Abs.Type -> DocBuilder ()
-writeType (Abs.StringType _) = tell "input()"
-writeType (Abs.IntegerType _) = tell "int(input())"
-writeType (Abs.FloatType _) = tell "float(input())"
-writeType (Abs.CombinatorType _ combin) = writeCombinator combin
+writeExpr :: Expr -> DocBuilder ()
+writeExpr (ConstInt i) = write (pretty i)
+writeExpr (Var name) = writeVarName name
+writeExpr (ReadAtom rt) = writeReadAtom "input()" rt
 
-writeCombinator :: Combinator -> DocBuilder ()
-writeCombinator (ParenCombinator _ c) = writeCombinator c
-writeCombinator (ArrayCombinator _ len c) = do
-  tell "for i"
-  tell " in range(0, "
+toPyStrLit :: Text -> Text
+toPyStrLit s = "'" <> s <> "'"
 
-  writeVarOrConstInt len
-  tell "):\n"
-  indented $ do
-    writeBindingOrCombinator c
-writeCombinator (ListCombinator _ c) = do
-  tell "length = int(input())\n"
-  tell "for i in range(0, length):\n"
-  indented $ do
-    writeBindingOrCombinator c
-writeCombinator other = error ("writeCombinator: " <> show other)
+writeReadAtom :: Doc' -> ReadType -> DocBuilder ()
+writeReadAtom source ReadInt = write ("int(" <> source <> ")")
+writeReadAtom source ReadFloat = write ("float(" <> source <> ")")
+writeReadAtom source ReadString = write source
 
-writeBindingOrCombinator :: BindingOrCombinator -> DocBuilder ()
-writeBindingOrCombinator (NamedBinding _ b) = writeBinding b
-writeBindingOrCombinator (ParenBinding _ b) = writeBinding b
-writeBindingOrCombinator (UnnamedBinding _ c) = writeCombinator c
+writeDefaultVarType :: VarType -> DocBuilder ()
+writeDefaultVarType IntType = write "0"
+writeDefaultVarType FloatType = write "0.0"
+writeDefaultVarType StringType = write "''"
+writeDefaultVarType (ArrayType t) = do
+  write "[]"
 
-writeVarOrConstInt :: VarOrConstInt -> DocBuilder ()
-writeVarOrConstInt (ConstInt _ v) = tell (pretty v)
-writeVarOrConstInt (ConstVar _ v) = tell (identToDoc v)
+writeVarName :: VarName -> DocBuilder ()
+writeVarName (VarName ns) = writeVarName' (toList ns)
+  where
+    writeVarName' :: [Text] -> DocBuilder ()
+    writeVarName' [] = pass
+    writeVarName' [n] = write (pretty n)
+    writeVarName' (n : ns) = do
+      write (pretty n)
+      write "_"
+      writeVarName' ns

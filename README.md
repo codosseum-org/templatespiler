@@ -145,7 +145,7 @@ Charlie
 We can describe the inputs using Templatespiler like so 
 ```js
 prices: list (sep-by " " [item : String, price : Float])
-orders: list (sep-by " " [
+orders: list ([
   name: String,
   order: list (sep-by " " [quantity : Integer, item : String])
 ])

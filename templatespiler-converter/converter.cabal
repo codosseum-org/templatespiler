@@ -43,10 +43,10 @@ library
   exposed-modules:
     Main
     Templatespiler.Convert
+    Templatespiler.Convert.C
     Templatespiler.Convert.Common
     Templatespiler.Convert.Python
     Templatespiler.IR.Imperative
-    Templatespiler.Validate
 
 executable converter
   import:         shared

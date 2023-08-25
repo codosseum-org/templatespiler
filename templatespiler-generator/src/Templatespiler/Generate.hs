@@ -37,7 +37,7 @@ arbitraryBindingGroup sep (BindingGroup _ bs) = do
   pure [Text.intercalate (toText sep) bs']
 
 arbitraryBinding :: Binding -> Gen [Text]
-arbitraryBinding (Binding _ n t) = do
+arbitraryBinding (Binding _ _ t) = do
   arbitraryType t
 
 arbitraryType :: Type -> Gen [Text]

@@ -67,7 +67,7 @@ writeDefaultVarType :: VarType -> DocBuilder ()
 writeDefaultVarType IntType = write "0"
 writeDefaultVarType FloatType = write "0.0"
 writeDefaultVarType StringType = write "''"
-writeDefaultVarType (ArrayType t) = do
+writeDefaultVarType (ArrayType _ t) = do
   write "[]"
 
 prettyVarName :: VarName -> Doc'

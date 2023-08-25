@@ -7,6 +7,7 @@ import Language.Templatespiler.Abs
 import Shower (shower)
 import Templatespiler.IR.Imperative (withSuffix)
 import Templatespiler.IR.Imperative qualified as Imp
+import Prelude hiding (Type)
 
 toImperative :: BindingList -> [Imp.Statement]
 toImperative (BindingList _ bs) = execWriter $ traverse toImperativeBinding bs
@@ -61,7 +62,7 @@ toImperative (BindingList _ bs) = execWriter $ traverse toImperativeBinding bs
       arrayLike (toVarName n) lenExpr b
 
     arrayLike vn lenExpr b = do
-      tell [Imp.Decl vn (Imp.ArrayType Imp.UnknownType)]
+      tell [Imp.Decl vn (Imp.ArrayType lenExpr (tryFigureOutTypeOf b))]
 
       let idxName = vn `withSuffix` "idx"
       let (_, b') = runWriter $ do
@@ -76,3 +77,15 @@ toVarName (Ident n) = toVarName' n
 
 toVarName' :: (ToText s) => s -> Imp.VarName
 toVarName' s = Imp.VarName (toText s :| [])
+
+tryFigureOutTypeOf :: BindingOrCombinator -> Imp.VarType
+tryFigureOutTypeOf (NamedBinding _ (Binding _ _ t)) = toVarType t
+tryFigureOutTypeOf (ParenBinding _ (Binding _ _ t)) = toVarType t
+tryFigureOutTypeOf (UnnamedBinding _ _) = Imp.UnknownType
+tryFigureOutTypeOf (GroupBinding _ _) = Imp.UnknownType
+
+toVarType :: Type -> Imp.VarType
+toVarType (StringType _) = Imp.StringType
+toVarType (IntegerType _) = Imp.IntType
+toVarType (FloatType _) = Imp.FloatType
+toVarType (CombinatorType _ _) = Imp.UnknownType

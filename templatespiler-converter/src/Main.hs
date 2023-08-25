@@ -6,6 +6,8 @@ import Main.Utf8 qualified as Utf8
 import Prettyprinter.Render.Text
 import Shower (printer, shower)
 import Templatespiler.Convert (toImperative)
+import Templatespiler.Convert.C (convertToC)
+import Templatespiler.Convert.Common (runConversion)
 import Templatespiler.Convert.Python (convertToPython)
 
 main :: IO ()
@@ -21,6 +23,15 @@ main = do
         putStrLn ""
         let imp = toImperative bs
         printer imp
-        putStrLn ""
-        putDoc $ execWriter $ convertToPython imp
+        putStrLn "Python: "
+        putConversion $ runConversion $ convertToPython imp
+        putStrLn "C: "
+        putConversion $ runConversion $ convertToC imp
     putStrLn ""
+
+putConversion (doc, warnings) = do
+  putDoc doc
+  putStrLn ""
+  putStrLn "Warnings:"
+  mapM_ (putStrLn . shower) warnings
+  putStrLn ""

@@ -6,6 +6,7 @@
   "haskell.formattingProvider": "fourmolu",
   "haskell.manageHLS": "PATH",
   "cSpell.words": [
+    "mempty",
     "Struct",
     "Templatespiler",
     "tupled"

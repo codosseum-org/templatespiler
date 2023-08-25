@@ -41,7 +41,7 @@ data VarType
   = IntType
   | FloatType
   | StringType
-  | ArrayType VarType
+  | ArrayType Expr VarType
   | UnknownType
   deriving (Show)
 
@@ -56,5 +56,4 @@ data ReadType
   = ReadInt
   | ReadFloat
   | ReadString
-  | ReadConst Text
   deriving (Show)

@@ -11,3 +11,9 @@ cradle:
 
     - path: "templatespiler-converter/./Main.hs"
       component: "converter:exe:converter"
+
+    - path: "templatespiler-generator/src"
+      component: "lib:generator"
+
+    - path: "templatespiler-generator/./Main.hs"
+      component: "generator:exe:generator"

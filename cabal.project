@@ -1,6 +1,9 @@
 packages:
   templatespiler-bnf/
   templatespiler-converter/
+  templatespiler-generator/
+  
+
   
 tests: true
 documentation: true

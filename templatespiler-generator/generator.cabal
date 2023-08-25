@@ -1,0 +1,51 @@
+cabal-version: 3.4
+name:          generator
+version:       0.1.0.0
+license:       MIT
+copyright:     2023 Alexander Wood
+maintainer:    alexwood2403@gmail.com
+author:        Alexander Wood
+category:      Web
+
+common shared
+  ghc-options:
+    -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns
+    -Wmissing-deriving-strategies -Wunused-foralls -Wunused-foralls
+    -fprint-explicit-foralls -fprint-explicit-kinds
+
+  mixins:
+    base hiding (Prelude),
+    relude (Relude as Prelude, Relude.Container.One),
+    relude
+
+  default-extensions: OverloadedStrings
+  build-depends:
+    , base
+    , bnf
+    , BNFC
+    , data-default
+    , directory
+    , filepath
+    , hedgehog
+    , mtl
+    , prettyprinter
+    , relude         >=1.0
+    , shower
+    , time
+    , with-utf8
+
+  default-language:   GHC2021
+
+library
+  import:          shared
+  hs-source-dirs:  src
+
+  -- cabal-fmt: expand src
+  exposed-modules:
+    Main
+    Templatespiler.Generate
+
+executable generator
+  import:         shared
+  main-is:        Main.hs
+  hs-source-dirs: src

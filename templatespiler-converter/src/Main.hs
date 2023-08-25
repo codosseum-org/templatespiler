@@ -1,8 +1,8 @@
 module Main where
 
-import Control.Monad.Writer (execWriter, runWriter)
 import Language.Templatespiler.Par
 import Main.Utf8 qualified as Utf8
+import Prettyprinter (Doc)
 import Prettyprinter.Render.Text
 import Shower (printer, shower)
 import Templatespiler.Convert (toImperative)
@@ -29,6 +29,7 @@ main = do
         putConversion $ runConversion $ convertToC imp
     putStrLn ""
 
+putConversion :: (Foldable t, Show a) => (Doc ann, t a) -> IO ()
 putConversion (doc, warnings) = do
   putDoc doc
   putStrLn ""

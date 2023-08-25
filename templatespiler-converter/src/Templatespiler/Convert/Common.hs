@@ -13,8 +13,6 @@ module Templatespiler.Convert.Common (
   TargetLanguage (..),
   ConvertWarning (..),
   MonadDocBuilder (..),
-  write,
-  warn,
   runConversion,
   fallibleToDocBuilder,
   fallibleToDoc,
@@ -24,8 +22,7 @@ module Templatespiler.Convert.Common (
 
 import Control.Monad.Writer
 import Language.Templatespiler.Abs (Ident (..))
-import Prettyprinter (Doc, Pretty (pretty), align, fillSep, group, hang, hardline, hcat, hsep, indent, line, nest, vcat, vsep)
-import Shower (shower)
+import Prettyprinter (Doc, Pretty (pretty), indent, vcat, vsep)
 import Templatespiler.IR.Imperative (Expr, ReadType (..), VarType (..))
 import Prelude hiding (group)
 
@@ -45,11 +42,11 @@ newtype FallibleDocBuilder a = FallibleDocBuilder
 runConversion :: DocBuilder a -> (Doc Ann, [ConvertWarning])
 runConversion = runWriter . execWriterT . runDocBuilder
 
-data TargetLanguage = Python | C deriving (Show)
+data TargetLanguage = Python | C deriving stock (Show)
 data ConvertWarning
   = CantConvertType VarType TargetLanguage
   | CantConvertExpr Expr TargetLanguage
-  deriving (Show)
+  deriving stock (Show)
 
 identToText :: Ident -> Text
 identToText (Ident t) = t

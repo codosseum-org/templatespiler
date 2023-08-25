@@ -2,9 +2,8 @@ module Templatespiler.Convert.C where
 
 import Control.Monad (foldM)
 import Data.Char (toUpper)
-import Data.List.NonEmpty as NE (zip)
 import Data.Text qualified as T
-import Prettyprinter (Pretty (pretty), encloseSep, line, line', tupled)
+import Prettyprinter (Pretty (pretty), encloseSep, line')
 import Templatespiler.Convert.Common
 import Templatespiler.IR.Imperative as IR
 
@@ -19,10 +18,9 @@ prettyType UnknownType = do
   warn (CantConvertType UnknownType C)
   fail ""
 prettyType (ArrayType len t) = do
-  len <- prettyExpr' len
   y <- prettyType t
   write "["
-  write len
+  write =<< prettyExpr len
   write "]"
   pure y
 
@@ -58,7 +56,7 @@ writeBinding (Assign name t val) = fromFallible $ do
       eol
       scanf " " [(a, name)]
     _ -> do
-      val' <- prettyExpr' val
+      val' <- prettyExpr val
       write " = "
       write val'
       eol
@@ -66,11 +64,11 @@ writeBinding (For name start end body) = fromFallible $ do
   write "for (int "
   write $ prettyVarName name
   write " = "
-  write =<< prettyExpr' start
+  write =<< prettyExpr start
   write "; "
   write $ prettyVarName name
   write " < "
-  write =<< prettyExpr' end
+  write =<< prettyExpr end
   write "; "
   write $ prettyVarName name
   write "++)"
@@ -86,17 +84,17 @@ writeBinding (MultiReadAssign sep parts) = do
 writeBinding (AppendToArray name idx val) = fromFallible $ do
   write $ prettyVarName name
   write "["
-  write =<< prettyExpr' idx
+  write =<< prettyExpr idx
   write "] = "
-  write =<< prettyExpr' val
+  write =<< prettyExpr val
   write ";"
 
-prettyExpr' :: Expr -> FallibleDocBuilder Doc'
-prettyExpr' (ConstInt i) = pure $ pretty i
-prettyExpr' (Var name) = pure $ prettyVarName name
-prettyExpr' (ReadAtom rt) = do
+prettyExpr :: Expr -> FallibleDocBuilder Doc'
+prettyExpr (ConstInt i) = pure $ pretty i
+prettyExpr (Var name) = pure $ prettyVarName name
+prettyExpr (ReadAtom rt) = do
   pure $ prettyReadAtom "input()" rt
-prettyExpr' e@(TupleOrStruct _ _) = do
+prettyExpr e@(TupleOrStruct _ _) = do
   warn $ CantConvertExpr e C
   fail ""
 
@@ -114,7 +112,7 @@ prettyReadAtom source ReadFloat = "float(" <> source <> ")"
 prettyReadAtom source ReadString = source
 
 prettyVarName :: VarName -> Doc'
-prettyVarName (VarName ns) = prettyVarName' (toList ns)
+prettyVarName (VarName parts) = prettyVarName' (toList parts)
   where
     prettyVarName' :: [Text] -> Doc'
     prettyVarName' [] = mempty

@@ -26,7 +26,7 @@
         # See https://github.com/srid/haskell-flake/blob/master/example/flake.nix
         haskellProjects.default = {
           # The base package set (this value is the default)
-          basePackages = pkgs.haskell.packages.ghc92;
+          basePackages = pkgs.haskell.packages.ghc94;
 
           # Development shell configuration
           devShell = {

@@ -6,7 +6,8 @@
   "haskell.formattingProvider": "fourmolu",
   "haskell.manageHLS": "PATH",
   "cSpell.words": [
-    "Templatespiler"
+    "Templatespiler",
+    "tupled"
   ],
   "nixEnvSelector.suggestion": false,
   "[python]": {

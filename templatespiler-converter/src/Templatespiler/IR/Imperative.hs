@@ -22,12 +22,19 @@ data Statement
   | Assign VarName VarType Expr
   | MultiReadAssign
       Text -- Separator
-      [(VarName, ReadType)]
+      (NonEmpty (VarName, ReadType))
   | For
       VarName -- variable name
       Expr -- start
       Expr -- end
       [Statement] -- body
+  | AppendToArray
+      VarName
+      -- ^ array name
+      Expr
+      -- ^ index
+      Expr
+      -- ^ value
   deriving (Show)
 
 data VarType

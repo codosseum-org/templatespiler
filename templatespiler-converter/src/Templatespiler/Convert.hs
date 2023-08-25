@@ -53,14 +53,22 @@ toImperative (BindingList _ bs) = execWriter $ traverse toImperativeBinding bs
       let vn = toVarName n
       let lenName = vn `withSuffix` "len"
       tell [Imp.Assign lenName Imp.IntType (Imp.ReadAtom Imp.ReadInt)]
+      arrayLike vn (Imp.Var lenName) b
+    toImperativeCombinator n (ArrayCombinator _ len b) = do
+      let lenExpr = case len of
+            ConstInt _ i -> Imp.ConstInt (fromInteger i)
+            ConstVar _ v -> Imp.Var (toVarName v)
+      arrayLike (toVarName n) lenExpr b
+
+    arrayLike vn lenExpr b = do
       tell [Imp.Decl vn (Imp.ArrayType Imp.UnknownType)]
 
       let idxName = vn `withSuffix` "idx"
       let (_, b') = runWriter $ do
-            _ <- toImperativeBindingOrCombinator b
+            e <- toImperativeBindingOrCombinator b
             tell [Imp.AppendToArray vn (Imp.Var idxName) e]
 
-      tell [Imp.For idxName (Imp.ConstInt 0) (Imp.Var lenName) b']
+      tell [Imp.For idxName (Imp.ConstInt 0) lenExpr b']
       pure (Imp.Var vn)
 
 toVarName :: Ident -> Imp.VarName

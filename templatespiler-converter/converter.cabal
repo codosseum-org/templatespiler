@@ -31,6 +31,7 @@ common shared
     , shower
     , templatespiler-parser
     , time
+    , trifecta
     , with-utf8
 
   default-language:   GHC2021
@@ -39,6 +40,12 @@ library
   import:          shared
   hs-source-dirs:  src
   exposed-modules:
+    Templatespiler.Convert.Target
+    Templatespiler.Convert.ToDeclarative
+    Templatespiler.Convert.ToImperative
+    Templatespiler.IR.Common
+    Templatespiler.IR.Declarative
+    Templatespiler.IR.Imperative
 
 executable converter
   import:         shared

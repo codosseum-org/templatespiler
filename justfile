@@ -24,6 +24,9 @@ run-parser:
 run-parser-tests:
     ghcid -c "cabal v2-repl parser:test:test" --warnings
 
+run-converter:
+    ghcid -c "cabal v2-repl templatespiler-converter:exe:converter" --warnings -T :main --restart=test.tmpspl
+
 bnfc:
     rm -rf templatespiler-bnf/src
     bnfc --haskell --text-token --functor --generic -d  -p Language -o templatespiler-bnf/src templatespiler.cf

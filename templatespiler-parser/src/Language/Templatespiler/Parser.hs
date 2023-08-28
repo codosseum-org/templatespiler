@@ -19,8 +19,8 @@ parseIdent = Ident . toText <$> some letter
 
 parseType :: Parser Type
 parseType =
-  try parseCombinatorType
-    <|> (TerminalType <$> try parseTerminalType)
+  (TerminalType <$> try parseTerminalType)
+    <|> parseCombinatorType
 
 parseTerminalType :: Parser TerminalType
 parseTerminalType =
@@ -34,8 +34,8 @@ parseCombinatorType = CombinatorType <$> parseCombinator
 parseCombinator :: Parser Combinator
 parseCombinator =
   (parseGroupCombinator <?> "group combinator")
-    <|> (try parseNamedCombinator <?> "named combinator")
     <|> (parens parseCombinator <?> "combinator in parens")
+    <|> (try parseNamedCombinator <?> "named combinator")
     <|> (try parseArrayCombinator <?> "array combinator")
     <|> (try parseSepByCombinator <?> "combinator")
     <|> (try parseListCombinator <?> "list combinator")

@@ -14,7 +14,7 @@ arbitrarySaneInt :: Gen Int
 arbitrarySaneInt = Gen.int (Range.linear -1000 1000)
 
 arbitrarySaneFloat :: Gen Double
-arbitrarySaneFloat = Gen.double (Range.linearFrac (-1000) 1000)
+arbitrarySaneFloat = Gen.double (Range.linearFrac -1000 1000)
 
 arbitraryInput :: BindingList -> Gen [Text]
 arbitraryInput (BindingList bs) = join <$> traverse arbitraryBinding (toList bs)

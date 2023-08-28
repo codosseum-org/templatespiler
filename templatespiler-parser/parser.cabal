@@ -13,6 +13,7 @@ common shared
     , array
     , base
     , relude
+    , shower
     , text
     , trifecta
 

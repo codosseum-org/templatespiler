@@ -18,6 +18,9 @@ fmt:
 run:
     ghcid -c "cabal v2-repl exe:converter" --warnings -T :main
 
+run-parser:
+    ghcid -c "cabal v2-repl exe:parser-test" --warnings -T :main --restart=test.tmpspl
+
 bnfc:
     rm -rf templatespiler-bnf/src
     bnfc --haskell --text-token --functor --generic -d  -p Language -o templatespiler-bnf/src templatespiler.cf

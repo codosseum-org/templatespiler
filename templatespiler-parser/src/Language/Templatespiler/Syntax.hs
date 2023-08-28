@@ -16,9 +16,9 @@ data Type = TerminalType TerminalType | CombinatorType Combinator deriving (Show
 data TerminalType = IntType | FloatType | StringType deriving (Show)
 
 data Combinator
-  = NamedCombinator Ident Combinator
+  = NamedCombinator Ident Type
   | GroupCombinator BindingList
-  | ArrayCombinator Int Combinator
-  | SepByCombinator Text Combinator
-  | ListCombinator Combinator
+  | ArrayCombinator Int Type
+  | SepByCombinator Text Type
+  | ListCombinator Type
   deriving (Show)

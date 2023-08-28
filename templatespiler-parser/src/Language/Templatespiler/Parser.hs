@@ -5,24 +5,34 @@ import Language.Templatespiler.Syntax
 import Text.Trifecta
 import Prelude hiding (Type)
 
+isHSpace :: Char -> Bool
+isHSpace c = c == ' ' || c == '\t'
+
+skipHSpaces :: (CharParsing m) => m ()
+skipHSpaces = skipSome (satisfy isHSpace)
+
 parseBindingList :: Parser BindingList
 parseBindingList = BindingList . fromList <$> some parseBinding
 
 parseBinding :: Parser Binding
 parseBinding = do
   name <- token parseIdent
-  _ <- symbol ":"
+  _ <- symbolic ':'
   Binding name <$> parseType
 
 parseIdent :: Parser Ident
 parseIdent = Ident . toText <$> some letter
 
 parseType :: Parser Type
-parseType = (TerminalType <$> parseTerminalType) <|> parseCombinatorType
+parseType =
+  try parseCombinatorType
+    <|> (TerminalType <$> try parseTerminalType)
 
 parseTerminalType :: Parser TerminalType
 parseTerminalType =
   IntType <$ symbol "Integer"
+    <|> FloatType <$ symbol "Float"
+    <|> StringType <$ symbol "String"
 
 parseCombinatorType :: Parser Type
 parseCombinatorType = CombinatorType <$> parseCombinator
@@ -30,38 +40,37 @@ parseCombinatorType = CombinatorType <$> parseCombinator
 parseCombinator :: Parser Combinator
 parseCombinator =
   parseGroupCombinator
-    <|> parens parseCombinator
-    <|> parseArrayCombinator
-    <|> parseSepByCombinator
-    <|> parseListCombinator
-
--- <|> parseNamedCombinator
+    <|> try (parens parseCombinator)
+    <|> try parseArrayCombinator
+    <|> try parseSepByCombinator
+    <|> try parseListCombinator
 
 parseNamedCombinator :: Parser Combinator
 parseNamedCombinator = do
   name <- parseIdent
   _ <- symbol ":"
-  NamedCombinator name <$> parseCombinator
+  NamedCombinator name <$> parseType
 
 parseListCombinator :: Parser Combinator
 parseListCombinator = do
   _ <- symbol "list"
-  ListCombinator <$> parseCombinator
+  ListCombinator <$> parseType
 
 parseGroupCombinator :: Parser Combinator
 parseGroupCombinator = do
   _ <- symbol "["
-  GroupCombinator <$> parseBindingList
+  l <- parseBindingList
+  _ <- symbol "]"
+  pure $ GroupCombinator l
 
 parseArrayCombinator :: Parser Combinator
 parseArrayCombinator = do
   _ <- symbol "array"
   len <- fromIntegral <$> natural
-  ArrayCombinator len <$> parseCombinator
+  ArrayCombinator len <$> parseType
 
 parseSepByCombinator :: Parser Combinator
 parseSepByCombinator = do
-  _ <- symbol "sepBy"
-  sep <- stringLiteral
-
-  SepByCombinator sep <$> parseCombinator
+  _ <- symbol "sep-by"
+  sep <- token stringLiteral
+  SepByCombinator sep <$> parseType

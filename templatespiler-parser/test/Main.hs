@@ -25,7 +25,11 @@ arbitraryBinding :: Gen Binding
 arbitraryBinding = Binding <$> arbitraryIdent <*> arbitraryType
 
 arbitraryIdent :: Gen Ident
-arbitraryIdent = Ident <$> Gen.text (Range.linear 1 10) Gen.alpha
+arbitraryIdent =
+  Ident <$> do
+    first <- Gen.lower
+    rest <- Gen.string (Range.linear 0 10) Gen.alphaNum
+    pure $ toText (first : rest)
 
 arbitraryType :: Gen Type
 arbitraryType =

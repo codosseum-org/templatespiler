@@ -1,9 +1,27 @@
+{-# LANGUAGE OverloadedLists #-}
+
 module Language.Templatespiler.Parser where
 
+import Data.Char (isLower)
 import Data.Text (pack)
 import Language.Templatespiler.Syntax
+import Text.Parser.Token.Highlight (Highlight (..))
 import Text.Trifecta
 import Prelude hiding (Type)
+
+lowerLetter :: (CharParsing m) => m Char
+lowerLetter = satisfy isLower <?> "lowercase letter"
+
+identifierStyle :: (CharParsing m) => IdentifierStyle m
+identifierStyle =
+  IdentifierStyle
+    { _styleName = "lowercase identifier"
+    , _styleStart = lowerLetter
+    , _styleLetter = alphaNum <|> char '_'
+    , _styleReserved = ["list", "array", "sep-by"]
+    , _styleHighlight = Identifier
+    , _styleReservedHighlight = ReservedIdentifier
+    }
 
 parseBindingList :: Parser BindingList
 parseBindingList = BindingList . fromList <$> some parseBinding
@@ -15,7 +33,7 @@ parseBinding = do
   Binding name <$> parseType
 
 parseIdent :: Parser Ident
-parseIdent = Ident . toText <$> some letter
+parseIdent = Ident <$> ident identifierStyle
 
 parseType :: Parser Type
 parseType =
@@ -29,16 +47,16 @@ parseTerminalType =
     <|> StringType <$ symbol "String"
 
 parseCombinatorType :: Parser Type
-parseCombinatorType = CombinatorType <$> parseCombinator
+parseCombinatorType = CombinatorType <$> parseCombinator <?> "combinator"
 
 parseCombinator :: Parser Combinator
 parseCombinator =
   (parseGroupCombinator <?> "group combinator")
     <|> (parens parseCombinator <?> "combinator in parens")
-    <|> (try parseNamedCombinator <?> "named combinator")
-    <|> (try parseArrayCombinator <?> "array combinator")
-    <|> (try parseSepByCombinator <?> "combinator")
-    <|> (try parseListCombinator <?> "list combinator")
+    <|> (parseArrayCombinator <?> "array combinator")
+    <|> (parseSepByCombinator <?> "combinator")
+    <|> (parseListCombinator <?> "list combinator")
+    <|> (parseNamedCombinator <?> "named combinator")
 
 parseNamedCombinator :: Parser Combinator
 parseNamedCombinator = do
@@ -48,7 +66,7 @@ parseNamedCombinator = do
 
 parseListCombinator :: Parser Combinator
 parseListCombinator = do
-  _ <- symbol "list"
+  _ <- reserve identifierStyle "list"
   ListCombinator <$> parseType
 
 parseGroupCombinator :: Parser Combinator
@@ -60,12 +78,12 @@ parseGroupCombinator = do
 
 parseArrayCombinator :: Parser Combinator
 parseArrayCombinator = do
-  _ <- symbol "array"
+  _ <- reserve identifierStyle "array"
   len <- fromIntegral <$> natural
   ArrayCombinator len <$> parseType
 
 parseSepByCombinator :: Parser Combinator
 parseSepByCombinator = do
-  _ <- symbol "sep-by"
+  _ <- reserve identifierStyle "sep-by"
   sep <- token stringLiteral
   SepByCombinator sep <$> parseType

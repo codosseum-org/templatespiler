@@ -4,44 +4,43 @@ import Data.Text qualified as Text
 import Hedgehog
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
-import Language.Templatespiler.Abs (Binding, Binding' (Binding), BindingGroup, BindingGroup' (..), BindingList, BindingList' (..), BindingOrCombinator, BindingOrCombinator' (..), Combinator, Combinator' (..), Type, Type' (..), VarOrConstInt' (..))
+
+import Language.Templatespiler.Syntax
 import Prelude hiding (Type)
 
 arbitraryInput :: BindingList -> Gen [Text]
-arbitraryInput (BindingList _ bs) = join <$> traverse arbitraryBinding bs
+arbitraryInput (BindingList bs) = join <$> traverse arbitraryBinding (toList bs)
 
 arbitraryCombinator :: Combinator -> Gen [Text]
-arbitraryCombinator (ParenCombinator _ g) = arbitraryCombinator g
-arbitraryCombinator (ArrayCombinator _ (ConstInt _ count) g) =
+arbitraryCombinator (NamedCombinator _ c) = arbitraryType Nothing c
+arbitraryCombinator (ArrayCombinator count g) =
   join
     <$> Gen.list
-      (Range.singleton (fromInteger count))
-      (arbitraryBindingOrCombinator g)
-arbitraryCombinator (ArrayCombinator _ (ConstVar _ _) _) = error "ConstVar in ArrayCombinator"
-arbitraryCombinator (SepByCombinator _ sep g) = arbitraryBindingGroup sep g
-arbitraryCombinator (ListCombinator _ g) = do
+      (Range.singleton count)
+      (arbitraryType Nothing g)
+arbitraryCombinator (SepByCombinator sep g) = arbitraryType (Just sep) g
+arbitraryCombinator (ListCombinator g) = do
   i <- Gen.int (Range.linear 1 10)
-  outputs <- join <$> Gen.list (Range.singleton i) (arbitraryBindingOrCombinator g)
+  outputs <- join <$> Gen.list (Range.singleton i) (arbitraryType Nothing g)
   pure ([show i] <> outputs)
+arbitraryCombinator (GroupCombinator bs) = arbitraryInput bs
 
-arbitraryBindingOrCombinator :: BindingOrCombinator -> Gen [Text]
-arbitraryBindingOrCombinator (NamedBinding _ b) = arbitraryBinding b
-arbitraryBindingOrCombinator (GroupBinding _ (BindingGroup _ bs)) = do
-  join <$> traverse arbitraryBinding bs
-arbitraryBindingOrCombinator (ParenBinding _ b) = arbitraryBinding b
-arbitraryBindingOrCombinator (UnnamedBinding _ c) = arbitraryCombinator c
-
-arbitraryBindingGroup :: String -> BindingGroup -> Gen [Text]
-arbitraryBindingGroup sep (BindingGroup _ bs) = do
-  bs' <- join <$> traverse arbitraryBinding bs
-  pure [Text.intercalate (toText sep) bs']
+arbitraryCombinatorWithSep :: Maybe Text -> Combinator -> Gen [Text]
+arbitraryCombinatorWithSep maybeSep (GroupCombinator bs) = do
+  bs' <- arbitraryInput bs
+  case maybeSep of
+    Nothing -> pure bs'
+    Just sep -> pure [Text.intercalate sep bs']
+arbitraryCombinatorWithSep _ o = arbitraryCombinator o
 
 arbitraryBinding :: Binding -> Gen [Text]
-arbitraryBinding (Binding _ _ t) = do
-  arbitraryType t
+arbitraryBinding (Binding _ t) = arbitraryType Nothing t
 
-arbitraryType :: Type -> Gen [Text]
-arbitraryType (IntegerType _) = pure . show <$> Gen.int Range.linearBounded
-arbitraryType (StringType _) = pure . toText <$> Gen.string (Range.linear 1 20) Gen.alphaNum
-arbitraryType (FloatType _) = pure . show <$> Gen.double (fromIntegral <$> Range.linearBounded @Int)
-arbitraryType (CombinatorType _ c) = arbitraryCombinator c
+arbitraryType :: Maybe Text -> Type -> Gen [Text]
+arbitraryType _ (TerminalType t) = arbitraryTerminalType t
+arbitraryType mSep (CombinatorType c) = arbitraryCombinatorWithSep mSep c
+
+arbitraryTerminalType :: TerminalType -> Gen [Text]
+arbitraryTerminalType IntType = pure . show <$> Gen.int Range.linearBounded
+arbitraryTerminalType StringType = pure . toText <$> Gen.string (Range.linear 1 20) Gen.alphaNum
+arbitraryTerminalType FloatType = pure . show <$> Gen.double (fromIntegral <$> Range.linearBounded @Int)

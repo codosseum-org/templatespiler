@@ -1,5 +1,5 @@
 cabal-version: 3.4
-name:          generator
+name:          templatespiler-generator
 version:       0.1.0.0
 license:       MIT
 copyright:     2023 Alexander Wood
@@ -21,17 +21,17 @@ common shared
   default-extensions: OverloadedStrings
   build-depends:
     , base
-    , BNFC
     , data-default
     , directory
     , filepath
     , hedgehog
     , mtl
-    , parser
     , prettyprinter
-    , relude         >=1.0
+    , relude                 >=1.0
     , shower
+    , templatespiler-parser
     , time
+    , trifecta
     , with-utf8
 
   default-language:   GHC2021

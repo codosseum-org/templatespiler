@@ -9,14 +9,16 @@ cradle:
     - path: "templatespiler-parser/test"
       component: "templatespiler-parser:test:test"
 
+
     - path: "templatespiler-converter/src"
       component: "lib:converter"
 
     - path: "templatespiler-converter/./Main.hs"
       component: "converter:exe:converter"
 
+
     - path: "templatespiler-generator/src"
-      component: "lib:generator"
+      component: "lib:templatespiler-generator"
 
     - path: "templatespiler-generator/./Main.hs"
-      component: "generator:exe:generator"
+      component: "templatespiler-generator:exe:generator"

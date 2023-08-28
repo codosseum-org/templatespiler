@@ -52,7 +52,7 @@ arbitrarySep :: Gen Text
 arbitrarySep = Gen.text (Range.linear 1 10) Gen.alpha
 
 prop_pprParse :: Property
-prop_pprParse = property $ do
+prop_pprParse = withTests 1000 $ property $ do
   bindingList <- forAll arbitraryBindingList
   let showPrettyUnannotated = renderString . layoutPretty defaultLayoutOptions . unAnnotate . prettyBindingList
   trippingTrifecta bindingList showPrettyUnannotated (parseString parseBindingList mempty)

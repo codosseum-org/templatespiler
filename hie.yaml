@@ -1,11 +1,11 @@
 cradle:
   cabal:
-    - path: "templatespiler-bnf/src"
-      component: "lib:bnf"
+    - path: "templatespiler-parser/src"
+      component: "lib:parser"
 
-    - path: "templatespiler-bnf/./Main.hs"
-      component: "bnf:exe:bnf-test"
-
+    - path: "templatespiler-parser/./Main.hs"
+      component: "parser:exe:parser"
+    
     - path: "templatespiler-converter/src"
       component: "lib:converter"
 

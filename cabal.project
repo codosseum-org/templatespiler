@@ -1,7 +1,5 @@
 packages:
-  templatespiler-bnf/
-  templatespiler-converter/
-  templatespiler-generator/
+  templatespiler-parser/
   
 
   

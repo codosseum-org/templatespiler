@@ -21,12 +21,12 @@ common shared
   default-extensions: OverloadedStrings
   build-depends:
     , base
-    , bnf
     , BNFC
     , data-default
     , directory
     , filepath
     , mtl
+    , parser
     , prettyprinter
     , prettyprinter-ansi-terminal
     , relude                       >=1.0

@@ -21,13 +21,13 @@ common shared
   default-extensions: OverloadedStrings
   build-depends:
     , base
-    , bnf
     , BNFC
     , data-default
     , directory
     , filepath
     , hedgehog
     , mtl
+    , parser
     , prettyprinter
     , relude         >=1.0
     , shower

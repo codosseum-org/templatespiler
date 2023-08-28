@@ -1,0 +1,34 @@
+cabal-version: 3.4
+name:          parser
+version:       0.1.0.0
+license:       MIT
+copyright:     2023 Alexander Wood
+maintainer:    alexwood2403@gmail.com
+author:        Alexander Wood
+category:      Web
+
+common shared
+  hs-source-dirs:   src
+  build-depends:
+    , array
+    , base
+    , relude
+    , text
+    , trifecta
+
+  mixins:
+    base hiding (Prelude),
+    relude (Relude as Prelude, Relude.Container.One),
+    relude
+
+  default-language: GHC2021
+
+library
+  import:          shared
+  exposed-modules:
+    Language.Templatespiler.Parser
+    Language.Templatespiler.Syntax
+
+executable parser-test
+  import:  shared
+  main-is: Main.hs

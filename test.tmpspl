@@ -1,5 +1,5 @@
-prices: list (y: sep-by " " [item : String, price : Float])
+prices : list (y: sep-by " " [item : String price : Float])
 orders: list [
-  name: String,
-  order: list (sep-by " " [quantity : Integer, item : String])
+  name: String
+  order: list (sep-by " " [quantity : Integer item : String])
 ]

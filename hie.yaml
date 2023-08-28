@@ -1,24 +1,22 @@
 cradle:
   cabal:
-    - path: "templatespiler-parser/src"
-      component: "lib:templatespiler-parser"
-
-    - path: "templatespiler-parser/./Main.hs"
-      component: "templatespiler-parser:exe:parser-exe"
-
-    - path: "templatespiler-parser/test"
-      component: "templatespiler-parser:test:test"
-
-
     - path: "templatespiler-converter/src"
-      component: "lib:converter"
+      component: "lib:templatespiler-converter"
 
-    - path: "templatespiler-converter/./Main.hs"
-      component: "converter:exe:converter"
-
+    - path: "templatespiler-converter/src/Main.hs"
+      component: "templatespiler-converter:exe:converter"
 
     - path: "templatespiler-generator/src"
       component: "lib:templatespiler-generator"
 
-    - path: "templatespiler-generator/./Main.hs"
+    - path: "templatespiler-generator/src/Main.hs"
       component: "templatespiler-generator:exe:generator"
+
+    - path: "templatespiler-parser/src"
+      component: "lib:templatespiler-parser"
+
+    - path: "templatespiler-parser/src/Main.hs"
+      component: "templatespiler-parser:exe:parser-exe"
+
+    - path: "templatespiler-parser/test"
+      component: "templatespiler-parser:test:test"

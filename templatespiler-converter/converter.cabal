@@ -1,5 +1,5 @@
 cabal-version: 3.4
-name:          converter
+name:          templatespiler-converter
 version:       0.1.0.0
 license:       MIT
 copyright:     2023 Alexander Wood
@@ -21,16 +21,15 @@ common shared
   default-extensions: OverloadedStrings
   build-depends:
     , base
-    , BNFC
     , data-default
     , directory
     , filepath
     , mtl
-    , parser
     , prettyprinter
     , prettyprinter-ansi-terminal
     , relude                       >=1.0
     , shower
+    , templatespiler-parser
     , time
     , with-utf8
 
@@ -39,17 +38,7 @@ common shared
 library
   import:          shared
   hs-source-dirs:  src
-
-  -- cabal-fmt: expand src
   exposed-modules:
-    Main
-    Templatespiler.Convert
-    Templatespiler.Convert.C
-    Templatespiler.Convert.Common
-    Templatespiler.Convert.Python
-    Templatespiler.Convert.Targets
-    Templatespiler.Convert.Warning
-    Templatespiler.IR.Imperative
 
 executable converter
   import:         shared

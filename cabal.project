@@ -1,4 +1,5 @@
 packages:
   templatespiler-parser/
   templatespiler-generator/
+  templatespiler-converter/
   

@@ -7,6 +7,8 @@ import Prettyprinter (Pretty (pretty), encloseSep, line')
 import Templatespiler.Convert.Common
 import Templatespiler.IR.Imperative as IR
 
+type instance TargetLanguageWarning 'C = ImperativeConvertWarning
+
 convertToC :: [Statement] -> DocBuilder ()
 convertToC = foldM (\_ b -> writeBinding b) ()
 

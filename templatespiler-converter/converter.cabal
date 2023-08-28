@@ -28,7 +28,8 @@ common shared
     , filepath
     , mtl
     , prettyprinter
-    , relude         >=1.0
+    , prettyprinter-ansi-terminal
+    , relude                       >=1.0
     , shower
     , time
     , with-utf8
@@ -46,6 +47,8 @@ library
     Templatespiler.Convert.C
     Templatespiler.Convert.Common
     Templatespiler.Convert.Python
+    Templatespiler.Convert.Targets
+    Templatespiler.Convert.Warning
     Templatespiler.IR.Imperative
 
 executable converter

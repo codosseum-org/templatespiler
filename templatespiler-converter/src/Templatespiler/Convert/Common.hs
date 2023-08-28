@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DerivingStrategies #-}
 
 module Templatespiler.Convert.Common (
@@ -10,8 +11,6 @@ module Templatespiler.Convert.Common (
   Doc',
   DocBuilder,
   FallibleDocBuilder,
-  TargetLanguage (..),
-  ConvertWarning (..),
   MonadDocBuilder (..),
   runConversion,
   fallibleToDocBuilder,
@@ -23,6 +22,8 @@ module Templatespiler.Convert.Common (
 import Control.Monad.Writer
 import Language.Templatespiler.Abs (Ident (..))
 import Prettyprinter (Doc, Pretty (pretty), indent, vcat, vsep)
+import Templatespiler.Convert.Targets (TargetLanguageWarning)
+import Templatespiler.Convert.Warning
 import Templatespiler.IR.Imperative (Expr, ReadType (..), VarType (..))
 import Prelude hiding (group)
 
@@ -30,23 +31,17 @@ type Ann = ()
 
 type Doc' = Doc Ann
 
-newtype DocBuilder a = DocBuilder {runDocBuilder :: WriterT (Doc Ann) (Writer [ConvertWarning]) a}
+newtype DocBuilder target a = DocBuilder {runDocBuilder :: WriterT (Doc Ann) (Writer [TargetLanguageWarning target]) a}
   deriving newtype (Functor, Applicative, Monad, MonadWriter (Doc Ann))
 
-newtype FallibleDocBuilder a = FallibleDocBuilder
+newtype FallibleDocBuilder target a = FallibleDocBuilder
   { runFallibleDocBuilder ::
-      WriterT (Doc Ann) (MaybeT (Writer [ConvertWarning])) a
+      WriterT (Doc Ann) (MaybeT (Writer [TargetLanguageWarning target])) a
   }
   deriving newtype (Functor, Applicative, Monad, MonadWriter (Doc Ann), MonadFail)
 
-runConversion :: DocBuilder a -> (Doc Ann, [ConvertWarning])
+runConversion :: DocBuilder target a -> (Doc Ann, [TargetLanguageWarning target])
 runConversion = runWriter . execWriterT . runDocBuilder
-
-data TargetLanguage = Python | C deriving stock (Show)
-data ConvertWarning
-  = CantConvertType VarType TargetLanguage
-  | CantConvertExpr Expr TargetLanguage
-  deriving stock (Show)
 
 identToText :: Ident -> Text
 identToText (Ident t) = t
@@ -58,7 +53,7 @@ indentDepth :: Int
 indentDepth = 4
 
 -- | Indents all the content of the given 'DocBuilder' by 'indentDepth'.
-indented :: DocBuilder a -> DocBuilder a
+indented :: DocBuilder target a -> DocBuilder target a
 indented b = do
   let ((a, doc), warnings) = runWriter . runWriterT . runDocBuilder $ b
   traverse_ warn warnings
@@ -78,15 +73,15 @@ curlyBlock b =
 
 class (Monad m) => MonadDocBuilder m where
   write :: Doc' -> m ()
-  warn :: ConvertWarning -> m ()
+  warn :: TargetLanguageWarning target -> m ()
 
-  fromFallible :: FallibleDocBuilder a -> m ()
+  fromFallible :: FallibleDocBuilder target a -> m ()
 
   listenOnly :: m a -> m (a, Doc')
   listenOnly' :: m a -> m Doc'
   listenOnly' = fmap snd . listenOnly
 
-instance MonadDocBuilder DocBuilder where
+instance MonadDocBuilder (DocBuilder target) where
   write = DocBuilder . tell
   warn = DocBuilder . lift . tell . pure
 
@@ -97,7 +92,7 @@ instance MonadDocBuilder DocBuilder where
     traverse_ warn warnings
     pure (a, doc)
 
-instance MonadDocBuilder FallibleDocBuilder where
+instance MonadDocBuilder (FallibleDocBuilder target) where
   write = FallibleDocBuilder . tell
   warn = FallibleDocBuilder . lift . tell . pure
   fromFallible = void
@@ -109,14 +104,14 @@ instance MonadDocBuilder FallibleDocBuilder where
       Nothing -> fail ""
       Just (a, doc) -> pure (a, doc)
 
-toFallible :: DocBuilder a -> FallibleDocBuilder a
+toFallible :: DocBuilder target a -> FallibleDocBuilder target a
 toFallible b = do
   let ((a, doc), warnings) = runWriter . runWriterT . runDocBuilder $ b
   traverse_ warn warnings
   tell doc
   pure a
 
-fallibleToDocBuilder :: FallibleDocBuilder a -> DocBuilder (Maybe a)
+fallibleToDocBuilder :: FallibleDocBuilder target a -> DocBuilder target (Maybe a)
 fallibleToDocBuilder b = do
   let (x, w) = runWriter . runMaybeT . runWriterT . runFallibleDocBuilder $ b
   traverse_ warn w
@@ -124,7 +119,7 @@ fallibleToDocBuilder b = do
 
   pure (fst <$> x)
 
-fallibleToDoc :: FallibleDocBuilder a -> DocBuilder (Maybe Doc')
+fallibleToDoc :: FallibleDocBuilder target a -> DocBuilder target (Maybe Doc')
 fallibleToDoc b = do
   let (x, w) = runWriter . runMaybeT . runWriterT . runFallibleDocBuilder $ b
   traverse_ warn w

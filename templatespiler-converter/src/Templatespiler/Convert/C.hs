@@ -55,6 +55,7 @@ writeBinding (Assign name t val) = fromFallible $ do
     ReadAtom a -> do
       eol
       scanf " " [(a, name)]
+      write line'
     _ -> do
       val' <- prettyExpr val
       write " = "

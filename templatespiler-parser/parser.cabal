@@ -12,6 +12,8 @@ common shared
   build-depends:
     , array
     , base
+    , prettyprinter
+    , prettyprinter-ansi-terminal
     , relude
     , shower
     , text

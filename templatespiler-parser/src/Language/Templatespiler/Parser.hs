@@ -5,12 +5,6 @@ import Language.Templatespiler.Syntax
 import Text.Trifecta
 import Prelude hiding (Type)
 
-isHSpace :: Char -> Bool
-isHSpace c = c == ' ' || c == '\t'
-
-skipHSpaces :: (CharParsing m) => m ()
-skipHSpaces = skipSome (satisfy isHSpace)
-
 parseBindingList :: Parser BindingList
 parseBindingList = BindingList . fromList <$> some parseBinding
 

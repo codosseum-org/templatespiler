@@ -45,6 +45,7 @@ transBindingOrCombinator x = case x of
 transCombinator :: Show a => Language.Templatespiler.Abs.Combinator' a -> Result
 transCombinator x = case x of
   Language.Templatespiler.Abs.ParenCombinator _ combinator -> failure x
+  Language.Templatespiler.Abs.NamedCombinator _ ident combinator -> failure x
   Language.Templatespiler.Abs.ArrayCombinator _ integer bindingorcombinator -> failure x
   Language.Templatespiler.Abs.SepByCombinator _ string bindinggroup -> failure x
   Language.Templatespiler.Abs.ListCombinator _ bindingorcombinator -> failure x

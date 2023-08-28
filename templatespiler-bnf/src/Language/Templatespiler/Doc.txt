@@ -61,6 +61,7 @@ All other symbols are terminals.
   |  |  **|**  | //BindingGroup//
   |  |  **|**  | //Combinator//
   | //Combinator// | -> | ``(`` //Combinator// ``)``
+  |  |  **|**  | //Ident// ``:`` //Combinator//
   |  |  **|**  | ``array`` //Integer// //BindingOrCombinator//
   |  |  **|**  | ``sep-by`` //String// //BindingGroup//
   |  |  **|**  | ``list`` //BindingOrCombinator//

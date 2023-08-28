@@ -57,6 +57,8 @@ toImperative (BindingList _ bs) = execWriter $ traverse toImperativeBinding bs
     toImperativeCombinator n (ArrayCombinator _ len b) = do
       let lenExpr = Imp.ConstInt (fromInteger len)
       arrayLike (toVarName n) lenExpr b
+    toImperativeCombinator n (NamedCombinator _ n' c) = do
+      toImperativeCombinator n' c
 
     arrayLike vn lenExpr b = do
       tell [Imp.Decl vn (Imp.ArrayType lenExpr (tryFigureOutTypeOf b))]

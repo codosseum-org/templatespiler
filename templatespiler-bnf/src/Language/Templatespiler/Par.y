@@ -83,6 +83,7 @@ BindingOrCombinator
 Combinator :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.Combinator) }
 Combinator
   : '(' Combinator ')' { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ParenCombinator (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+  | Ident ':' Combinator { (fst $1, Language.Templatespiler.Abs.NamedCombinator (fst $1) (snd $1) (snd $3)) }
   | 'array' Integer BindingOrCombinator { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ArrayCombinator (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
   | 'sep-by' String BindingGroup { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.SepByCombinator (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
   | 'list' BindingOrCombinator { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ListCombinator (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2)) }

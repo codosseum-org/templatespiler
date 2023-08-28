@@ -52,6 +52,7 @@ data BindingOrCombinator' a
 type Combinator = Combinator' BNFC'Position
 data Combinator' a
     = ParenCombinator a (Combinator' a)
+    | NamedCombinator a Ident (Combinator' a)
     | ArrayCombinator a Integer (BindingOrCombinator' a)
     | SepByCombinator a String (BindingGroup' a)
     | ListCombinator a (BindingOrCombinator' a)
@@ -103,6 +104,7 @@ instance HasPosition BindingOrCombinator where
 instance HasPosition Combinator where
   hasPosition = \case
     ParenCombinator p _ -> p
+    NamedCombinator p _ _ -> p
     ArrayCombinator p _ _ -> p
     SepByCombinator p _ _ -> p
     ListCombinator p _ -> p

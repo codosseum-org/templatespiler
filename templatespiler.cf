@@ -17,6 +17,7 @@ UnnamedBinding. BindingOrCombinator ::= Combinator;
 
 
 ParenCombinator. Combinator ::= "(" Combinator ")" ;
+NamedCombinator. Combinator ::= Ident ":" Combinator ;
 ArrayCombinator. Combinator ::= "array" Integer BindingOrCombinator;
 SepByCombinator. Combinator ::= "sep-by" String BindingGroup ;
 ListCombinator. Combinator ::= "list" BindingOrCombinator ;

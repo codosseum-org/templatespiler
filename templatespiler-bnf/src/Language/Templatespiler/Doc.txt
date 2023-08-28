@@ -59,14 +59,11 @@ All other symbols are terminals.
   |  |  **|**  | //Binding// //[Binding]//
   | //BindingOrCombinator// | -> | //Binding//
   |  |  **|**  | //BindingGroup//
-  |  |  **|**  | ``(`` //Binding// ``)``
   |  |  **|**  | //Combinator//
   | //Combinator// | -> | ``(`` //Combinator// ``)``
-  |  |  **|**  | ``array`` //VarOrConstInt// //BindingOrCombinator//
+  |  |  **|**  | ``array`` //Integer// //BindingOrCombinator//
   |  |  **|**  | ``sep-by`` //String// //BindingGroup//
   |  |  **|**  | ``list`` //BindingOrCombinator//
-  | //VarOrConstInt// | -> | //Integer//
-  |  |  **|**  | //Ident//
   | //BindingList// | -> | //[Binding]//
 
 

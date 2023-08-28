@@ -40,20 +40,14 @@ transBindingOrCombinator :: Show a => Language.Templatespiler.Abs.BindingOrCombi
 transBindingOrCombinator x = case x of
   Language.Templatespiler.Abs.NamedBinding _ binding -> failure x
   Language.Templatespiler.Abs.GroupBinding _ bindinggroup -> failure x
-  Language.Templatespiler.Abs.ParenBinding _ binding -> failure x
   Language.Templatespiler.Abs.UnnamedBinding _ combinator -> failure x
 
 transCombinator :: Show a => Language.Templatespiler.Abs.Combinator' a -> Result
 transCombinator x = case x of
   Language.Templatespiler.Abs.ParenCombinator _ combinator -> failure x
-  Language.Templatespiler.Abs.ArrayCombinator _ varorconstint bindingorcombinator -> failure x
+  Language.Templatespiler.Abs.ArrayCombinator _ integer bindingorcombinator -> failure x
   Language.Templatespiler.Abs.SepByCombinator _ string bindinggroup -> failure x
   Language.Templatespiler.Abs.ListCombinator _ bindingorcombinator -> failure x
-
-transVarOrConstInt :: Show a => Language.Templatespiler.Abs.VarOrConstInt' a -> Result
-transVarOrConstInt x = case x of
-  Language.Templatespiler.Abs.ConstInt _ integer -> failure x
-  Language.Templatespiler.Abs.ConstVar _ ident -> failure x
 
 transBindingList :: Show a => Language.Templatespiler.Abs.BindingList' a -> Result
 transBindingList x = case x of

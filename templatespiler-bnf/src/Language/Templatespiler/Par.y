@@ -78,20 +78,14 @@ BindingOrCombinator :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Te
 BindingOrCombinator
   : Binding { (fst $1, Language.Templatespiler.Abs.NamedBinding (fst $1) (snd $1)) }
   | BindingGroup { (fst $1, Language.Templatespiler.Abs.GroupBinding (fst $1) (snd $1)) }
-  | '(' Binding ')' { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ParenBinding (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | Combinator { (fst $1, Language.Templatespiler.Abs.UnnamedBinding (fst $1) (snd $1)) }
 
 Combinator :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.Combinator) }
 Combinator
   : '(' Combinator ')' { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ParenCombinator (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2)) }
-  | 'array' VarOrConstInt BindingOrCombinator { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ArrayCombinator (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
+  | 'array' Integer BindingOrCombinator { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ArrayCombinator (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
   | 'sep-by' String BindingGroup { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.SepByCombinator (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
   | 'list' BindingOrCombinator { (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1), Language.Templatespiler.Abs.ListCombinator (uncurry Language.Templatespiler.Abs.BNFC'Position (tokenLineCol $1)) (snd $2)) }
-
-VarOrConstInt :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.VarOrConstInt) }
-VarOrConstInt
-  : Integer { (fst $1, Language.Templatespiler.Abs.ConstInt (fst $1) (snd $1)) }
-  | Ident { (fst $1, Language.Templatespiler.Abs.ConstVar (fst $1) (snd $1)) }
 
 BindingList :: { (Language.Templatespiler.Abs.BNFC'Position, Language.Templatespiler.Abs.BindingList) }
 BindingList

@@ -29,7 +29,6 @@ toImperative (BindingList _ bs) = execWriter $ traverse toImperativeBinding bs
 
     toImperativeBindingOrCombinator :: BindingOrCombinator -> Writer [Imp.Statement] Imp.Expr
     toImperativeBindingOrCombinator (NamedBinding _ b) = toImperativeBinding b
-    toImperativeBindingOrCombinator (ParenBinding _ b) = toImperativeBinding b
     toImperativeBindingOrCombinator (UnnamedBinding _ c) = toImperativeCombinator (Ident "unnamed") c
     toImperativeBindingOrCombinator (GroupBinding _ (BindingGroup _ bs)) = do
       es <- traverse toImperativeBinding bs
@@ -56,9 +55,7 @@ toImperative (BindingList _ bs) = execWriter $ traverse toImperativeBinding bs
       tell [Imp.Assign lenName Imp.IntType (Imp.ReadAtom Imp.ReadInt)]
       arrayLike vn (Imp.Var lenName) b
     toImperativeCombinator n (ArrayCombinator _ len b) = do
-      let lenExpr = case len of
-            ConstInt _ i -> Imp.ConstInt (fromInteger i)
-            ConstVar _ v -> Imp.Var (toVarName v)
+      let lenExpr = Imp.ConstInt (fromInteger len)
       arrayLike (toVarName n) lenExpr b
 
     arrayLike vn lenExpr b = do
@@ -80,7 +77,6 @@ toVarName' s = Imp.VarName (toText s :| [])
 
 tryFigureOutTypeOf :: BindingOrCombinator -> Imp.VarType
 tryFigureOutTypeOf (NamedBinding _ (Binding _ _ t)) = toVarType t
-tryFigureOutTypeOf (ParenBinding _ (Binding _ _ t)) = toVarType t
 tryFigureOutTypeOf (UnnamedBinding s c) = Imp.UnknownType (UnnamedBinding s c)
 tryFigureOutTypeOf (GroupBinding s c) = Imp.UnknownType (GroupBinding s c)
 

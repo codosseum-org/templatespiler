@@ -4,7 +4,6 @@ FloatType. Type ::= "Float" ;
 CombinatorType. Type ::= Combinator ;
 
 
-
 Binding. Binding ::= Ident ":" Type  ;
 
 
@@ -14,17 +13,14 @@ separator Binding "," ;
 
 NamedBinding. BindingOrCombinator ::= Binding;
 GroupBinding. BindingOrCombinator ::= BindingGroup;
-ParenBinding . BindingOrCombinator ::= "(" Binding ")" ;
 UnnamedBinding. BindingOrCombinator ::= Combinator;
 
 
 ParenCombinator. Combinator ::= "(" Combinator ")" ;
-ArrayCombinator. Combinator ::= "array" VarOrConstInt BindingOrCombinator;
+ArrayCombinator. Combinator ::= "array" Integer BindingOrCombinator;
 SepByCombinator. Combinator ::= "sep-by" String BindingGroup ;
 ListCombinator. Combinator ::= "list" BindingOrCombinator ;
 
-ConstInt. VarOrConstInt ::= Integer;
-ConstVar. VarOrConstInt ::= Ident;
 
 BindingList. BindingList ::= [Binding] ;
 separator Binding "\n" ;

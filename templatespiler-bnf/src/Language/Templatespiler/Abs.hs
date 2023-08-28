@@ -46,20 +46,15 @@ type BindingOrCombinator = BindingOrCombinator' BNFC'Position
 data BindingOrCombinator' a
     = NamedBinding a (Binding' a)
     | GroupBinding a (BindingGroup' a)
-    | ParenBinding a (Binding' a)
     | UnnamedBinding a (Combinator' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Combinator = Combinator' BNFC'Position
 data Combinator' a
     = ParenCombinator a (Combinator' a)
-    | ArrayCombinator a (VarOrConstInt' a) (BindingOrCombinator' a)
+    | ArrayCombinator a Integer (BindingOrCombinator' a)
     | SepByCombinator a String (BindingGroup' a)
     | ListCombinator a (BindingOrCombinator' a)
-  deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
-
-type VarOrConstInt = VarOrConstInt' BNFC'Position
-data VarOrConstInt' a = ConstInt a Integer | ConstVar a Ident
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type BindingList = BindingList' BNFC'Position
@@ -103,7 +98,6 @@ instance HasPosition BindingOrCombinator where
   hasPosition = \case
     NamedBinding p _ -> p
     GroupBinding p _ -> p
-    ParenBinding p _ -> p
     UnnamedBinding p _ -> p
 
 instance HasPosition Combinator where
@@ -112,11 +106,6 @@ instance HasPosition Combinator where
     ArrayCombinator p _ _ -> p
     SepByCombinator p _ _ -> p
     ListCombinator p _ -> p
-
-instance HasPosition VarOrConstInt where
-  hasPosition = \case
-    ConstInt p _ -> p
-    ConstVar p _ -> p
 
 instance HasPosition BindingList where
   hasPosition = \case

@@ -169,20 +169,14 @@ instance Print (Language.Templatespiler.Abs.BindingOrCombinator' a) where
   prt i = \case
     Language.Templatespiler.Abs.NamedBinding _ binding -> prPrec i 0 (concatD [prt 0 binding])
     Language.Templatespiler.Abs.GroupBinding _ bindinggroup -> prPrec i 0 (concatD [prt 0 bindinggroup])
-    Language.Templatespiler.Abs.ParenBinding _ binding -> prPrec i 0 (concatD [doc (showString "("), prt 0 binding, doc (showString ")")])
     Language.Templatespiler.Abs.UnnamedBinding _ combinator -> prPrec i 0 (concatD [prt 0 combinator])
 
 instance Print (Language.Templatespiler.Abs.Combinator' a) where
   prt i = \case
     Language.Templatespiler.Abs.ParenCombinator _ combinator -> prPrec i 0 (concatD [doc (showString "("), prt 0 combinator, doc (showString ")")])
-    Language.Templatespiler.Abs.ArrayCombinator _ varorconstint bindingorcombinator -> prPrec i 0 (concatD [doc (showString "array"), prt 0 varorconstint, prt 0 bindingorcombinator])
+    Language.Templatespiler.Abs.ArrayCombinator _ n bindingorcombinator -> prPrec i 0 (concatD [doc (showString "array"), prt 0 n, prt 0 bindingorcombinator])
     Language.Templatespiler.Abs.SepByCombinator _ str bindinggroup -> prPrec i 0 (concatD [doc (showString "sep-by"), printString str, prt 0 bindinggroup])
     Language.Templatespiler.Abs.ListCombinator _ bindingorcombinator -> prPrec i 0 (concatD [doc (showString "list"), prt 0 bindingorcombinator])
-
-instance Print (Language.Templatespiler.Abs.VarOrConstInt' a) where
-  prt i = \case
-    Language.Templatespiler.Abs.ConstInt _ n -> prPrec i 0 (concatD [prt 0 n])
-    Language.Templatespiler.Abs.ConstVar _ id_ -> prPrec i 0 (concatD [prt 0 id_])
 
 instance Print (Language.Templatespiler.Abs.BindingList' a) where
   prt i = \case

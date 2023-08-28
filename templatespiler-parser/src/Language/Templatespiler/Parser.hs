@@ -34,6 +34,7 @@ parseCombinatorType = CombinatorType <$> parseCombinator
 parseCombinator :: Parser Combinator
 parseCombinator =
   (parseGroupCombinator <?> "group combinator")
+    <|> (try parseNamedCombinator <?> "named combinator")
     <|> (parens parseCombinator <?> "combinator in parens")
     <|> (try parseArrayCombinator <?> "array combinator")
     <|> (try parseSepByCombinator <?> "combinator")
@@ -41,7 +42,7 @@ parseCombinator =
 
 parseNamedCombinator :: Parser Combinator
 parseNamedCombinator = do
-  name <- parseIdent
+  name <- token parseIdent
   _ <- symbol ":"
   NamedCombinator name <$> parseType
 

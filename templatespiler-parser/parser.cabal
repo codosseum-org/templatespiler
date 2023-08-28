@@ -1,5 +1,5 @@
 cabal-version: 3.4
-name:          parser
+name:          templatespiler-parser
 version:       0.1.0.0
 license:       MIT
 copyright:     2023 Alexander Wood
@@ -8,7 +8,6 @@ author:        Alexander Wood
 category:      Web
 
 common shared
-  hs-source-dirs:   src
   build-depends:
     , array
     , base
@@ -28,10 +27,23 @@ common shared
 
 library
   import:          shared
+  hs-source-dirs:  src
   exposed-modules:
     Language.Templatespiler.Parser
+    Language.Templatespiler.Pretty
     Language.Templatespiler.Syntax
 
-executable parser-test
-  import:  shared
-  main-is: Main.hs
+executable parser-exe
+  import:         shared
+  hs-source-dirs: src
+  main-is:        Main.hs
+
+test-suite test
+  import:         shared
+  type:           exitcode-stdio-1.0
+  main-is:        Main.hs
+  build-depends:
+    , hedgehog
+    , templatespiler-parser
+
+  hs-source-dirs: test

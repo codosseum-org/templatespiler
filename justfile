@@ -19,7 +19,10 @@ run:
     ghcid -c "cabal v2-repl exe:converter" --warnings -T :main
 
 run-parser:
-    ghcid -c "cabal v2-repl exe:parser-test" --warnings -T :main --restart=test.tmpspl
+    ghcid -c "cabal v2-repl templatespiler-parser:exe:parser-exe" --warnings -T :main --restart=test.tmpspl
+
+run-parser-tests:
+    ghcid -c "cabal v2-repl parser:test:test" --warnings
 
 bnfc:
     rm -rf templatespiler-bnf/src

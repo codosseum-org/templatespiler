@@ -1,7 +1,3 @@
 packages:
   templatespiler-parser/
   
-
-  
-tests: true
-documentation: true

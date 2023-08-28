@@ -1,11 +1,14 @@
 cradle:
   cabal:
     - path: "templatespiler-parser/src"
-      component: "lib:parser"
+      component: "lib:templatespiler-parser"
 
     - path: "templatespiler-parser/./Main.hs"
-      component: "parser:exe:parser"
-    
+      component: "templatespiler-parser:exe:parser-exe"
+
+    - path: "templatespiler-parser/test"
+      component: "templatespiler-parser:test:test"
+
     - path: "templatespiler-converter/src"
       component: "lib:converter"
 

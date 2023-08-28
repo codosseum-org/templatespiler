@@ -5,15 +5,15 @@ import Data.Text
 import Prelude hiding (Type)
 
 newtype BindingList = BindingList (NonEmpty Binding)
-  deriving (Show)
+  deriving (Show, Eq)
 
-newtype Ident = Ident Text deriving (Show)
+newtype Ident = Ident Text deriving (Show, Eq)
 
-data Binding = Binding Ident Type deriving (Show)
+data Binding = Binding Ident Type deriving (Show, Eq)
 
-data Type = TerminalType TerminalType | CombinatorType Combinator deriving (Show)
+data Type = TerminalType TerminalType | CombinatorType Combinator deriving (Show, Eq)
 
-data TerminalType = IntType | FloatType | StringType deriving (Show)
+data TerminalType = IntType | FloatType | StringType deriving (Show, Eq)
 
 data Combinator
   = NamedCombinator Ident Type
@@ -21,4 +21,4 @@ data Combinator
   | ArrayCombinator Int Type
   | SepByCombinator Text Type
   | ListCombinator Type
-  deriving (Show)
+  deriving (Show, Eq)

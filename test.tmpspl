@@ -1,5 +1,1 @@
-prices : list String
-orders: list [
-  name: String
-  order: list (sep-by " " [quantity : Integer item : String])
-]
+a : (a : Integer)

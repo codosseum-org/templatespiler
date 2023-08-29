@@ -2,6 +2,7 @@ module Templatespiler.Convert.ToImperative where
 
 import Control.Monad.Writer
 import Language.Templatespiler.Syntax (Binding (..), BindingList (..), Combinator (..), Ident (..), TerminalType (..), Type (..))
+import Shower (shower)
 import Templatespiler.IR.Common (VarName (..), withSuffix)
 import Templatespiler.IR.Imperative qualified as IR
 import Prelude hiding (Type)
@@ -26,7 +27,18 @@ combinatorVarToIR _ (GroupCombinator (BindingList bs)) = do
 combinatorVarToIR name (ArrayCombinator len b) = do
   let lenExpr = IR.ConstInt len
   arrayLike (identToVarName name) lenExpr b
-combinatorVarToIR name (SepByCombinator _ b) = typeVarToIR name b
+combinatorVarToIR name (SepByCombinator sep (BindingList bindingList)) = do
+  let toReadAssign (Binding n t) =
+        ( identToVarName n
+        , case t of
+            TerminalType StringType -> IR.ReadString
+            TerminalType IntType -> IR.ReadInt
+            TerminalType FloatType -> IR.ReadFloat
+            CombinatorType c -> error ("CombinatorType in toReadAssign: " <> toText (shower c))
+        )
+  let rAss = toReadAssign <$> bindingList
+  tell [IR.MultiReadAssign (toText sep) rAss]
+  pure (IR.TupleOrStruct (Just (identToVarName name)) (IR.Var . fst <$> rAss))
 combinatorVarToIR name (ListCombinator b) = do
   let vn = identToVarName name
   let lenName = vn `withSuffix` "len"
@@ -52,7 +64,7 @@ tryFigureOutTypeOf _ (TerminalType FloatType) = IR.FloatType
 tryFigureOutTypeOf _ (CombinatorType (NamedCombinator _ t)) = tryFigureOutTypeOf Nothing t
 tryFigureOutTypeOf _ (CombinatorType (GroupCombinator (BindingList bs))) = IR.TupleOrStructType Nothing (fmap (\(Binding _ t) -> tryFigureOutTypeOf Nothing t) bs)
 tryFigureOutTypeOf _ (CombinatorType (ArrayCombinator len t)) = IR.ArrayType (IR.ConstInt len) (tryFigureOutTypeOf Nothing t)
-tryFigureOutTypeOf len (CombinatorType (SepByCombinator _ t)) = tryFigureOutTypeOf len t
+tryFigureOutTypeOf _ (CombinatorType (SepByCombinator _ (BindingList bs))) = IR.TupleOrStructType Nothing (fmap (\(Binding _ t) -> tryFigureOutTypeOf Nothing t) bs)
 tryFigureOutTypeOf (Just len) (CombinatorType (ListCombinator t)) = IR.ArrayType len (tryFigureOutTypeOf Nothing t)
 tryFigureOutTypeOf Nothing (CombinatorType (ListCombinator t)) = IR.DynamicArrayType (tryFigureOutTypeOf Nothing t)
 

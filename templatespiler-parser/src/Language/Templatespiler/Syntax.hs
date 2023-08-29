@@ -19,6 +19,6 @@ data Combinator
   = NamedCombinator Ident Type
   | GroupCombinator BindingList
   | ArrayCombinator Int Type
-  | SepByCombinator Text Type
+  | SepByCombinator Text BindingList
   | ListCombinator Type
   deriving (Show, Eq)

@@ -86,4 +86,5 @@ parseSepByCombinator :: Parser Combinator
 parseSepByCombinator = do
   _ <- reserve identifierStyle "sep-by"
   sep <- token stringLiteral
-  SepByCombinator sep <$> parseType
+  GroupCombinator grp <- parseGroupCombinator
+  pure $ SepByCombinator sep grp

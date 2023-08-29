@@ -80,7 +80,7 @@ inputs: list (sep-by " " [x : Integer, y : Integer])
 ```
 
 
-The `sep-by` combinator combines inputs separated by a separator, in this case `" "`. 
+The `sep-by` combinator combines inputs separated by a separator, in this case `" "`. Its second argument **must** be a group combinator.
 The `list` combinator is a dynamic version of `array`, where the length is specified as the first input
 
 which we can turn into Python: 

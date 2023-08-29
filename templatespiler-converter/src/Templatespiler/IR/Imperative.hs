@@ -88,7 +88,7 @@ instance Pretty ReadType where
 instance Pretty Statement where
   pretty (Decl vn vt) = prettyVarType vt <+> pretty vn
   pretty (Assign vn vt e) = pretty vn <+> "=" <+> prettyExpr e
-  pretty (MultiReadAssign sep vs) = "read" <+> pretty sep <+> hsep (fmap (\(vn, rt) -> pretty vn <> pretty rt) (toList vs))
+  pretty (MultiReadAssign sep vs) = "read" <+> dquotes (pretty sep) <+> hsep (fmap (\(vn, rt) -> pretty vn <> pretty rt) (toList vs))
   pretty (For vn start end body) =
     group $
       vsep

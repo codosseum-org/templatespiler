@@ -24,14 +24,14 @@ prettyType1 (CombinatorType c) = prettyCombinator1 c
 prettyType1 c = parens (prettyType c)
 
 prettyCombinator :: Combinator -> Doc AnsiStyle
-prettyCombinator (SepByCombinator sep typ) =
-  "sep-by" <+> dquotes (pretty sep) <+> prettyType typ
+prettyCombinator (SepByCombinator sep (BindingList typ)) =
+  "sep-by" <+> dquotes (pretty sep) <+> prettyGroupCombinator typ
 prettyCombinator (NamedCombinator name typ) =
   prettyIdent name <+> colon <+> prettyType typ
 prettyCombinator c = prettyCombinator1 c
 
-prettyCombinator1 :: Combinator -> Doc AnsiStyle
-prettyCombinator1 (GroupCombinator (BindingList bindings)) =
+prettyGroupCombinator :: (Foldable t, Functor t) => t Binding -> Doc AnsiStyle
+prettyGroupCombinator bindings =
   group $
     vsep
       [ nest 2 $
@@ -41,6 +41,9 @@ prettyCombinator1 (GroupCombinator (BindingList bindings)) =
             ]
       , rbracket
       ]
+
+prettyCombinator1 :: Combinator -> Doc AnsiStyle
+prettyCombinator1 (GroupCombinator (BindingList bindings)) = prettyGroupCombinator bindings
 prettyCombinator1 (ArrayCombinator len typ) =
   "array" <+> pretty len <+> prettyType typ
 prettyCombinator1 (ListCombinator typ) =

@@ -39,13 +39,10 @@ common shared
 library
   import:          shared
   hs-source-dirs:  src
-
-  -- cabal-fmt: expand src
-  exposed-modules:
-    Main
-    Templatespiler.Generate
+  exposed-modules: Templatespiler.Generate
 
 executable generator
   import:         shared
   main-is:        Main.hs
-  hs-source-dirs: src
+  build-depends:  templatespiler-generator
+  hs-source-dirs: app

@@ -42,7 +42,6 @@ library
 
   -- cabal-fmt: expand src
   exposed-modules:
-    Main
     Templatespiler.Convert.Target
     Templatespiler.Convert.ToDeclarative
     Templatespiler.Convert.ToImperative
@@ -59,4 +58,5 @@ library
 executable converter
   import:         shared
   main-is:        Main.hs
-  hs-source-dirs: src
+  build-depends:  templatespiler-converter
+  hs-source-dirs: app

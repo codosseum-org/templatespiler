@@ -34,11 +34,6 @@ library
     Language.Templatespiler.Pretty
     Language.Templatespiler.Syntax
 
-executable parser-exe
-  import:         shared
-  hs-source-dirs: src
-  main-is:        Main.hs
-
 test-suite test
   import:         shared
   type:           exitcode-stdio-1.0

@@ -46,6 +46,9 @@ library
     Templatespiler.IR.Common
     Templatespiler.IR.Declarative
     Templatespiler.IR.Imperative
+    Templatespiler.ToLang.Monad
+    Templatespiler.ToLang.Python
+    Templatespiler.ToLang.Target
 
 executable converter
   import:         shared

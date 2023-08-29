@@ -9,6 +9,7 @@ import Prettyprinter.Render.Terminal (putDoc)
 import Shower
 import Templatespiler.Convert.Target (TargetLanguage (..), toIR)
 import Templatespiler.IR.Imperative (prettyProgram)
+import Templatespiler.ToLang.Target (ToLang (toLang))
 import Text.Trifecta (parseFromFile)
 
 main :: IO ()
@@ -17,5 +18,8 @@ main = do
   case tokens of
     Nothing -> exitFailure
     Just bs -> do
-      let ir = toIR @C bs
+      let ir = toIR @Python bs
       putDoc $ prettyProgram ir
+      let py = toLang @Python ir
+      putStrLn ""
+      printer py

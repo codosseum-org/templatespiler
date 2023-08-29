@@ -7,7 +7,7 @@ module Templatespiler.IR.Imperative where
 import Templatespiler.IR.Common
 
 import Prettyprinter
-import Prettyprinter.Render.Terminal
+
 import Prelude hiding (group)
 
 withSuffix :: VarName -> Text -> VarName
@@ -23,8 +23,10 @@ data Statement
       VarType
       -- ^ The type
   | Assign VarName VarType Expr
-  | MultiReadAssign
-      Text -- Separator
+  | -- | Read 1 line of input, split it by some separator, and then read into separate variables
+    MultiReadAssign
+      Text
+      -- ^ Separator
       (NonEmpty (VarName, ReadType))
   | For
       VarName -- variable name
@@ -61,7 +63,7 @@ data ReadType
   = ReadInt
   | ReadFloat
   | ReadString
-  deriving stock (Show)
+  deriving stock (Show, Eq, Ord)
 
 prettyExpr :: Expr -> Doc nn
 prettyExpr (ConstInt i) = pretty i

@@ -2,6 +2,8 @@
 
 module Templatespiler.IR.Common where
 
+import Data.Char (toUpper)
+import Data.Text qualified as T
 import Prettyprinter
 
 {- | We represent var names as a non empty list of strings. This allows more idiomatic name generation - for example, we can turn
@@ -17,6 +19,22 @@ instance IsString VarName where
 
 withSuffix :: VarName -> Text -> VarName
 withSuffix (VarName (n :| ns)) suffix = VarName (n :| (ns <> [suffix]))
+
+data CaseStyle
+  = CamelCase
+  | PascalCase
+  | SnakeCase
+  | KebabCase
+
+toCaseStyle :: CaseStyle -> VarName -> Text
+toCaseStyle CamelCase (VarName (n :| ns)) =
+  n
+    <> mconcat (fmap (\n' -> toUpper (T.head n') `T.cons` T.tail n') ns)
+toCaseStyle PascalCase (VarName (n :| ns)) =
+  sconcat
+    (fmap (\n' -> toUpper (T.head n') `T.cons` T.tail n') (n :| ns))
+toCaseStyle SnakeCase (VarName (n :| ns)) = T.intercalate "_" (n : ns)
+toCaseStyle KebabCase (VarName (n :| ns)) = T.intercalate "-" (n : ns)
 
 instance Pretty VarName where
   pretty (VarName (n :| ns)) = pretty n <> hcat (fmap (("_" <>) . pretty) ns)

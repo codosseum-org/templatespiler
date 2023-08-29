@@ -14,20 +14,20 @@ data TargetLanguage = C | Python | Haskell
 
 data LanguageKind = Imperative | Declarative
 
-type family LanguageKindOf (lang :: TargetLanguage) = p where
-  LanguageKindOf C = Imperative
-  LanguageKindOf Python = Imperative
-  LanguageKindOf Haskell = Declarative
+type family ParadigmOf (lang :: TargetLanguage) = p where
+  ParadigmOf C = Imperative
+  ParadigmOf Python = Imperative
+  ParadigmOf Haskell = Declarative
 
 type family IRTarget (lang :: LanguageKind) = p | p -> lang where
   IRTarget Imperative = ImpIR.Program
   IRTarget Declarative = DecIR.Program
 
-class (ir ~ LanguageKindOf lang) => ToIR lang ir where
-  toIR :: BindingList -> IRTarget ir
+class (paradigm ~ ParadigmOf lang) => ToIR lang paradigm where
+  toIR :: BindingList -> IRTarget paradigm
 
-instance (LanguageKindOf lang ~ Imperative) => ToIR lang Imperative where
+instance (ParadigmOf lang ~ Imperative) => ToIR lang Imperative where
   toIR = Imperative.toIR
 
-instance (LanguageKindOf lang ~ Declarative) => ToIR lang Declarative where
+instance (ParadigmOf lang ~ Declarative) => ToIR lang Declarative where
   toIR = Declarative.toIR

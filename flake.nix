@@ -28,6 +28,14 @@
           # The base package set (this value is the default)
           basePackages = pkgs.haskell.packages.ghc94;
 
+          projectRoot = ./.;
+
+          packages = {
+            templatespiler-parser.source = ./templatespiler-parser;
+            templatespiler-converter.source = ./templatespiler-converter;
+            templatespiler-generator.source = ./templatespiler-generator;
+            templatespiler-server.source = ./templatespiler-server;
+          };
 
           # Development shell configuration
           devShell = {
@@ -73,9 +81,8 @@
         };
 
         # Default package & app.
-        # packages.default = self'.packages.templatespiler-parser;
-
-        # apps.default = self'.apps.templatespiler-parser;
+        packages.default = self'.packages.templatespiler-server;
+        apps.default = self'.apps.templatespiler-server;
 
         # Default shell.
         devShells.default = pkgs.mkShell {

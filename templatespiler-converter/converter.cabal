@@ -21,15 +21,12 @@ common shared
   default-extensions: OverloadedStrings
   build-depends:
     , base
-    , data-default
-    , directory
     , filepath
     , mtl
     , prettyprinter
     , prettyprinter-ansi-terminal
     , relude                       >=1.0
     , templatespiler-parser
-    , time
     , trifecta
     , with-utf8
 

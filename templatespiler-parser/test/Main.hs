@@ -49,7 +49,7 @@ arbitraryCombinator =
     [ NamedCombinator <$> arbitraryIdent <*> arbitraryType
     , ListCombinator <$> arbitraryType
     , ArrayCombinator <$> Gen.integral (Range.linear 1 10) <*> arbitraryType
-    , SepByCombinator <$> arbitrarySep <*> arbitraryType
+    , SepByCombinator <$> arbitrarySep <*> arbitraryBindingList
     ]
 
 arbitrarySep :: Gen Text

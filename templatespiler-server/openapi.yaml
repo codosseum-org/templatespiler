@@ -1,0 +1,152 @@
+openapi: 3.1.0
+info:
+  title: Templatespiler API Specification
+  version: 0.1.0
+  description: |-
+    REST API for generating code & inputs from the Templatespiler language
+  license:
+    name: Affero General Public License 3.0 or later
+    identifier: AGPL-3.0-or-later
+
+tags:
+  - name: template
+    description: Everything about templates
+paths:
+  /template/parse: 
+    post:
+      tags:
+      - template
+      summary: Submit a template for parsing
+      description: Submit a template for parsing, returning a unique ID that can be used to process the parsed template in other ways
+      operationId: parseTemplate
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              required: [version, template]
+              type: object
+              properties:
+                version: 
+                  type: string
+                  description: Version of the Templatespiler Language that the template is written in
+                template:
+                  type: string
+                  description: Content of the template, described using the Templatespiler Language
+        required: true
+      responses: 
+        '200':
+          description: Parse success
+          content:
+            application/json:
+              schema:
+                required: [ template_id ]
+                type: object
+                properties:
+                  template_id:
+                    type: string
+                    pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+                    minLength: 36
+                    maxLength: 36
+                    description: A UUID that may be used to request further information about the template
+        '400':
+          description: Malformed Request Body
+          content:
+            application/json:
+              schema:
+                oneOf:
+                    - type: object
+                      description: When the supplied version is unknown to the server
+                      properties:
+                        event:
+                          const: unknownVersion
+
+                    - type: object
+                      description: When the template failed ot parse
+                      properties:
+                          event:
+                            const: parseError
+                      
+                      
+      
+  /template/generate/{template_id}:
+    get:
+      tags:
+        - template
+      summary: Generate a random input for a template
+      description: Generates an arbitrary list of strings representing lines of stdin that are valid inputs for the given template
+      operationId: generateTemplateInput
+      parameters: 
+        - name: amount
+          schema: 
+            type: number
+            default: 1
+            maximum: 10
+            minimum: 1
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ inputs ]
+                properties:
+                  inputs: 
+                    type: array
+                    minItems: 1
+                    maxItems: 10
+                    description: A list of arbitrary inputs for the template. The length of this array will match the value of the `amount` parameter but there's no way of enforcing this in the schema 
+
+                    items:
+                      type: array
+                      description: A list of strings, each one representing a separate stdin line
+                      items:
+                        type: string
+        '404':
+          description: Unknown template ID
+  /template/compile/{template_id}:
+    get:
+      tags: 
+        - template
+      summary: Compile a template to a given programming language
+      description: Generate a stub piece of code to parse the template in the requested programming language
+      operationId: compileTemplate
+      parameters:
+         - name: language
+           schema: 
+              type: string
+      responses: 
+        '200':
+          description: Successful generation
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/CompiledTemplateResponse'
+
+
+components:
+  schemas:
+    CompiledTemplateResponse:
+      type: object
+      required: [warnings, template]
+      properties:
+        warnings: 
+          description: Any warnings thrown when generating the code
+          type: array
+          items: 
+            type: object
+        template:
+          $ref: '#/components/schemas/CompiledTemplate'
+          
+    
+    CompiledTemplate:
+      type: object
+      required: [language, code]
+      properties:
+        language:
+          description: The type of language this code is in
+          type: string
+        
+        code: 
+          description: The code for the template, in the described language
+          type: string

@@ -6,6 +6,8 @@
   "haskell.formattingProvider": "fourmolu",
   "haskell.manageHLS": "PATH",
   "cSpell.words": [
+    "dquotes",
+    "hsep",
     "mempty",
     "Struct",
     "Templatespiler",

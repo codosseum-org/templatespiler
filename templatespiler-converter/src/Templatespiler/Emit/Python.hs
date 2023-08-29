@@ -1,23 +1,23 @@
 module Templatespiler.Emit.Python where
 
 import Prettyprinter
+import Templatespiler.Emit.Common (indentDepth)
 import Templatespiler.ToLang.Python
 
 emitPy :: Program -> Doc ()
 emitPy = vsep . fmap emitStmt
 
+emitFor i rangeParams body =
+  vsep
+    [ "for" <+> pretty i <+> "in range(" <> rangeParams <> "):"
+    , indent indentDepth $ vsep $ fmap emitStmt body
+    , "" -- add a newline after the for loop for more readability
+    ]
+
 emitStmt :: Stmt -> Doc ()
 emitStmt (Assign var e) = pretty var <+> "=" <+> emitExpr e
-emitStmt (For i (Int 0) end stmts) =
-  vsep
-    [ "for" <+> pretty i <+> "in range(" <> emitExpr end <> "):"
-    , indent 2 $ vsep $ fmap emitStmt stmts
-    ]
-emitStmt (For i start end stmts) =
-  vsep
-    [ "for" <+> (pretty i <+> "in range(" <> emitExpr start <> ", " <> emitExpr end) <> "):"
-    , indent 2 $ vsep $ fmap emitStmt stmts
-    ]
+emitStmt (For i (Int 0) end stmts) = emitFor i (emitExpr end) stmts
+emitStmt (For i start end stmts) = emitFor i (emitExpr start <> ", " <> emitExpr end) stmts
 emitStmt (MultiAssign names e) = parens (hsep $ punctuate "," (fmap pretty names)) <+> "=" <+> emitExpr e
 emitStmt (Append to e) = emitExpr to <> ".append(" <> emitExpr e <> ")"
 

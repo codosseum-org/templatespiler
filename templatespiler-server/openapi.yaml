@@ -65,9 +65,6 @@ paths:
                       properties:
                           event:
                             const: parseError
-                      
-                      
-      
   /template/generate/{template_id}:
     get:
       tags:

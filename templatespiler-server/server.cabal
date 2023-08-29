@@ -20,21 +20,24 @@ common shared
 
   default-extensions: OverloadedStrings
   build-depends:
+    , aeson
     , base
     , data-default
     , directory
     , filepath
     , mtl
+    , openapi3
     , prettyprinter
     , relude                    >=1.0
     , servant
+    , servant-openapi3
     , shower
     , templatespiler-converter
     , templatespiler-generator
     , templatespiler-parser
     , time
     , trifecta
-    , with-utf8
+    , uuid
 
   default-language:   GHC2021
 

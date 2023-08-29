@@ -20,3 +20,6 @@ cradle:
 
     - path: "templatespiler-parser/test"
       component: "templatespiler-parser:test:test"
+
+    - path: "templatespiler-server/src"
+      component: "templatespiler-server:exe:generator"

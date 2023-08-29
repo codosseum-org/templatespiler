@@ -39,10 +39,16 @@ common shared
 library
   import:          shared
   hs-source-dirs:  src
+
+  -- cabal-fmt: expand src
   exposed-modules:
+    Main
     Templatespiler.Convert.Target
     Templatespiler.Convert.ToDeclarative
     Templatespiler.Convert.ToImperative
+    Templatespiler.Emit.Common
+    Templatespiler.Emit.Python
+    Templatespiler.Emit.Target
     Templatespiler.IR.Common
     Templatespiler.IR.Declarative
     Templatespiler.IR.Imperative

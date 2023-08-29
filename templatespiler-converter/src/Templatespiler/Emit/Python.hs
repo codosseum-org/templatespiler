@@ -17,8 +17,8 @@ emitFor i rangeParams body =
 
 emitStmt :: Stmt -> Doc ()
 emitStmt (Assign var e) = pretty var <+> "=" <+> emitExpr e
-emitStmt (For i (Int 0) end stmts) = emitFor i (emitExpr end) stmts
-emitStmt (For i start end stmts) = emitFor i (emitExpr start <> ", " <> emitExpr end) stmts
+emitStmt (For i (Int 0) end statements) = emitFor i (emitExpr end) statements
+emitStmt (For i start end statements) = emitFor i (emitExpr start <> ", " <> emitExpr end) statements
 emitStmt (MultiAssign names e) = parens (hsep $ punctuate "," (fmap pretty names)) <+> "=" <+> emitExpr e
 emitStmt (Append to e) = emitExpr to <> ".append(" <> emitExpr e <> ")"
 
@@ -32,7 +32,7 @@ emitExpr (List es) = list $ fmap emitExpr es
 emitExpr Input = "input()"
 emitExpr (CastToInt e) = "int" <> parens (emitExpr e)
 emitExpr (CastToFloat e) = "float" <> parens (emitExpr e)
-emitExpr (Split sep i) = emitExpr i <> ".split(" <> toStringLit sep <> ")"
+emitExpr (Split separator i) = emitExpr i <> ".split(" <> toStringLit separator <> ")"
 emitExpr (Tuple es) = tupled $ fmap emitExpr es
 emitExpr other = show other
 

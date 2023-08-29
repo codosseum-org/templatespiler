@@ -6,8 +6,10 @@ import Language.Templatespiler.Parser (parseBindingList)
 import Main.Utf8 qualified as Utf8
 import Prettyprinter
 import Prettyprinter.Render.Terminal (putDoc)
+import Prettyprinter.Render.Text qualified as PP
 import Shower
 import Templatespiler.Convert.Target (TargetLanguage (..), toIR)
+import Templatespiler.Emit.Target
 import Templatespiler.IR.Imperative (prettyProgram)
 import Templatespiler.ToLang.Target (ToLang (toLang))
 import Text.Trifecta (parseFromFile)
@@ -23,3 +25,6 @@ main = do
       let py = toLang @Python ir
       putStrLn ""
       printer py
+      let doc = emitLang @Python py
+      PP.putDoc doc
+      putStrLn ""

@@ -22,4 +22,4 @@ cradle:
       component: "templatespiler-parser:test:test"
 
     - path: "templatespiler-server/src"
-      component: "templatespiler-server:exe:generator"
+      component: "templatespiler-server:exe:server"

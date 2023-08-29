@@ -1,5 +1,6 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeFamilyDependencies #-}
 
 module Templatespiler.Convert.Target where
@@ -10,7 +11,7 @@ import Templatespiler.Convert.ToImperative as Imperative (toIR)
 import Templatespiler.IR.Declarative as DecIR
 import Templatespiler.IR.Imperative as ImpIR
 
-data TargetLanguage = C | Python | Haskell
+data TargetLanguage = C | Python | Haskell deriving stock (Eq, Show, Generic)
 
 data LanguageKind = Imperative | Declarative
 

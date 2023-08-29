@@ -9,13 +9,11 @@ category:      Web
 
 common shared
   build-depends:
-    , array
     , base
-    , parsers
+    , parsers                      >=0.12 && <0.13
     , prettyprinter
     , prettyprinter-ansi-terminal
     , relude
-    , shower
     , text
     , trifecta
 

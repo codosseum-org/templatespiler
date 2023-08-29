@@ -7,7 +7,6 @@ import Main.Utf8 qualified as Utf8
 import Prettyprinter
 import Prettyprinter.Render.Terminal (putDoc)
 import Prettyprinter.Render.Text qualified as PP
-import Shower
 import Templatespiler.Convert.Target (TargetLanguage (..), toIR)
 import Templatespiler.Emit.Target
 import Templatespiler.IR.Imperative (prettyProgram)
@@ -24,7 +23,7 @@ main = do
       putDoc $ prettyProgram ir
       let py = toLang @Python ir
       putStrLn ""
-      printer py
+
       let doc = emitLang @Python py
       PP.putDoc doc
       putStrLn ""

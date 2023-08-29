@@ -28,7 +28,6 @@ common shared
     , mtl
     , prettyprinter
     , relude                 >=1.0
-    , shower
     , templatespiler-parser
     , time
     , trifecta

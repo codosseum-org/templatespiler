@@ -28,6 +28,7 @@
           # The base package set (this value is the default)
           basePackages = pkgs.haskell.packages.ghc94;
 
+
           # Development shell configuration
           devShell = {
             hlsCheck.enable = false;
@@ -72,8 +73,9 @@
         };
 
         # Default package & app.
-        packages.default = self'.packages.converter;
-        apps.default = self'.apps.converter;
+        # packages.default = self'.packages.templatespiler-parser;
+
+        # apps.default = self'.apps.templatespiler-parser;
 
         # Default shell.
         devShells.default = pkgs.mkShell {
@@ -89,9 +91,9 @@
             config.flake-root.devShell
             config.treefmt.build.devShell
           ];
+
+
         };
-
-
       };
     };
 }

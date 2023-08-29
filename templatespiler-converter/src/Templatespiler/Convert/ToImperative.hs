@@ -2,7 +2,6 @@ module Templatespiler.Convert.ToImperative where
 
 import Control.Monad.Writer
 import Language.Templatespiler.Syntax (Binding (..), BindingList (..), Combinator (..), Ident (..), TerminalType (..), Type (..))
-import Shower (shower)
 import Templatespiler.IR.Common (VarName (..), withSuffix)
 import Templatespiler.IR.Imperative qualified as IR
 import Prelude hiding (Type)
@@ -34,7 +33,7 @@ combinatorVarToIR name (SepByCombinator sep (BindingList bindingList)) = do
             TerminalType StringType -> IR.ReadString
             TerminalType IntType -> IR.ReadInt
             TerminalType FloatType -> IR.ReadFloat
-            CombinatorType c -> error ("CombinatorType in toReadAssign: " <> toText (shower c))
+            CombinatorType c -> error ("CombinatorType in toReadAssign: " <> (show c))
         )
   let rAss = toReadAssign <$> bindingList
   tell [IR.MultiReadAssign (toText sep) rAss]

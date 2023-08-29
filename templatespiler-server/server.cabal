@@ -31,13 +31,16 @@ common shared
     , relude                    >=1.0
     , servant
     , servant-openapi3
-    , shower
+    , servant-server
     , templatespiler-converter
     , templatespiler-generator
     , templatespiler-parser
     , time
     , trifecta
     , uuid
+
+  -- , wai
+  -- , warp
 
   default-language:   GHC2021
 

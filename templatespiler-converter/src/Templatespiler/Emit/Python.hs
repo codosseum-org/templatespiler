@@ -7,6 +7,7 @@ import Templatespiler.ToLang.Python
 emitPy :: Program -> Doc ()
 emitPy = vsep . fmap emitStmt
 
+emitFor :: (Pretty a) => a -> Doc () -> [Stmt] -> Doc ()
 emitFor i rangeParams body =
   vsep
     [ "for" <+> pretty i <+> "in range(" <> rangeParams <> "):"

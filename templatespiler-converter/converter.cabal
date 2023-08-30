@@ -38,6 +38,7 @@ library
 
   -- cabal-fmt: expand src
   exposed-modules:
+    Templatespiler.Convert
     Templatespiler.Convert.Target
     Templatespiler.Convert.ToDeclarative
     Templatespiler.Convert.ToImperative

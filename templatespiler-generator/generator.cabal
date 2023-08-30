@@ -38,7 +38,9 @@ common shared
 library
   import:          shared
   hs-source-dirs:  src
-  exposed-modules: Templatespiler.Generate
+  exposed-modules:
+    Templatespiler.Generate
+    Templatespiler.Generator
 
 executable generator
   import:         shared

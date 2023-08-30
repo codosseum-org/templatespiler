@@ -1,16 +1,17 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# HLINT ignore "Use newtype instead of data" #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Use newtype instead of data" #-}
-
 module Templatespiler.Server where
 
 import Data.Aeson
+
 import Data.Text (toLower)
+import Data.Text.Encoding.Base64
 import Data.UUID
 import Data.UUID qualified as UUID
 import Servant.API
@@ -19,21 +20,30 @@ import Templatespiler.Convert.Target (TargetLanguage (..))
 type TemplatespilerAPI =
   "template"
     :> ( "parse" :> ReqBody '[JSON] TemplateParseRequest :> Post '[JSON] ParsedTemplate
-          :<|> "generate" :> Capture "template_id" TemplateID :> QueryParam "amount" Int :> Get '[JSON] GenerateResponse
-          :<|> "compile" :> Capture "template_id" TemplateID :> QueryParam "language" Language :> Get '[JSON] CompiledTemplateResponse
+          :<|> "generate" :> Capture "template_id" TemplateID :> QueryParam' '[Required, Strict] "amount" Int :> Get '[JSON] GenerateResponse
+          :<|> "compile" :> Capture "template_id" TemplateID :> QueryParam' '[Required, Strict] "language" Language :> Get '[JSON] CompiledTemplateResponse
        )
 
 data TemplateParseRequest = TemplateParseRequest
   { version :: Text
-  , template :: Text
+  , template :: Base64String
   }
   deriving stock (Eq, Show, Generic)
 
-instance ToJSON TemplateParseRequest
-instance FromJSON TemplateParseRequest
+newtype Base64String = Base64String Text deriving newtype (Eq, Show, ToJSON)
+
+unBase64 :: Base64String -> Either Text Text
+unBase64 (Base64String t) = decodeBase64 t
+
+toBase64 :: Text -> Base64String
+toBase64 = Base64String . encodeBase64
+
+instance FromJSON TemplateParseRequest where
+  parseJSON = withObject "TemplateParseRequest" $ \o ->
+    TemplateParseRequest <$> o .: "version" <*> (Base64String <$> o .: "template")
 
 newtype ParsedTemplate = ParsedTemplate TemplateID deriving newtype (Eq, Show, ToJSON)
-newtype TemplateID = TemplateID UUID deriving newtype (Eq, Show)
+newtype TemplateID = TemplateID UUID deriving newtype (Eq, Show, Ord)
 
 instance FromHttpApiData TemplateID where
   parseUrlPiece = fmap TemplateID . parseUrlPiece
@@ -49,7 +59,7 @@ data CompiledTemplateResponse = CompiledTemplateResponse
 
 data CompiledTemplate = CompiledTemplate
   { language :: Language
-  , code :: Text
+  , code :: Base64String
   }
   deriving stock (Eq, Show, Generic)
 

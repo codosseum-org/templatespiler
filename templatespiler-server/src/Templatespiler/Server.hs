@@ -71,7 +71,7 @@ instance FromHttpApiData Language where
 parseTargetLanguage :: Text -> Either Text TargetLanguage
 parseTargetLanguage (toLower -> t) = case t of
   "python" -> Right Python
-  other -> Left $ "Unknown language: " <> other
+  other -> Left $ "Unknown language: " <> other <> ". Supported languages: python"
 
 instance ToJSON TemplateID where
   toJSON (TemplateID uuid) = toJSON $ UUID.toText uuid

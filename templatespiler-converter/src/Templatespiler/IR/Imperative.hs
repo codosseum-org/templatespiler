@@ -10,7 +10,7 @@
 -}
 module Templatespiler.IR.Imperative where
 
-import Templatespiler.IR.Common (SingleLineString)
+-- import Templatespiler.IR.Common (SingleLineString)
 import Prelude hiding (Type)
 
 newtype VarName = VarName Text
@@ -27,12 +27,13 @@ data Type
       VarName
       Type
 
+type Program = [Statement]
 data Statement
   = -- | Variable declaration, for statically typed languages or initialization for scope
     DeclareVar VarName Type
   | -- | Read one or more variables from stdin, separated by spaces. Having this as a single statement means more idiomatic usage of things like scanf in C.
     ReadVars
-      SingleLineString
+      Text
       -- ^ Separator string
       (NonEmpty (VarName, Type))
       -- ^ Variable names and types

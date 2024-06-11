@@ -10,6 +10,7 @@ module Templatespiler.Server where
 
 import Data.Aeson
 
+import Data.Base64.Types
 import Data.Text (toLower)
 import Data.Text.Encoding.Base64
 import Data.UUID
@@ -33,10 +34,10 @@ data TemplateParseRequest = TemplateParseRequest
 newtype Base64String = Base64String Text deriving newtype (Eq, Show, ToJSON)
 
 unBase64 :: Base64String -> Either Text Text
-unBase64 (Base64String t) = decodeBase64 t
+unBase64 (Base64String t) = decodeBase64Untyped t
 
 toBase64 :: Text -> Base64String
-toBase64 = Base64String . encodeBase64
+toBase64 = Base64String . extractBase64 . encodeBase64
 
 instance FromJSON TemplateParseRequest where
   parseJSON = withObject "TemplateParseRequest" $ \o ->

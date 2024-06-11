@@ -6,7 +6,6 @@
 
 module Templatespiler.Convert.Target where
 
-import Data.Reflection (Reifies (reflect))
 import Language.Templatespiler.Syntax (BindingList)
 import Templatespiler.Convert.ToDeclarative qualified as Declarative
 import Templatespiler.Convert.ToImperative qualified as Imperative

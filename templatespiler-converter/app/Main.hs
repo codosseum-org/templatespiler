@@ -9,7 +9,7 @@ import Prettyprinter.Render.Terminal (putDoc)
 import Prettyprinter.Render.Text qualified as PP
 import Templatespiler.Convert.Target (TargetLanguage (..), toIR)
 import Templatespiler.Emit.Target
-import Templatespiler.IR.Imperative (prettyProgram)
+import Templatespiler.IR.Imperative
 import Templatespiler.ToLang.Target (ToLang (toLang))
 import Text.Trifecta (parseFromFile)
 
@@ -20,7 +20,7 @@ main = do
     Nothing -> exitFailure
     Just bs -> do
       let ir = toIR @Python bs
-      putDoc $ prettyProgram ir
+      -- putDoc $ prettyProgram ir
       let py = toLang @Python ir
       putStrLn ""
 

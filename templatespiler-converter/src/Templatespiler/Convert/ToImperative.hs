@@ -47,7 +47,7 @@ combinatorVarToIR name (SepByCombinator sep (BindingList bindingList)) = do
 combinatorVarToIR name (ListCombinator b) = do
   let vn = identToVarName name
   let lenName = vn `withSuffix` "len"
-  tell [IR.DeclareVar lenName (IR.TerminalType IR.IntegerTerminal), IR.ReadVar lenName (IR.TerminalType IR.IntegerTerminal)]
+  tell [IR.DeclareVar lenName (IR.TerminalType IR.IntegerTerminal), IR.ReadVar lenName IR.IntegerTerminal]
   arrayLike vn (IR.Var lenName) b
 combinatorVarToIR name (GroupCombinator (BindingList bs)) = do
   let vn = identToVarName name
@@ -75,7 +75,7 @@ tryFigureOutTypeOf lengthExpr (GroupBinding bs) = bindingListToIRType lengthExpr
 tryFigureOutTypeOf lengthExpr (UnnamedBinding c) = combinatorToIRType lengthExpr c
 
 typeToIR :: Maybe IR.Expr -> Type -> IR.Type
-typeToIR _ (TerminalType t) = terminalTypeToIR t
+typeToIR _ (TerminalType t) = IR.TerminalType $ terminalTypeToIR t
 typeToIR lengthExpr (CombinatorType c) = combinatorToIRType lengthExpr c
 
 combinatorToIRType :: Maybe IR.Expr -> Combinator -> IR.Type
@@ -88,28 +88,28 @@ combinatorToIRType lengthExpr (ListCombinator b) = IR.DynamicArrayType (tryFigur
 bindingListToIRType :: Maybe IR.Expr -> BindingList -> IR.Type
 bindingListToIRType lengthExpr (BindingList bs) = IR.TupleOrStructType Nothing (fmap (\(Binding n t) -> (identToVarName n, typeToIR lengthExpr t)) bs)
 
-terminalTypeToIR :: TerminalType -> IR.Type
-terminalTypeToIR StringType = IR.TerminalType IR.StringTerminal
-terminalTypeToIR IntType = IR.TerminalType IR.IntegerTerminal
-terminalTypeToIR FloatType = IR.TerminalType IR.FloatTerminal
+terminalTypeToIR :: TerminalType -> IR.Terminal
+terminalTypeToIR StringType = IR.StringTerminal
+terminalTypeToIR IntType = IR.IntegerTerminal
+terminalTypeToIR FloatType = IR.FloatTerminal
 
 terminalVarToIR :: Ident -> TerminalType -> IRWriter IR.Expr
 terminalVarToIR name StringType = do
   tell
     [ IR.DeclareVar (identToVarName name) (IR.TerminalType IR.StringTerminal)
-    , IR.ReadVar (identToVarName name) (IR.TerminalType IR.StringTerminal)
+    , IR.ReadVar (identToVarName name) IR.StringTerminal
     ]
   pure (IR.Var (identToVarName name))
 terminalVarToIR name IntType = do
   tell
     [ IR.DeclareVar (identToVarName name) (IR.TerminalType IR.IntegerTerminal)
-    , IR.ReadVar (identToVarName name) (IR.TerminalType IR.IntegerTerminal)
+    , IR.ReadVar (identToVarName name) IR.IntegerTerminal
     ]
   pure (IR.Var (identToVarName name))
 terminalVarToIR name FloatType = do
   tell
     [ IR.DeclareVar (identToVarName name) (IR.TerminalType IR.FloatTerminal)
-    , IR.ReadVar (identToVarName name) (IR.TerminalType IR.FloatTerminal)
+    , IR.ReadVar (identToVarName name) IR.FloatTerminal
     ]
   pure (IR.Var (identToVarName name))
 

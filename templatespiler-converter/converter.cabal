@@ -18,7 +18,10 @@ common shared
     relude (Relude as Prelude, Relude.Container.One),
     relude
 
-  default-extensions: OverloadedStrings
+  default-extensions:
+    DerivingStrategies
+    OverloadedStrings
+
   build-depends:
     , base
     , filepath

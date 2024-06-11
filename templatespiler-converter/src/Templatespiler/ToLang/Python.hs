@@ -1,5 +1,6 @@
 module Templatespiler.ToLang.Python where
 
+import Data.Traversable (for)
 import Templatespiler.IR.Common (CaseStyle (SnakeCase), VarName, toCaseStyle)
 import Templatespiler.IR.Imperative qualified as IR
 import Templatespiler.ToLang.Monad
@@ -17,6 +18,7 @@ data Expr
   | Var Text
   | Tuple [Expr]
   | List [Expr]
+  | Times Expr Expr
   | Range Expr Expr
   | Input
   | CastToInt Expr
@@ -26,7 +28,7 @@ data Expr
     Map
       Expr
       Expr
-  deriving (Show)
+  deriving stock (Show)
 
 data Stmt
   = Assign Text Expr
@@ -41,73 +43,66 @@ data Stmt
       -- | body
       [Stmt]
   | Append Expr Expr
-  deriving (Show)
+  | ListAssign Expr Expr Expr
+  deriving stock (Show)
 
 type Program = [Stmt]
 
 toPython :: IR.Program -> (Program, [ToPythonWarning])
-toPython = runToLang . fmap join . traverse undefined
+toPython = runToLang . fmap join . traverse statementToPython . compress
 
--- statementToPython :: IR.Statement -> PythonWriter [Stmt]
--- statementToPython (IR.Decl name t) =
---   pure
---     [Assign (nameToPyName name) (defaultTypeValue t)]
--- statementToPython (IR.Assign name _ e) = do
---   e' <- exprToPython e
---   pure
---     [ Assign
---         (nameToPyName name)
---         e'
---     ]
--- statementToPython (IR.MultiReadAssign sep bindings) = do
---   let i = Input
---   let split = Split sep i
---   let uniqBindingsTypes = ordNub (fmap snd (toList bindings))
---   case uniqBindingsTypes of
---     [] -> error "impossible"
---     [IR.ReadString] ->
---       -- if we're only reading strings, we already have all the parts as a list, so we just need to assign
---       pure [MultiAssign (fmap (nameToPyName . fst) (toList bindings)) split]
---     [IR.ReadInt] -> do
---       let mapped = Map (Var "int") split -- map all inputs to int
---       pure [MultiAssign (fmap (nameToPyName . fst) (toList bindings)) mapped]
---     [IR.ReadFloat] -> do
---       let mapped = Map (Var "float") split
---       pure [MultiAssign (fmap (nameToPyName . fst) (toList bindings)) mapped]
---     _ -> do
---       let multi = MultiAssign (fmap (nameToPyName . fst) (toList bindings)) split
---       let makeCast (name, as) = case as of
---             IR.ReadString -> Nothing
---             IR.ReadInt -> Just $ Assign (nameToPyName name) (CastToInt (Var (nameToPyName name)))
---             IR.ReadFloat -> Just $ Assign (nameToPyName name) (CastToFloat (Var (nameToPyName name)))
---       let casts = mapMaybe makeCast (toList bindings)
---       pure (multi : casts)
--- statementToPython (IR.For v start end body) = do
---   start' <- exprToPython start
---   end' <- exprToPython end
---   body' <- join <$> traverse statementToPython body
---   pure [For (nameToPyName v) start' end' body']
--- statementToPython (IR.AppendToArray arr _ val) = do
---   val' <- exprToPython val
---   pure [Append (Var $ nameToPyName arr) val']
--- exprToPython :: IR.Expr -> PythonWriter Expr
--- exprToPython (IR.ConstInt i) = pure (Int i)
--- exprToPython (IR.Var n) = pure (Var (nameToPyName n))
--- exprToPython (IR.ReadAtom IR.ReadString) = pure Input
--- exprToPython (IR.ReadAtom IR.ReadInt) = pure (CastToInt Input)
--- exprToPython (IR.ReadAtom IR.ReadFloat) = pure (CastToFloat Input)
--- exprToPython (IR.TupleOrStruct _ exprs) = do
---   exprs' <- traverse exprToPython exprs
---   pure (Tuple (toList exprs'))
+compress :: [IR.Statement] -> [IR.Statement]
+compress [] = []
+-- because python doesn't need variable declarations, we can compress them away
+compress (IR.DeclareVar vn1 (IR.TerminalType t1) : IR.ReadVar vn2 t2 : xs)
+  | vn1 == vn2 && t1 == t2 =
+      IR.ReadVar vn1 t1 : compress xs
+compress (IR.LoopNTimes v n b : xs) = IR.LoopNTimes v n (compress b) : compress xs
+compress (x : xs) = x : compress xs
 
--- defaultTypeValue :: IR.VarType -> Expr
--- defaultTypeValue IR.IntType = Int 0
--- defaultTypeValue IR.FloatType = Float 0.0
--- defaultTypeValue IR.StringType = String ""
--- defaultTypeValue (IR.ArrayType _ _) = List []
--- defaultTypeValue (IR.DynamicArrayType _) = List []
--- defaultTypeValue (IR.TupleOrStructType _ _) = Tuple []
--- defaultTypeValue IR.UnknownType = None
+castTerminal :: IR.Terminal -> Expr -> Expr
+castTerminal t input = case t of
+  IR.IntegerTerminal -> CastToInt input
+  IR.FloatTerminal -> CastToFloat input
+  IR.StringTerminal -> input
+
+statementToPython :: IR.Statement -> PythonWriter [Stmt]
+statementToPython (IR.DeclareVar name t) =
+  pure
+    [Assign (nameToPyName name) (defaultTypeValue t)]
+statementToPython (IR.ReadVar name t) = do
+  let inputExpr = castTerminal t Input
+  pure [Assign (nameToPyName name) inputExpr]
+statementToPython (IR.ReadVars sep bindings) = do
+  let split = Split sep Input
+  let multi = MultiAssign (fmap (nameToPyName . fst) (toList bindings)) split
+  let makeCast (name, as) = case as of
+        IR.StringTerminal -> Nothing
+        t -> Just (Assign (nameToPyName name) (castTerminal t $ Var $ nameToPyName name))
+
+  let casts = mapMaybe makeCast (toList bindings)
+  pure (multi : casts)
+statementToPython (IR.LoopNTimes name end body) = do
+  body' <- join <$> traverse statementToPython body
+  let end' = exprToPython end
+  pure [For (nameToPyName name) (Int 0) end' body']
+statementToPython (IR.ArrayAssign name idx val) = do
+  let idx' = exprToPython idx
+  let val' = exprToPython val
+  pure [ListAssign (Var (nameToPyName name)) idx' val']
+
+exprToPython :: IR.Expr -> Expr
+exprToPython (IR.ConstInt i) = Int i
+exprToPython (IR.Var vn) = Var (nameToPyName vn)
+exprToPython (IR.TupleOrStruct _ es) = Tuple $ fmap exprToPython (toList es)
+
+defaultTypeValue :: IR.Type -> Expr
+defaultTypeValue (IR.TerminalType IR.IntegerTerminal) = Int 0
+defaultTypeValue (IR.TerminalType IR.FloatTerminal) = Float 0.0
+defaultTypeValue (IR.TerminalType IR.StringTerminal) = String ""
+defaultTypeValue (IR.ArrayType len _) = List [None] `Times` exprToPython len
+defaultTypeValue (IR.DynamicArrayType _) = List []
+defaultTypeValue (IR.TupleOrStructType _ _) = Tuple []
 
 nameToPyName :: VarName -> Text
 nameToPyName = toCaseStyle SnakeCase

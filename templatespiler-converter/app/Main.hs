@@ -24,6 +24,6 @@ main = do
       let py = toLang @Python ir
       putStrLn ""
 
-      -- let doc = emitLang @Python py
-      -- PP.putDoc doc
+      let doc = emitLang @Python py
+      PP.putDoc doc
       putStrLn ""

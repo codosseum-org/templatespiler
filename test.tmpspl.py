@@ -1,19 +1,19 @@
 prices_len = int(input())
-prices = []
+prices = [None] * prices_len
 for prices_idx in range(prices_len):
     (item, price) = input().split(" ")
     price = float(price)
-    prices.append((item, price))
+    prices[prices_idx] = (item, price)
 
 orders_len = int(input())
-orders = []
+orders = [None] * orders_len
 for orders_idx in range(orders_len):
-    name = input()
+    order_name = input()
     order_len = int(input())
-    order = []
+    order = [None] * order_len
     for order_idx in range(order_len):
         (quantity, item) = input().split(" ")
         quantity = int(quantity)
-        order.append((quantity, item))
+        order[order_idx] = (quantity, item)
 
-    orders.append((name, order))
+    orders[orders_idx] = (order_name, order)

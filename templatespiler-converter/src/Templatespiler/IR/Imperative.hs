@@ -18,6 +18,7 @@ data Terminal
   = StringTerminal
   | IntegerTerminal
   | FloatTerminal
+  deriving stock (Show, Eq)
 
 data Type
   = TerminalType Terminal
@@ -38,13 +39,13 @@ data Statement
   | ReadVar
       -- | Read a single variable from stdin
       VarName
-      Type
+      Terminal
   | -- | Read multiple variables from stdin, separated by spaces. Having this as a single statement means more idiomatic usage of things like scanf in C.
     ReadVars
       -- | Separator string
       Text
       -- | Variable names and types
-      (NonEmpty (VarName, Type))
+      (NonEmpty (VarName, Terminal))
   | -- | Loop over a range of numbers, from 0 to
     LoopNTimes
       -- | Loop variable name
@@ -68,9 +69,7 @@ prettyExpr (Var vn) = pretty vn
 prettyExpr (TupleOrStruct n es) = pretty (n ?: "unnamed") <> tupled (fmap prettyExpr (toList es))
 
 prettyVarType :: Type -> Doc ann
-prettyVarType (TerminalType IntegerTerminal) = "Int"
-prettyVarType (TerminalType FloatTerminal) = "Float"
-prettyVarType (TerminalType StringTerminal) = "String"
+prettyVarType (TerminalType t) = pretty t
 prettyVarType (ArrayType e t) = prettyVarType t <> brackets (prettyExpr e)
 prettyVarType (DynamicArrayType t) = brackets (prettyVarType t)
 prettyVarType (TupleOrStructType n ts) = pretty n <> align (encloseSep "{ " " }" ", " (fmap prettyTuple (toList ts)))
@@ -79,10 +78,10 @@ prettyVarType (TupleOrStructType n ts) = pretty n <> align (encloseSep "{ " " }"
 
 prettyStatement :: Statement -> Doc ann
 prettyStatement (DeclareVar vn t) = pretty vn <+> ":" <+> prettyVarType t
-prettyStatement (ReadVar vn t) = "read" <+> pretty vn <+> ":" <+> prettyVarType t
+prettyStatement (ReadVar vn t) = "read" <+> pretty vn <+> ":" <+> pretty t
 prettyStatement (ReadVars sep' vars) = "read" <+> dquotes (pretty sep') <+> hsep (punctuate "," (fmap prettyVar (toList vars)))
   where
-    prettyVar (vn, t) = pretty vn <> ":" <+> prettyVarType t
+    prettyVar (vn, t) = pretty vn <> ":" <+> pretty t
 prettyStatement (LoopNTimes vn end body) =
   group $
     vsep
@@ -103,3 +102,8 @@ instance Pretty Expr where
 
 instance Pretty Statement where
   pretty = prettyStatement
+
+instance Pretty Terminal where
+  pretty StringTerminal = "String"
+  pretty IntegerTerminal = "Int"
+  pretty FloatTerminal = "Float"

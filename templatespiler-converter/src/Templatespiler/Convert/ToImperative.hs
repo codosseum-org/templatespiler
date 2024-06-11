@@ -49,6 +49,12 @@ combinatorVarToIR name (ListCombinator b) = do
   let lenName = vn `withSuffix` "len"
   tell [IR.DeclareVar lenName (IR.TerminalType IR.IntegerTerminal), IR.ReadVar lenName (IR.TerminalType IR.IntegerTerminal)]
   arrayLike vn (IR.Var lenName) b
+combinatorVarToIR name (GroupCombinator (BindingList bs)) = do
+  let vn = identToVarName name
+  es <- traverse bindingToIR bs
+  let type' = bindingListToIRType Nothing (BindingList bs)
+  tell [IR.DeclareVar vn type']
+  pure (IR.TupleOrStruct Nothing es)
 
 arrayLike :: VarName -> IR.Expr -> BindingOrCombinator -> IRWriter IR.Expr
 arrayLike vn lenExpr b = do

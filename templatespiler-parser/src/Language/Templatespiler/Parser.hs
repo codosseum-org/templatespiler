@@ -54,7 +54,7 @@ parseCombinatorType = CombinatorType <$> parseCombinator <?> "combinator"
 
 parseCombinator :: Parser Combinator
 parseCombinator =
-  (parseGroupCombinator <?> "group combinator")
+  (GroupCombinator <$> parseGroupCombinator <?> "group combinator")
     <|> (parens parseCombinator <?> "combinator in parens")
     <|> (parseArrayCombinator <?> "array combinator")
     <|> (parseSepByCombinator <?> "combinator")
@@ -70,24 +70,29 @@ parseNamedCombinator = do
 parseListCombinator :: Parser Combinator
 parseListCombinator = do
   _ <- reserve identifierStyle "list"
-  ListCombinator <$> parseType
+  ListCombinator <$> parseBindingOrCombinator
 
-parseGroupCombinator :: Parser Combinator
+parseGroupCombinator :: Parser BindingList
 parseGroupCombinator = do
   _ <- symbol "["
   l <- parseBindingList
   _ <- symbol "]"
-  pure $ GroupCombinator l
+  pure l
 
 parseArrayCombinator :: Parser Combinator
 parseArrayCombinator = do
   _ <- reserve identifierStyle "array"
   len <- fromIntegral <$> natural
-  ArrayCombinator len <$> parseType
+  ArrayCombinator len <$> parseBindingOrCombinator
 
 parseSepByCombinator :: Parser Combinator
 parseSepByCombinator = do
   _ <- reserve identifierStyle "sep-by"
   sep <- token stringLiteral
-  GroupCombinator grp <- parseGroupCombinator
-  pure $ SepByCombinator sep grp
+  SepByCombinator sep <$> parseGroupCombinator
+
+parseBindingOrCombinator :: Parser BindingOrCombinator
+parseBindingOrCombinator =
+  (NamedBinding <$> parseBinding <?> "named binding")
+    <|> (GroupBinding <$> parseGroupCombinator <?> "group binding")
+    <|> (UnnamedBinding <$> parseCombinator <?> "unnamed binding")

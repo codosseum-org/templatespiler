@@ -12,7 +12,7 @@ import Prettyprinter
 newtype VarName
   = VarName
       (NonEmpty Text)
-  deriving stock (Show)
+  deriving stock (Show, Eq)
 
 instance IsString VarName where
   fromString = VarName . pure . fromString

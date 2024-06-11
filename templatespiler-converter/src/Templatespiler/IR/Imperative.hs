@@ -10,10 +10,9 @@
 -}
 module Templatespiler.IR.Imperative where
 
--- import Templatespiler.IR.Common (SingleLineString)
-import Prelude hiding (Type)
-
-newtype VarName = VarName Text
+import Prettyprinter
+import Templatespiler.IR.Common
+import Prelude hiding (Type, group)
 
 data Terminal
   = StringTerminal
@@ -24,27 +23,83 @@ data Type
   = TerminalType Terminal
   | -- | An "array", which may be a list or a fixed size array depending on target language. The length must be known at compile time.
     ArrayType
-      VarName
+      Expr
       Type
+  | TupleOrStructType (Maybe VarName) (NonEmpty (VarName, Type))
+  | DynamicArrayType Type
+
+data Expr = ConstInt Int | Var VarName | TupleOrStruct (Maybe VarName) (NonEmpty Expr)
+  deriving stock (Show, Eq)
 
 type Program = [Statement]
 data Statement
   = -- | Variable declaration, for statically typed languages or initialization for scope
     DeclareVar VarName Type
-  | -- | Read one or more variables from stdin, separated by spaces. Having this as a single statement means more idiomatic usage of things like scanf in C.
+  | ReadVar
+      -- | Read a single variable from stdin
+      VarName
+      Type
+  | -- | Read multiple variables from stdin, separated by spaces. Having this as a single statement means more idiomatic usage of things like scanf in C.
     ReadVars
       -- | Separator string
       Text
       -- | Variable names and types
       (NonEmpty (VarName, Type))
-  | LoopNTimes
+  | -- | Loop over a range of numbers, from 0 to
+    LoopNTimes
+      -- | Loop variable name
       VarName
+      -- | End
+      Expr
+      -- | Loop body
       [Statement]
   | -- | Array assignment
     ArrayAssign
       -- | Array variable name
       VarName
-      -- | Index variable name
-      VarName
-      -- | Value variable name
-      VarName
+      -- | Index expression
+      Expr
+      -- | Value expression
+      Expr
+
+prettyExpr :: Expr -> Doc ann
+prettyExpr (ConstInt i) = pretty i
+prettyExpr (Var vn) = pretty vn
+prettyExpr (TupleOrStruct n es) = pretty (n ?: "unnamed") <> tupled (fmap prettyExpr (toList es))
+
+prettyVarType :: Type -> Doc ann
+prettyVarType (TerminalType IntegerTerminal) = "Int"
+prettyVarType (TerminalType FloatTerminal) = "Float"
+prettyVarType (TerminalType StringTerminal) = "String"
+prettyVarType (ArrayType e t) = prettyVarType t <> brackets (prettyExpr e)
+prettyVarType (DynamicArrayType t) = brackets (prettyVarType t)
+prettyVarType (TupleOrStructType n ts) = pretty n <> align (encloseSep "{ " " }" ", " (fmap prettyTuple (toList ts)))
+  where
+    prettyTuple (n', t') = pretty n' <> ":" <+> prettyVarType t'
+
+prettyStatement :: Statement -> Doc ann
+prettyStatement (DeclareVar vn t) = pretty vn <+> ":" <+> prettyVarType t
+prettyStatement (ReadVar vn t) = "read" <+> pretty vn <+> ":" <+> prettyVarType t
+prettyStatement (ReadVars sep' vars) = "read" <+> dquotes (pretty sep') <+> hsep (punctuate "," (fmap prettyVar (toList vars)))
+  where
+    prettyVar (vn, t) = pretty vn <> ":" <+> prettyVarType t
+prettyStatement (LoopNTimes vn end body) =
+  group $
+    vsep
+      [ nest 2 $
+          vsep
+            [ "for" <+> parens (pretty vn <+> "in" <+> "0" <> ".." <> prettyExpr end) <+> "{"
+            , vsep $ toList $ fmap pretty body
+            ]
+      , "}"
+      ]
+prettyStatement (ArrayAssign vn idx val) = pretty vn <> brackets (prettyExpr idx) <+> "=" <+> prettyExpr val
+
+prettyProgram :: Program -> Doc ann
+prettyProgram = vsep . fmap prettyStatement
+
+instance Pretty Expr where
+  pretty = prettyExpr
+
+instance Pretty Statement where
+  pretty = prettyStatement

@@ -32,9 +32,15 @@ data Combinator
   | -- | A group of bindings, eg @[x : Integer, y : Integer]@
     GroupCombinator BindingList
   | -- | An array of a given length, eg @array 3 (num : Integer)@
-    ArrayCombinator Int Type
+    ArrayCombinator Int BindingOrCombinator
   | -- | A list of bindings separated by a given string, eg @sep-by " " [x : Integer, y : Integer]@
     SepByCombinator Text BindingList
   | -- | A list (dynamic array) of a given type, eg @list (num : Integer)@
-    ListCombinator Type
+    ListCombinator BindingOrCombinator
+  deriving (Show, Eq)
+
+data BindingOrCombinator
+  = NamedBinding Binding
+  | GroupBinding BindingList
+  | UnnamedBinding Combinator
   deriving (Show, Eq)

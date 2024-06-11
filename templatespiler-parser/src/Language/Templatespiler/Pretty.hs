@@ -2,7 +2,7 @@
 
 module Language.Templatespiler.Pretty where
 
-import Language.Templatespiler.Syntax (Binding (..), BindingList (..), Combinator (..), Ident (..), TerminalType (..), Type (..))
+import Language.Templatespiler.Syntax (Binding (..), BindingList (..), BindingOrCombinator (..), Combinator (..), Ident (..), TerminalType (..), Type (..))
 import Prettyprinter
 import Prettyprinter.Render.Terminal
 import Prelude hiding (Type, group)
@@ -43,12 +43,16 @@ prettyGroupCombinator bindings =
       ]
 
 prettyCombinator1 :: Combinator -> Doc AnsiStyle
-prettyCombinator1 (GroupCombinator (BindingList bindings)) = prettyGroupCombinator bindings
 prettyCombinator1 (ArrayCombinator len typ) =
-  "array" <+> pretty len <+> prettyType typ
+  "array" <+> pretty len <+> prettyBindingOrCombinator typ
 prettyCombinator1 (ListCombinator typ) =
-  "list" <+> prettyType typ
+  "list" <+> prettyBindingOrCombinator typ
 prettyCombinator1 c = parens (prettyCombinator c)
+
+prettyBindingOrCombinator :: BindingOrCombinator -> Doc AnsiStyle
+prettyBindingOrCombinator (NamedBinding b) = prettyBinding b
+prettyBindingOrCombinator (GroupBinding (BindingList bl)) = prettyGroupCombinator bl
+prettyBindingOrCombinator (UnnamedBinding c) = prettyCombinator c
 
 prettyTerminalType :: TerminalType -> Doc AnsiStyle
 prettyTerminalType IntType = "Integer"

@@ -15,15 +15,15 @@ import Text.Trifecta (parseFromFile)
 
 main :: IO ()
 main = do
-  tokens <- parseFromFile parseBindingList "../test.tmpspl"
+  tokens <- parseFromFile parseBindingList "./test.tmpspl"
   case tokens of
     Nothing -> exitFailure
     Just bs -> do
       let ir = toIR @Python bs
-      -- putDoc $ prettyProgram ir
+      putDoc $ prettyProgram ir
       let py = toLang @Python ir
       putStrLn ""
 
-      let doc = emitLang @Python py
-      PP.putDoc doc
+      -- let doc = emitLang @Python py
+      -- PP.putDoc doc
       putStrLn ""

@@ -33,11 +33,12 @@ library
     Language.Templatespiler.Syntax
 
 test-suite test
-  import:         shared
-  type:           exitcode-stdio-1.0
-  main-is:        Main.hs
+  import:             shared
+  type:               exitcode-stdio-1.0
+  main-is:            Main.hs
   build-depends:
-    , hedgehog
+    , hedgehog               >=1.4
     , templatespiler-parser
 
-  hs-source-dirs: test
+  default-extensions: TemplateHaskell
+  hs-source-dirs:     test

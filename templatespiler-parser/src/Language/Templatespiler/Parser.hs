@@ -54,8 +54,8 @@ parseCombinatorType = CombinatorType <$> parseCombinator <?> "combinator"
 
 parseCombinator :: Parser Combinator
 parseCombinator =
-  (GroupCombinator <$> parseGroupCombinator <?> "group combinator")
-    <|> (parens parseCombinator <?> "combinator in parens")
+  -- (GroupCombinator <$> parseGroupCombinator <?> "group combinator")
+  (parens parseCombinator <?> "combinator in parens")
     <|> (parseArrayCombinator <?> "array combinator")
     <|> (parseSepByCombinator <?> "combinator")
     <|> (parseListCombinator <?> "list combinator")

@@ -49,12 +49,6 @@ combinatorVarToIR name (ListCombinator b) = do
   let lenName = vn `withSuffix` "len"
   tell [IR.DeclareVar lenName (IR.TerminalType IR.IntegerTerminal), IR.ReadVar lenName IR.IntegerTerminal]
   arrayLike vn (IR.Var lenName) b
-combinatorVarToIR name (GroupCombinator (BindingList bs)) = do
-  let vn = identToVarName name
-  es <- traverse bindingToIR bs
-  let type' = bindingListToIRType Nothing (BindingList bs)
-  tell [IR.DeclareVar vn type']
-  pure (IR.TupleOrStruct Nothing es)
 
 arrayLike :: VarName -> IR.Expr -> BindingOrCombinator -> IRWriter IR.Expr
 arrayLike vn lenExpr b = do
@@ -81,7 +75,7 @@ typeToIR lengthExpr (CombinatorType c) = combinatorToIRType lengthExpr c
 combinatorToIRType :: Maybe IR.Expr -> Combinator -> IR.Type
 combinatorToIRType lengthExpr (NamedCombinator _ c) = typeToIR lengthExpr c
 combinatorToIRType _ (ArrayCombinator len b) = IR.ArrayType (IR.ConstInt len) (tryFigureOutTypeOf (Just (IR.ConstInt len)) b)
-combinatorToIRType le (GroupCombinator bs) = bindingListToIRType le bs
+-- combinatorToIRType le (GroupCombinator bs) = bindingListToIRType le bs
 combinatorToIRType le (SepByCombinator _ bs) = bindingListToIRType le bs
 combinatorToIRType lengthExpr (ListCombinator b) = IR.DynamicArrayType (tryFigureOutTypeOf lengthExpr b)
 

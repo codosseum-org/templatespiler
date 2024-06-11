@@ -28,7 +28,7 @@ prettyCombinator (SepByCombinator sep (BindingList typ)) =
   "sep-by" <+> dquotes (pretty sep) <+> prettyGroupCombinator typ
 prettyCombinator (NamedCombinator name typ) =
   prettyIdent name <+> colon <+> prettyType typ
-prettyCombinator (GroupCombinator (BindingList typ)) = prettyGroupCombinator typ
+-- prettyCombinator (GroupCombinator (BindingList typ)) = prettyGroupCombinator typ
 prettyCombinator c = prettyCombinator1 c
 
 prettyGroupCombinator :: (Foldable t, Functor t) => t Binding -> Doc AnsiStyle
@@ -53,7 +53,7 @@ prettyCombinator1 c = parens (prettyCombinator c)
 prettyBindingOrCombinator :: BindingOrCombinator -> Doc AnsiStyle
 prettyBindingOrCombinator (NamedBinding b) = prettyBinding b
 prettyBindingOrCombinator (GroupBinding (BindingList bl)) = prettyGroupCombinator bl
-prettyBindingOrCombinator (UnnamedBinding c) = prettyCombinator c
+prettyBindingOrCombinator (UnnamedBinding c) = prettyCombinator1 c
 
 prettyTerminalType :: TerminalType -> Doc AnsiStyle
 prettyTerminalType IntType = "Integer"

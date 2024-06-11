@@ -29,9 +29,10 @@ data TerminalType
 data Combinator
   = -- | A named combinator, e.g. @foo: int@.
     NamedCombinator Ident Type
-  | -- | A group of bindings, eg @[x : Integer, y : Integer]@
-    GroupCombinator BindingList
-  | -- | An array of a given length, eg @array 3 (num : Integer)@
+  | -- \| An array of a given length, eg @array 3 (num : Integer)@
+
+    -- | -- | A group of bindings, eg @[x : Integer, y : Integer]@
+    --   GroupCombinator BindingList
     ArrayCombinator Int BindingOrCombinator
   | -- | A list of bindings separated by a given string, eg @sep-by " " [x : Integer, y : Integer]@
     SepByCombinator Text BindingList

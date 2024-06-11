@@ -33,7 +33,8 @@ arbitraryCombinator (ListCombinator g) = do
   i <- Gen.int (Range.linear 1 10)
   outputs <- join <$> Gen.list (Range.singleton i) (arbitraryBindingOrCombinator g)
   pure ([show i] <> outputs)
-arbitraryCombinator (GroupCombinator bs) = arbitraryInput bs
+
+-- arbitraryCombinator (GroupCombinator bs) = arbitraryInput bs
 
 arbitraryBinding :: Binding -> Gen [Text]
 arbitraryBinding (Binding _ t) = arbitraryType t

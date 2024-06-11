@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Main where
 
 import Language.Templatespiler.Parser
@@ -19,7 +17,8 @@ import Text.Trifecta (ErrInfo (_errDoc), Result (..), parseString)
 import Prelude hiding (Type)
 
 arbitraryBindingList :: Gen BindingList
-arbitraryBindingList = BindingList <$> Gen.nonEmpty (Range.linear 1 10) arbitraryBinding
+arbitraryBindingList = Gen.sized $ \size ->
+  BindingList <$> Gen.nonEmpty (Range.linear 1 (Range.unSize size)) arbitraryBinding
 
 arbitraryBinding :: Gen Binding
 arbitraryBinding = Binding <$> arbitraryIdent <*> arbitraryType
@@ -32,25 +31,38 @@ arbitraryIdent =
     pure $ toText (first : rest)
 
 arbitraryType :: Gen Type
-arbitraryType =
-  Gen.recursive
-    Gen.choice
-    [TerminalType <$> arbitraryTerminalType]
-    [CombinatorType <$> arbitraryCombinator]
+arbitraryType = Gen.sized $ \size ->
+  if size <= 1
+    then TerminalType <$> arbitraryTerminalType
+    else
+      Gen.choice
+        [ TerminalType <$> arbitraryTerminalType
+        , CombinatorType <$> Gen.small arbitraryCombinator
+        ]
 
 arbitraryTerminalType :: Gen TerminalType
 arbitraryTerminalType = Gen.element [IntType, FloatType, StringType]
 
 arbitraryCombinator :: Gen Combinator
 arbitraryCombinator =
-  Gen.recursive
-    Gen.choice
-    [GroupCombinator <$> arbitraryBindingList]
+  Gen.choice
+    -- [GroupCombinator <$> arbitraryBindingList]
     [ NamedCombinator <$> arbitraryIdent <*> arbitraryType
-    , ListCombinator <$> arbitraryType
-    , ArrayCombinator <$> Gen.integral (Range.linear 1 10) <*> arbitraryType
+    , ListCombinator <$> Gen.small arbitraryBindingOrCombinator
+    , ArrayCombinator <$> Gen.integral (Range.linear 1 10) <*> Gen.small arbitraryBindingOrCombinator
     , SepByCombinator <$> arbitrarySep <*> arbitraryBindingList
     ]
+
+arbitraryBindingOrCombinator :: Gen BindingOrCombinator
+arbitraryBindingOrCombinator = Gen.sized $ \size ->
+  if size <= 1
+    then NamedBinding <$> arbitraryBinding
+    else
+      Gen.choice
+        [ NamedBinding <$> arbitraryBinding
+        , GroupBinding <$> Gen.small arbitraryBindingList
+        , UnnamedBinding <$> Gen.small arbitraryCombinator
+        ]
 
 arbitrarySep :: Gen Text
 arbitrarySep = Gen.text (Range.linear 1 10) Gen.alpha
@@ -59,6 +71,7 @@ prop_pprParse :: Property
 prop_pprParse = withTests 1000 $ property $ do
   bindingList <- forAll arbitraryBindingList
   let showPrettyUnannotated = renderString . layoutPretty defaultLayoutOptions . unAnnotate . prettyBindingList
+
   trippingTrifecta bindingList showPrettyUnannotated (parseString parseBindingList mempty)
 
 trippingTrifecta x encode decode = do
@@ -71,4 +84,4 @@ trippingTrifecta x encode decode = do
     Success y -> tripping x (const i) (const (Identity y))
 
 main :: IO ()
-main = unlessM (checkSequential $$(discover)) exitFailure
+main = unlessM (checkParallel $$discover) exitFailure

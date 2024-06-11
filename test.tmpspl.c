@@ -1,52 +1,55 @@
 #include <stdio.h>
 
-typedef struct
-{
-    char *name;
-    int price;
-} Item;
-
-typedef struct
-{
-    int quantity;
-    char *item;
-} Order;
-
 int main()
 {
-    int pricesLen;
-    scanf("%d", &pricesLen);
-    Item prices[pricesLen];
-
-    for (int i = 0; i < pricesLen; i++)
+    int prices_len;
+    scanf("%d", prices_len);
+    struct
     {
-        char item[100];
-        float price = 0;
-        scanf("%s %f", item, &price);
-        prices[i] = (Item){item, price};
+        char *item;
+        float price;
+    } prices[prices_len];
+    for (int prices_idx = 0; prices_idx < prices_len; prices_idx++)
+    {
+        char *item;
+        float price;
+        scanf("%s %f", item, price);
+        prices[prices_idx] = (struct {
+            char *item;
+            float price;
+        }){item, price};
     }
 
-    int ordersLen;
-    scanf("%d", &ordersLen);
-
-    char *orders[ordersLen];
-
-    for (int i = 0; i < ordersLen; i++)
+    int orders_len;
+    scanf("%d", orders_len);
+    struct
     {
-        char name[100];
-        scanf("%s\n", name);
-
-        int orderLen;
-        scanf("%d", &orderLen);
-        Order order[orderLen];
-
-        for (int j = 0; j < orderLen; j++)
+        char *order_name;
+        struct
         {
             int quantity;
-            char item[100];
-            scanf("%d %s", &quantity, item);
-            order[j] = (Order){quantity, item};
+            char *item;
+        } *order;
+    } orders[orders_len];
+    for (int orders_idx = 0; orders_idx < orders_len; orders_idx++)
+    {
+        char *order_name;
+        gets(order_name);
+        int order_len;
+        scanf("%d", order_len);
+        struct
+        {
+            int quantity;
+            char *item;
+        } order[order_len];
+        for (int order_idx = 0; order_idx < order_len; order_idx++)
+        {
+            int quantity;
+            char *item;
+            scanf("%d %s", quantity, item);
+            order[order_idx] = {quantity, item};
         }
+
+        orders[orders_idx] = {order_name, order};
     }
-    printf("Done\n");
 }

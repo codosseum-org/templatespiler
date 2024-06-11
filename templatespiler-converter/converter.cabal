@@ -45,12 +45,14 @@ library
     Templatespiler.Convert.Target
     Templatespiler.Convert.ToDeclarative
     Templatespiler.Convert.ToImperative
+    Templatespiler.Emit.C
     Templatespiler.Emit.Common
     Templatespiler.Emit.Python
     Templatespiler.Emit.Target
     Templatespiler.IR.Common
     Templatespiler.IR.Declarative
     Templatespiler.IR.Imperative
+    Templatespiler.ToLang.C
     Templatespiler.ToLang.Monad
     Templatespiler.ToLang.Python
     Templatespiler.ToLang.Target

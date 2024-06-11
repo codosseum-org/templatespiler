@@ -22,8 +22,12 @@ main = do
       let ir = toIR @Python bs
       putDoc $ prettyProgram ir
       let py = toLang @Python ir
+      let c = toLang @C ir
       putStrLn ""
 
       let doc = emitLang @Python py
       PP.putDoc doc
+      putStrLn ""
+      let doc2 = emitLang @C c
+      PP.putDoc doc2
       putStrLn ""

@@ -25,13 +25,13 @@ arbitraryCombinator (ArrayCombinator count g) =
   join
     <$> Gen.list
       (Range.singleton count)
-      (arbitraryType g)
+      (arbitraryBindingOrCombinator g)
 arbitraryCombinator (SepByCombinator sep bs) = do
   bs' <- arbitraryInput bs
   pure [Text.intercalate sep bs']
 arbitraryCombinator (ListCombinator g) = do
   i <- Gen.int (Range.linear 1 10)
-  outputs <- join <$> Gen.list (Range.singleton i) (arbitraryType g)
+  outputs <- join <$> Gen.list (Range.singleton i) (arbitraryBindingOrCombinator g)
   pure ([show i] <> outputs)
 arbitraryCombinator (GroupCombinator bs) = arbitraryInput bs
 
@@ -41,6 +41,11 @@ arbitraryBinding (Binding _ t) = arbitraryType t
 arbitraryType :: Type -> Gen [Text]
 arbitraryType (TerminalType t) = arbitraryTerminalType t
 arbitraryType (CombinatorType c) = arbitraryCombinator c
+
+arbitraryBindingOrCombinator :: BindingOrCombinator -> Gen [Text]
+arbitraryBindingOrCombinator (NamedBinding b) = arbitraryBinding b
+arbitraryBindingOrCombinator (GroupBinding bs) = arbitraryInput bs
+arbitraryBindingOrCombinator (UnnamedBinding c) = arbitraryCombinator c
 
 arbitraryTerminalType :: TerminalType -> Gen [Text]
 arbitraryTerminalType IntType = pure . show <$> arbitrarySaneInt

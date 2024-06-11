@@ -9,7 +9,6 @@
 module Templatespiler.Server where
 
 import Data.Aeson
-
 import Data.Base64.Types
 import Data.Text (toLower)
 import Data.Text.Encoding.Base64

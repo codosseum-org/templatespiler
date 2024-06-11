@@ -22,7 +22,7 @@ common shared
   build-depends:
     , aeson
     , base
-    , base64
+    , base64                    >=1.0
     , data-default
     , directory
     , filepath

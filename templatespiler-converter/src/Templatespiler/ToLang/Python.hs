@@ -32,14 +32,14 @@ data Stmt
   = Assign Text Expr
   | MultiAssign [Text] Expr
   | For
+      -- | i in
       Text
-      -- ^ i in
+      -- | start
       Expr
-      -- ^ start
+      -- | end
       Expr
-      -- ^ end
+      -- | body
       [Stmt]
-      -- ^ body
   | Append Expr Expr
   deriving (Show)
 

@@ -42,9 +42,12 @@ parseType =
 
 parseTerminalType :: Parser TerminalType
 parseTerminalType =
-  IntType <$ symbol "Integer"
-    <|> FloatType <$ symbol "Float"
-    <|> StringType <$ symbol "String"
+  IntType
+    <$ symbol "Integer"
+      <|> FloatType
+    <$ symbol "Float"
+      <|> StringType
+    <$ symbol "String"
 
 parseCombinatorType :: Parser Type
 parseCombinatorType = CombinatorType <$> parseCombinator <?> "combinator"

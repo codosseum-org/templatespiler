@@ -33,18 +33,18 @@ data Statement
     DeclareVar VarName Type
   | -- | Read one or more variables from stdin, separated by spaces. Having this as a single statement means more idiomatic usage of things like scanf in C.
     ReadVars
+      -- | Separator string
       Text
-      -- ^ Separator string
+      -- | Variable names and types
       (NonEmpty (VarName, Type))
-      -- ^ Variable names and types
   | LoopNTimes
       VarName
       [Statement]
   | -- | Array assignment
     ArrayAssign
+      -- | Array variable name
       VarName
-      -- ^ Array variable name
+      -- | Index variable name
       VarName
-      -- ^ Index variable name
+      -- | Value variable name
       VarName
-      -- ^ Value variable name

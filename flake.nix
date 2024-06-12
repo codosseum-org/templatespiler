@@ -31,6 +31,7 @@
           projectRoot = ./.;
 
           packages = {
+            base64.source = "1.0";
             templatespiler-parser.source = ./templatespiler-parser;
             templatespiler-converter.source = ./templatespiler-converter;
             templatespiler-generator.source = ./templatespiler-generator;
@@ -81,8 +82,8 @@
         };
 
         # Default package & app.
-        packages.default = self'.packages.templatespiler-server;
-        apps.default = self'.apps.templatespiler-server;
+        packages.default = self'.packages.server;
+        apps.default = self'.apps.server;
 
         # Default shell.
         devShells.default = pkgs.mkShell {

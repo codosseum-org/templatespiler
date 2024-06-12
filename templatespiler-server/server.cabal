@@ -48,3 +48,4 @@ executable server
   import:         shared
   main-is:        Main.hs
   hs-source-dirs: src
+  other-modules:  Templatespiler.Server

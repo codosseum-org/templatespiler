@@ -40,6 +40,7 @@ common shared
     , trifecta
     , uuid
     , wai
+    , wai-cors
     , warp
 
   default-language:   GHC2021

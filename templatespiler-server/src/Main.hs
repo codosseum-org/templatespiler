@@ -8,6 +8,7 @@ import Data.UUID.V4 (nextRandom)
 import Language.Templatespiler.Parser (parseBindingList)
 import Language.Templatespiler.Syntax (BindingList)
 import Network.Wai.Handler.Warp (run)
+import Network.Wai.Middleware.Cors
 import Prettyprinter
 import Prettyprinter.Render.Text
 import Servant (Application, Handler, Server, ServerError (..), ServerT, err400, hoistServer, serve, throwError, (:<|>) (..))
@@ -26,7 +27,7 @@ main = do
   putStrLn ""
 
 app :: State -> Application
-app s = serve (Proxy @TemplatespilerAPI) $ hoistServer (Proxy @TemplatespilerAPI) (nt s) templatespilerServer
+app s = simpleCors $ serve (Proxy @TemplatespilerAPI) $ hoistServer (Proxy @TemplatespilerAPI) (nt s) templatespilerServer
 
 nt :: State -> AppM a -> Handler a
 nt s x = runReaderT x s

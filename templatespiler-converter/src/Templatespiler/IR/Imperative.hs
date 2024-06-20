@@ -26,7 +26,7 @@ data Type
     ArrayType
       Expr
       Type
-  | TupleOrStructType (Maybe VarName) (NonEmpty (VarName, Type))
+  | TupleOrStructType VarName (NonEmpty (VarName, Type))
   | DynamicArrayType Type
 
 data Expr = ConstInt Int | Var VarName | TupleOrStruct (Maybe VarName) (NonEmpty Expr)

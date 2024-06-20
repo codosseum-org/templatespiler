@@ -4,7 +4,7 @@ module Templatespiler.Convert.ToImperative where
 
 import Control.Monad.Writer
 import Language.Templatespiler.Syntax (Binding (..), BindingList (..), BindingOrCombinator (..), Combinator (..), Ident (..), TerminalType (..), Type (..))
-import Templatespiler.IR.Common (VarName (..), withSuffix)
+import Templatespiler.IR.Common (VarName (..), generateStructName, withSuffix)
 import Templatespiler.IR.Imperative qualified as IR
 import Prelude hiding (Type)
 
@@ -80,7 +80,7 @@ combinatorToIRType le (SepByCombinator _ bs) = bindingListToIRType le bs
 combinatorToIRType lengthExpr (ListCombinator b) = IR.DynamicArrayType (tryFigureOutTypeOf lengthExpr b)
 
 bindingListToIRType :: Maybe IR.Expr -> BindingList -> IR.Type
-bindingListToIRType lengthExpr (BindingList bs) = IR.TupleOrStructType Nothing (fmap (\(Binding n t) -> (identToVarName n, typeToIR lengthExpr t)) bs)
+bindingListToIRType lengthExpr bindings@(BindingList bs) = IR.TupleOrStructType (generateStructName bindings) (fmap (\(Binding n t) -> (identToVarName n, typeToIR lengthExpr t)) bs)
 
 terminalTypeToIR :: TerminalType -> IR.Terminal
 terminalTypeToIR StringType = IR.StringTerminal

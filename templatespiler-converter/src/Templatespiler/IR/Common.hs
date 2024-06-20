@@ -3,7 +3,9 @@
 module Templatespiler.IR.Common where
 
 import Data.Char (toUpper)
+import Data.List.NonEmpty ((<|))
 import Data.Text qualified as T
+import Language.Templatespiler.Syntax
 import Prettyprinter
 
 {- | We represent var names as a non empty list of strings. This allows more idiomatic name generation - for example, we can turn
@@ -38,3 +40,7 @@ toCaseStyle KebabCase (VarName (n :| ns)) = T.intercalate "-" (n : ns)
 
 instance Pretty VarName where
   pretty (VarName (n :| ns)) = pretty n <> hcat (fmap (("_" <>) . pretty) ns)
+
+generateStructName :: BindingList -> VarName
+generateStructName (BindingList bs) =
+  VarName $ "Struct" <| fmap (\(Binding (Ident n) _) -> n) bs

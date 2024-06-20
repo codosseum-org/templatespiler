@@ -1,5 +1,6 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Templatespiler.ToLang.Monad where
 
@@ -7,6 +8,11 @@ import Control.Monad.Writer
 
 newtype ToLangT w m a = ToLangT (WriterT w m a)
   deriving newtype (Functor, Applicative, Monad, MonadWriter w, MonadTrans)
+
+instance (MonadState s m, Monoid w) => MonadState s (ToLangT w m) where
+  get = lift get
+  put = lift . put
+  state = lift . state
 
 type ToLang w a = ToLangT w Identity a
 

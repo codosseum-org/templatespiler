@@ -24,6 +24,7 @@ common shared
 
   build-depends:
     , base
+    , containers
     , filepath
     , mtl
     , prettyprinter

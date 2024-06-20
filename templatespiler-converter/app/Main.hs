@@ -20,13 +20,13 @@ main = do
     Nothing -> exitFailure
     Just bs -> do
       let ir = toIR @Python bs
-      putDoc $ prettyProgram ir
+      -- putDoc $ prettyProgram ir
       let py = toLang @Python ir
       let c = toLang @C ir
       putStrLn ""
 
       let doc = emitLang @Python py
-      PP.putDoc doc
+      -- PP.putDoc doc
       putStrLn ""
       let doc2 = emitLang @C c
       PP.putDoc doc2

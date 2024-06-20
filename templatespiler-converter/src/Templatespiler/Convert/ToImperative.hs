@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE PartialTypeSignatures #-}
 
 module Templatespiler.Convert.ToImperative where
@@ -18,22 +19,35 @@ bindingToIR (Binding name t) = readNamedVariable name t
 
 readBindingOrCombinator :: BindingOrCombinator -> IRWriter IR.Expr
 readBindingOrCombinator (NamedBinding b) = bindingToIR b
-readBindingOrCombinator (GroupBinding (BindingList bs)) = do
+readBindingOrCombinator (GroupBinding b@(BindingList bs)) = do
   vars <- traverse bindingToIR bs
-  pure (IR.TupleOrStruct Nothing vars)
-readBindingOrCombinator (UnnamedBinding c) = combinatorVarToIR (Ident "unnamed") c
+  pure (IR.TupleOrStruct (generateStructName b) vars)
+readBindingOrCombinator (UnnamedBinding c) =
+  combinatorVarToIR
+    (findCombinatorName c)
+    c
+
+findBOrCombinatorName :: BindingOrCombinator -> VarName
+findBOrCombinatorName (NamedBinding (Binding n _)) = identToVarName n
+findBOrCombinatorName (GroupBinding bs) = generateStructName bs
+findBOrCombinatorName (UnnamedBinding c) = findCombinatorName c
+findCombinatorName :: Combinator -> VarName
+findCombinatorName = \case
+  NamedCombinator n _ -> identToVarName n
+  ArrayCombinator _ c -> findBOrCombinatorName c
+  SepByCombinator _ c -> generateStructName c
+  ListCombinator c -> findBOrCombinatorName c
 
 -- | Generates code to read a given type, store it in a variable, and return the variable.
 readNamedVariable :: Ident -> Type -> IRWriter IR.Expr
 readNamedVariable name (TerminalType t) = terminalVarToIR name t
-readNamedVariable name (CombinatorType c) = combinatorVarToIR name c
+readNamedVariable name (CombinatorType c) = combinatorVarToIR (identToVarName name) c
 
-combinatorVarToIR :: Ident -> Combinator -> IRWriter IR.Expr
+combinatorVarToIR :: VarName -> Combinator -> IRWriter IR.Expr
 combinatorVarToIR _ (NamedCombinator newName c) = readNamedVariable newName c
 combinatorVarToIR name (ArrayCombinator len b) = do
   let lenExpr = IR.ConstInt len
-
-  arrayLike (identToVarName name) lenExpr b
+  arrayLike name lenExpr b
 combinatorVarToIR name (SepByCombinator sep (BindingList bindingList)) = do
   let toReadAssign (Binding n t) =
         ( identToVarName n
@@ -43,9 +57,9 @@ combinatorVarToIR name (SepByCombinator sep (BindingList bindingList)) = do
         )
   let rAss = toReadAssign <$> bindingList
   tell [IR.ReadVars (toText sep) rAss]
-  pure (IR.TupleOrStruct (Just (identToVarName name)) (IR.Var . fst <$> rAss))
+  pure (IR.TupleOrStruct name (IR.Var . fst <$> rAss))
 combinatorVarToIR name (ListCombinator b) = do
-  let vn = identToVarName name
+  let vn = name
   let lenName = vn `withSuffix` "len"
   tell [IR.DeclareVar lenName (IR.TerminalType IR.IntegerTerminal), IR.ReadVar lenName IR.IntegerTerminal]
   arrayLike vn (IR.Var lenName) b

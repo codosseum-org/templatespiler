@@ -29,7 +29,7 @@ data Type
   | TupleOrStructType VarName (NonEmpty (VarName, Type))
   | DynamicArrayType Type
 
-data Expr = ConstInt Int | Var VarName | TupleOrStruct (Maybe VarName) (NonEmpty Expr)
+data Expr = ConstInt Int | Var VarName | TupleOrStruct VarName (NonEmpty Expr)
   deriving stock (Show, Eq)
 
 type Program = [Statement]
@@ -66,7 +66,7 @@ data Statement
 prettyExpr :: Expr -> Doc ann
 prettyExpr (ConstInt i) = pretty i
 prettyExpr (Var vn) = pretty vn
-prettyExpr (TupleOrStruct n es) = pretty (n ?: "unnamed") <> tupled (fmap prettyExpr (toList es))
+prettyExpr (TupleOrStruct n es) = pretty n <> tupled (fmap prettyExpr (toList es))
 
 prettyVarType :: Type -> Doc ann
 prettyVarType (TerminalType t) = pretty t

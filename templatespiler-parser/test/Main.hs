@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Language.Templatespiler.Parser
@@ -9,6 +11,7 @@ import Hedgehog
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
 
+import Data.Set qualified as Set
 import Hedgehog.Internal.Property (failWith)
 import Prettyprinter (defaultLayoutOptions, layoutPretty, unAnnotate)
 import Prettyprinter.Render.String
@@ -23,12 +26,19 @@ arbitraryBindingList = Gen.sized $ \size ->
 arbitraryBinding :: Gen Binding
 arbitraryBinding = Binding <$> arbitraryIdent <*> arbitraryType
 
+keywords :: Set Text
+keywords = Set.fromList ["list", "array", "sep-by"]
+
 arbitraryIdent :: Gen Ident
 arbitraryIdent =
-  Ident <$> do
-    first <- Gen.lower
-    rest <- Gen.string (Range.linear 0 10) Gen.alphaNum
-    pure $ toText (first : rest)
+  Ident
+    <$> Gen.filter
+      (`Set.notMember` keywords)
+      ( do
+          first <- Gen.lower
+          rest <- Gen.string (Range.linear 0 10) Gen.alphaNum
+          pure $ toText (first : rest)
+      )
 
 arbitraryType :: Gen Type
 arbitraryType = Gen.sized $ \size ->

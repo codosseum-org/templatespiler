@@ -13,11 +13,15 @@ type family LangAST (lang :: TargetLanguage) where
   LangAST 'Python = Py.Program
   LangAST 'C = C.Program
 
+type family LangASTRes (lang :: TargetLanguage) where
+  LangASTRes 'Python = (Py.Program, [Py.ToPythonWarning])
+  LangASTRes 'C = Either C.ToCError (C.Program, [C.ToCWarning])
+
 class (LangAST lang ~ ast) => ToLang (lang :: TargetLanguage) ast where
-  toLang :: IRTarget (ParadigmOf lang) -> ast
+  toLang :: IRTarget (ParadigmOf lang) -> LangASTRes lang
 
 instance ToLang 'Python Py.Program where
-  toLang = fst . Py.toPython
+  toLang = Py.toPython
 
 instance ToLang 'C C.Program where
-  toLang = fst . C.toC
+  toLang = C.toC

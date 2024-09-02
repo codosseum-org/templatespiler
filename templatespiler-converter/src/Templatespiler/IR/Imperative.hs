@@ -107,3 +107,6 @@ instance Pretty Terminal where
   pretty StringTerminal = "String"
   pretty IntegerTerminal = "Int"
   pretty FloatTerminal = "Float"
+
+instance Pretty Type where
+  pretty = prettyVarType

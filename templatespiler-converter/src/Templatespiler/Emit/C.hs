@@ -4,6 +4,19 @@ import Prettyprinter
 import Templatespiler.Emit.Common (indentDepth)
 import Templatespiler.ToLang.C
 
+emitToCError :: ToCError -> Doc ()
+emitToCError (LoopEndNotConvertible e) = "Loop end not convertible: " <+> pretty e
+
+emitCWarnings :: [ToCWarning] -> Doc ()
+emitCWarnings = vcat . fmap emitCWarning
+  where
+    emitCWarning :: ToCWarning -> Doc ()
+    emitCWarning (CantEmitCompoundType x) = "Can't emit compound type: " <+> pretty x
+
+emitCResult :: Either ToCError (Program, [ToCWarning]) -> Doc ()
+emitCResult (Left e) = emitToCError e
+emitCResult (Right (program, warnings)) = vsep [emitCWarnings warnings, emitC program]
+
 emitC :: Program -> Doc ()
 emitC program = do
   let inner = vsep $ fmap emitStmt program
@@ -28,17 +41,18 @@ emitStmt (For i start end statements) =
     , "" -- add a newline after the for loop for more readability
     ]
 emitStmt (ListAssign to idx val) = emitExpr to <> brackets (emitExpr idx) <+> "=" <+> emitExpr val <> ";"
-emitStmt (Typedef structName fields) =
-  "typedef"
-    <+> vsep
-      [ "struct {"
-      , indent indentDepth $ vsep $ fmap emitField fields
-      , "}"
-      ]
-    <+> pretty structName
-    <> ";"
-  where
-    emitField (name, t) = emitCTypePrefix t <+> pretty name <> emitCTypeSuffix t <> ";"
+
+-- emitStmt (Typedef structName fields) =
+--   "typedef"
+--     <+> vsep
+--       [ "struct {"
+--       , indent indentDepth $ vsep $ fmap emitField fields
+--       , "}"
+--       ]
+--     <+> pretty structName
+--     <> ";"
+--   where
+--     emitField (name, t) = emitCTypePrefix t <+> pretty name <> emitCTypeSuffix t <> ";"
 
 emitCTypePrefix :: CType -> Doc ()
 emitCTypePrefix IntType = "int"
@@ -60,7 +74,7 @@ emitExpr (String s) = toStringLit s
 emitExpr (Var v) = pretty v
 emitExpr (Pointer e) = "&" <> emitExpr e
 emitExpr (Deref e) = "*" <> emitExpr e
-emitExpr (Struct name es) = parens (pretty name) <> braces (hsep $ punctuate "," (fmap emitExpr es))
+-- emitExpr (Struct name es) = parens (pretty name) <> braces (hsep $ punctuate "," (fmap emitExpr es))
 emitExpr (Times e1 e2) = emitExpr e1 <+> "*" <+> emitExpr e2
 emitExpr (Range start end) = "range(" <> emitExpr start <> ", " <> emitExpr end <> ")"
 

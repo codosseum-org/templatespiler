@@ -1,27 +1,27 @@
+{-# LANGUAGE PartialTypeSignatures #-}
+
 module Templatespiler.ToLang.C where
 
-import Control.Monad.State qualified as State
-import Data.Map qualified as Map
+import Control.Monad.Except (throwError)
+import Control.Monad.Writer (tell)
 import Data.Text qualified as Text
 import Templatespiler.IR.Common (CaseStyle (PascalCase, SnakeCase), VarName, toCaseStyle)
 import Templatespiler.IR.Imperative qualified as IR
 import Templatespiler.ToLang.Monad
 
-data ToCWarning
-type CWriterT m a = ToLangT [ToCWarning] m a
-type CWriter a = CWriterT (State TypedefState) a
+newtype ToCWarning
+  = CantEmitCompoundType IR.Type
 
-newtype TypedefState = TypedefState
-  { typeDefs :: Map Text Typedef
+newtype ToCError
+  = LoopEndNotConvertible IR.Expr
+  deriving stock (Show)
+type CWriterT m a = ToLangT [ToCWarning] m a
+type CWriter a = CWriterT (ExceptT ToCError (State TypedefState)) a
+
+data TypedefState = TypedefState
+  {
   }
   deriving stock (Show)
-  deriving newtype (Semigroup, Monoid)
-
-data Typedef = NewTypedef Text [(Text, CType)]
-  deriving stock (Show)
-
-typeDefToStmt :: Typedef -> Stmt
-typeDefToStmt (NewTypedef name t) = Typedef name t
 
 -- | Very stripped down version of the C AST.
 data Expr
@@ -33,7 +33,6 @@ data Expr
   | Range Expr Expr
   | Pointer Expr
   | Deref Expr
-  | Struct Text [Expr]
   deriving stock (Show)
 
 data CType
@@ -61,15 +60,13 @@ data Stmt
   | ListAssign Expr Expr Expr
   | Scanf Text [Expr]
   | Gets Expr
-  | Typedef Text [(Text, CType)]
   deriving stock (Show)
 
 type Program = [Stmt]
 
-toC :: IR.Program -> (Program, [ToCWarning])
+toC :: IR.Program -> Either ToCError (Program, [ToCWarning])
 toC x = do
-  let ((statements, warnings), TypedefState typeDefs) = usingState mempty $ runToLangT $ fmap join $ traverse statementToC $ compress x
-  (fmap typeDefToStmt (reverse $ toList typeDefs) ++ statements, warnings)
+  fst <$> usingState TypedefState $ runExceptT $ runToLangT $ fmap join $ traverse statementToC $ compress x
 
 compress :: [IR.Statement] -> [IR.Statement]
 compress [] = []
@@ -94,7 +91,9 @@ statementToC :: IR.Statement -> CWriter [Stmt]
 statementToC (IR.DeclareVar name t) =
   do
     t' <- typeToCType t
-    pure [Declare (nameToCName name) t']
+    case t' of
+      Nothing -> pure []
+      Just t'' -> pure [Declare (nameToCName name) t'']
 statementToC (IR.ReadVar name t) = do
   pure
     [ Declare (nameToCName name) (terminalToCType t)
@@ -112,41 +111,51 @@ statementToC (IR.ReadVars sep bindings) = do
 statementToC (IR.LoopNTimes name end body) = do
   body' <- join <$> traverse statementToC body
   end' <- exprToC end
-  pure [For (nameToCName name) (Int 0) end' body']
+  case end' of
+    Nothing -> throwError $ LoopEndNotConvertible end
+    Just end'' -> pure [For (nameToCName name) (Int 0) end'' body']
 statementToC (IR.ArrayAssign name idx val) = do
   idx' <- exprToC idx
   val' <- exprToC val
-  pure [ListAssign (Var (nameToCName name)) idx' val']
+  case (idx', val') of
+    (Just idx'', Just val'') ->
+      pure [ListAssign (Var (nameToCName name)) idx'' val'']
+    _ -> pure []
 
-exprToC :: IR.Expr -> CWriter Expr
-exprToC (IR.ConstInt i) = pure $ Int i
-exprToC (IR.Var vn) = pure $ Var (nameToCName vn)
+exprToC :: IR.Expr -> CWriter (Maybe Expr)
+exprToC (IR.ConstInt i) = pure $ Just $ Int i
+exprToC (IR.Var vn) = pure $ Just $ Var (nameToCName vn)
 exprToC (IR.TupleOrStruct name es) = do
-  Struct (nameToCStructName name) <$> traverse exprToC (toList es)
+  pure Nothing
+
+-- Struct (nameToCStructName name) <$> traverse exprToC (toList es)
 
 terminalToCType :: IR.Terminal -> CType
 terminalToCType IR.StringTerminal = StringType
 terminalToCType IR.IntegerTerminal = IntType
 terminalToCType IR.FloatTerminal = FloatType
 
-typeToCType :: IR.Type -> CWriter CType
-typeToCType (IR.TerminalType t) = pure $ terminalToCType t
-typeToCType (IR.ArrayType len t) = do
-  t' <- typeToCType t
-  ArrayType t' <$> exprToC len
-typeToCType (IR.TupleOrStructType name ts) = do
-  let structName = nameToCStructName name
-  defs <- State.gets typeDefs
-  case Map.lookup structName defs of
-    Just (NewTypedef t _) -> pure $ StructType t
-    Nothing -> do
-      ts' <- traverse (\(n, t) -> (,) (nameToCName n) <$> typeToCType t) (toList ts)
-      let t = StructType structName
-      State.modify' $ \s -> s {typeDefs = Map.insert structName (NewTypedef structName ts') (typeDefs s)}
-      pure t
-typeToCType (IR.DynamicArrayType t) = do
-  t' <- typeToCType t
-  pure $ PointerType t'
+typeToCType :: IR.Type -> CWriter (Maybe CType)
+typeToCType x = runMaybeT $ typeToCType' x
+  where
+    typeToCType' (IR.TerminalType t) = pure $ terminalToCType t
+    typeToCType' (IR.ArrayType len t) = do
+      t' <- typeToCType' t
+      e' <- hoistMaybe <$> lift (exprToC len)
+      ArrayType t' <$> e'
+    typeToCType' (IR.TupleOrStructType name ts) = do
+      lift $ tell [CantEmitCompoundType (IR.TupleOrStructType name ts)]
+      hoistMaybe Nothing
+    -- case Map.lookup structName defs of
+    --   Just (NewTypedef t _) -> pure $ StructType t
+    --   Nothing -> do
+    --     ts' <- traverse (\(n, t) -> (,) (nameToCName n) <$> typeToCType t) (toList ts)
+    --     let t = StructType structName
+    --     State.modify' $ \s -> s {typeDefs = Map.insert structName (NewTypedef structName ts') (typeDefs s)}
+    --     pure t
+    typeToCType' (IR.DynamicArrayType t) = do
+      t' <- typeToCType' t
+      pure $ PointerType t'
 
 nameToCName :: VarName -> Text
 nameToCName = toCaseStyle SnakeCase

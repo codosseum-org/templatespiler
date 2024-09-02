@@ -12,10 +12,10 @@ import Templatespiler.ToLang.Python qualified as Py
 import Templatespiler.ToLang.Target
 
 class (LangAST lang ~ ast) => EmitLang (lang :: TargetLanguage) ast where
-  emitLang :: LangAST lang -> Doc ()
+  emitLang :: LangASTRes lang -> Doc ()
 
 instance EmitLang 'Python Py.Program where
-  emitLang = Py.emitPy
+  emitLang = Py.emitPyResult
 
 instance EmitLang 'C C.Program where
-  emitLang = C.emitC
+  emitLang = C.emitCResult

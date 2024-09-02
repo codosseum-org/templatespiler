@@ -4,6 +4,15 @@ import Prettyprinter
 import Templatespiler.Emit.Common (indentDepth)
 import Templatespiler.ToLang.Python
 
+emitPyWarnings :: [ToPythonWarning] -> Doc ()
+emitPyWarnings = vcat . fmap emitPyWarning
+  where
+    emitPyWarning :: ToPythonWarning -> Doc ()
+    emitPyWarning x = case x of {}
+
+emitPyResult :: (Program, [ToPythonWarning]) -> Doc ()
+emitPyResult (program, warnings) = vsep [emitPyWarnings warnings, emitPy program]
+
 emitPy :: Program -> Doc ()
 emitPy = vsep . fmap emitStmt
 

@@ -1,17 +1,14 @@
 module Templatespiler.Emit.Python where
 
 import Prettyprinter
-import Templatespiler.Emit.Common (indentDepth)
+import Templatespiler.Emit.Common (ConvertResult (ConvertResult), PDoc, indentDepth)
 import Templatespiler.ToLang.Python
 
-emitPyWarnings :: [ToPythonWarning] -> Doc ()
-emitPyWarnings = vcat . fmap emitPyWarning
-  where
-    emitPyWarning :: ToPythonWarning -> Doc ()
-    emitPyWarning x = case x of {}
+emitPyWarning :: ToPythonWarning -> PDoc
+emitPyWarning x = case x of {}
 
-emitPyResult :: (Program, [ToPythonWarning]) -> Doc ()
-emitPyResult (program, warnings) = vsep [emitPyWarnings warnings, emitPy program]
+emitPyResult :: (Program, [ToPythonWarning]) -> ConvertResult
+emitPyResult (program, warnings) = ConvertResult (emitPyWarning <$> warnings) (emitPy program)
 
 emitPy :: Program -> Doc ()
 emitPy = vsep . fmap emitStmt

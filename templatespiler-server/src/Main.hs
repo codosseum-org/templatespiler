@@ -11,8 +11,9 @@ import Network.Wai.Handler.Warp (run)
 import Network.Wai.Middleware.Cors
 import Prettyprinter
 import Prettyprinter.Render.Text
-import Servant (Application, Handler, Server, ServerError (..), ServerT, err400, hoistServer, serve, throwError, (:<|>) (..))
-import Templatespiler.Convert (convertTo)
+import Servant (Application, Handler, ServerError (..), ServerT, err400, hoistServer, serve, throwError, (:<|>) (..))
+import Templatespiler.Convert (convertTo, renderConvertResult)
+import Templatespiler.Emit.Common (ConvertResult (..), PDoc, TDoc)
 import Templatespiler.Generator (generateInput)
 import Templatespiler.Server
 import Text.Trifecta (ErrInfo (_errDoc), Result (..), parseByteString)
@@ -54,26 +55,34 @@ templatespilerServer =
           pure $ ParsedTemplate templateID
         Failure err -> throwError $ err400 {errBody = encodeUtf8 $ renderStrict $ layoutPretty defaultLayoutOptions $ _errDoc err}
     generate :: TemplateID -> Int -> AppM GenerateResponse
-    generate id len = do
+    generate templateId len = do
       state <- ask
       templates' <- readTVarIO (templates state)
-      case lookup id templates' of
+      case lookup templateId templates' of
         Nothing -> throwError $ err400 {errBody = "Template not found"}
         Just bindingList -> do
           inputs <- liftIO $ replicateM len $ generateInput bindingList
           pure $ GenerateResponse inputs
     compile :: TemplateID -> Language -> AppM CompiledTemplateResponse
-    compile id l@(Language lang) = do
+    compile templateId l@(Language lang) = do
       state <- ask
       templates' <- readTVarIO (templates state)
-      case lookup id templates' of
+      case lookup templateId templates' of
         Nothing -> throwError $ err400 {errBody = "Template not found"}
         Just bindingList -> do
-          liftIO $ putStrLn $ "Compiling template " <> show id <> " to " <> show l
+          liftIO $ putStrLn $ "Compiling template " <> show templateId <> " to " <> show l
           let compiled = convertTo bindingList lang
           case compiled of
             Nothing -> throwError $ err400 {errBody = "Language not supported"}
-            Just compiled -> do
-              liftIO $ putStrLn $ "Compiled template " <> show id <> " to " <> show l
-              liftIO $ putTextLn compiled
-              pure $ CompiledTemplateResponse [] (CompiledTemplate l (toBase64 compiled))
+            Just compileResult -> do
+              liftIO $ putStrLn $ "Compiled template " <> show templateId <> " to " <> show l
+              liftIO $ putTextLn $ renderConvertResult compileResult
+              case compileResult of
+                ConversionFailed doc -> throwError $ err400 {errBody = encodeUtf8 $ renderPDoc doc}
+                ConvertResult warnings code -> pure $ CompiledTemplateResponse (renderPDoc <$> warnings) (CompiledTemplate l (toBase64 (renderTDoc code)))
+
+renderPDoc :: PDoc -> Text
+renderPDoc = renderTDoc . unAnnotate
+
+renderTDoc :: TDoc -> Text
+renderTDoc = renderStrict . layoutPretty defaultLayoutOptions

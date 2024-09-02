@@ -1,21 +1,18 @@
 module Templatespiler.Emit.C where
 
 import Prettyprinter
-import Templatespiler.Emit.Common (indentDepth)
+import Templatespiler.Emit.Common (ConvertResult (..), PDoc, indentDepth)
 import Templatespiler.ToLang.C
 
-emitToCError :: ToCError -> Doc ()
+emitToCError :: ToCError -> PDoc
 emitToCError (LoopEndNotConvertible e) = "Loop end not convertible: " <+> pretty e
 
-emitCWarnings :: [ToCWarning] -> Doc ()
-emitCWarnings = vcat . fmap emitCWarning
-  where
-    emitCWarning :: ToCWarning -> Doc ()
-    emitCWarning (CantEmitCompoundType x) = "Can't emit compound type: " <+> pretty x
+emitCWarning :: ToCWarning -> PDoc
+emitCWarning (CantEmitCompoundType x) = "Can't emit compound type: " <+> pretty x
 
-emitCResult :: Either ToCError (Program, [ToCWarning]) -> Doc ()
-emitCResult (Left e) = emitToCError e
-emitCResult (Right (program, warnings)) = vsep [emitCWarnings warnings, emitC program]
+emitCResult :: Either ToCError (Program, [ToCWarning]) -> ConvertResult
+emitCResult (Left e) = ConversionFailed $ emitToCError e
+emitCResult (Right (program, warnings)) = ConvertResult (fmap emitCWarning warnings) (emitC program)
 
 emitC :: Program -> Doc ()
 emitC program = do

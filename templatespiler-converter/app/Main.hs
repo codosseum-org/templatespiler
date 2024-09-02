@@ -7,6 +7,7 @@ import Main.Utf8 qualified as Utf8
 import Prettyprinter
 import Prettyprinter.Render.Terminal (putDoc)
 import Prettyprinter.Render.Text qualified as PP
+import Templatespiler.Convert (renderConvertResult)
 import Templatespiler.Convert.Target (TargetLanguage (..), toIR)
 import Templatespiler.Emit.Target
 import Templatespiler.IR.Imperative
@@ -29,5 +30,5 @@ main = do
       -- PP.putDoc doc
       putStrLn ""
       let doc2 = emitLang @C c
-      PP.putDoc doc2
+      putTextLn $ renderConvertResult doc2
       putStrLn ""

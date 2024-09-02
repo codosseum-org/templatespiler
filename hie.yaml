@@ -23,3 +23,6 @@ cradle:
 
     - path: "templatespiler-server/src"
       component: "templatespiler-server:exe:server"
+
+    - path: "templatespiler-server/src/Main.hs"
+      component: "templatespiler-server:exe:server"

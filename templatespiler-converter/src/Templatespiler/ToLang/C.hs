@@ -50,7 +50,7 @@ data Stmt
   | Declare Text CType
   | For
       -- | integer for loop
-      -- |  i in
+      -- | i in
       Text
       -- | start
       Expr
@@ -83,7 +83,7 @@ compress (x : xs) = x : compress xs
 readTerminal :: IR.Terminal -> Expr -> Stmt
 readTerminal t var = case t of
   IR.StringTerminal -> Gets var
-  _ -> Scanf (formatSpecifier t) [var]
+  _ -> Scanf (formatSpecifier t) [Pointer var]
 
 formatSpecifier :: IR.Terminal -> Text
 formatSpecifier IR.IntegerTerminal = "%d"
@@ -102,7 +102,10 @@ statementToC (IR.ReadVar name t) = do
     ]
 statementToC (IR.ReadVars sep bindings) = do
   let scanfSpecifier = Text.intercalate sep (fmap (formatSpecifier . snd) (toList bindings))
-  let split = Scanf scanfSpecifier (fmap (Var . nameToCName . fst) (toList bindings))
+  let scanfAddPointerIfNecessary :: VarName -> IR.Terminal -> Expr
+      scanfAddPointerIfNecessary v IR.StringTerminal = Var $ nameToCName v
+      scanfAddPointerIfNecessary v _ = Pointer $ Var $ nameToCName v
+  let split = Scanf scanfSpecifier (fmap (uncurry scanfAddPointerIfNecessary) (toList bindings))
   let decls = fmap (\(name, t) -> Declare (nameToCName name) (terminalToCType t)) (toList bindings)
 
   pure (decls ++ [split])

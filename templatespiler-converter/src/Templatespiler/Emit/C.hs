@@ -38,18 +38,19 @@ emitStmt (Typedef structName fields) =
     <+> pretty structName
     <> ";"
   where
-    emitField (name, t) = emitCTypePrefix t <+> pretty name <> ";"
+    emitField (name, t) = emitCTypePrefix t <+> pretty name <> emitCTypeSuffix t <> ";"
 
 emitCTypePrefix :: CType -> Doc ()
 emitCTypePrefix IntType = "int"
 emitCTypePrefix FloatType = "float"
-emitCTypePrefix StringType = "char*"
+emitCTypePrefix StringType = "char"
 emitCTypePrefix (PointerType t) = emitCTypePrefix t <> "*"
 emitCTypePrefix (ArrayType t _) = emitCTypePrefix t
 emitCTypePrefix (StructType name) = pretty name
 
 emitCTypeSuffix :: CType -> Doc ()
 emitCTypeSuffix (ArrayType _ size) = "[" <> emitExpr size <> "]"
+emitCTypeSuffix StringType = "[500]"
 emitCTypeSuffix _ = ""
 
 emitExpr :: Expr -> Doc ()

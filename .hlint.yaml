@@ -15,6 +15,7 @@
       - "-XTupleSections"
       - "-XTypeApplications"
       - "-XViewPatterns"
+      - "-XPatternSynonyms"
 - ignore:
       name: Use head
 - ignore:

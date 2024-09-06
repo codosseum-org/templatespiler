@@ -62,7 +62,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and publish Docker image
-        if: ${{ github.ref == refs/heads/master && runner.os == 'Linux' }}
+        if: ${{ github.ref == 'refs/heads/master' && runner.os == 'Linux' }}
         run: |
           docker load -i $(nix build .#dockerImage --print-out-paths)
           docker tag $(nix build .#dockerImage --print-out-paths) ${{ env.REGISTRY }}/${{ github.repository }}:latest

@@ -5,6 +5,7 @@ module Main where
 
 import Data.Map.Strict (insert, lookup)
 
+import Control.Lens ((.~))
 import Data.OpenApi
 import Data.OpenApi.Internal.Utils (encodePretty)
 import Data.UUID.V4 (nextRandom)
@@ -52,9 +53,6 @@ main = do
         ( Apt.command "server" (Apt.info (pure StartServer) (Apt.progDesc "Start the server"))
             <> Apt.command "gen-openapi" (Apt.info (pure GenOpenApi) (Apt.progDesc "Generate OpenAPI spec"))
         )
-
-tsOpenAPI :: OpenApi
-tsOpenAPI = toOpenApi (Proxy :: Proxy TemplatespilerAPI)
 
 app :: State -> Application
 app s = simpleCors $ serve (Proxy @TemplatespilerAPI) $ hoistServer (Proxy @TemplatespilerAPI) (nt s) templatespilerServer

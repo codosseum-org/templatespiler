@@ -10,7 +10,7 @@ module Templatespiler.Server where
 import Control.Lens
 import Data.Aeson
 import Data.Base64.Types
-import Data.OpenApi (NamedSchema (..), OpenApiType (..), ToParamSchema (..))
+import Data.OpenApi (HasVersion (version), License (..), NamedSchema (..), OpenApi, OpenApiType (..), ToParamSchema (..))
 import Data.OpenApi.Lens
 import Data.OpenApi.Schema
 import Data.Text (toLower)
@@ -18,6 +18,7 @@ import Data.Text.Encoding.Base64
 import Data.UUID
 import Data.UUID qualified as UUID
 import Servant.API
+import Servant.OpenApi
 import Templatespiler.Convert.Target (TargetLanguage (..))
 
 type TemplatespilerAPI =
@@ -26,6 +27,14 @@ type TemplatespilerAPI =
           :<|> "generate" :> Capture "template_id" TemplateID :> QueryParam' '[Required, Strict] "amount" Int :> Get '[JSON] GenerateResponse
           :<|> "compile" :> Capture "template_id" TemplateID :> QueryParam' '[Required, Strict] "language" Language :> Get '[JSON] CompiledTemplateResponse
        )
+
+tsOpenAPI :: OpenApi
+tsOpenAPI =
+  toOpenApi (Proxy :: Proxy TemplatespilerAPI)
+    & info . title .~ "Templatespiler API"
+    & info . Data.OpenApi.version .~ "0.1.0"
+    & info . description ?~ "REST API for generating code & inputs from the Templatespiler language"
+    & info . license ?~ License "Affero General Public License 3.0 or later" Nothing
 
 data TemplateParseRequest = TemplateParseRequest
   { version :: Text

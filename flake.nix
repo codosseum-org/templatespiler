@@ -50,11 +50,10 @@
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
             src = ./.;
-            settings = {
-              treefmt.package = config.treefmt.build.wrapper;
-            };
+
             hooks = {
               treefmt.enable = true;
+              treefmt.package = config.treefmt.build.wrapper;
             };
           };
         };

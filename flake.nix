@@ -104,6 +104,7 @@
         packages.dockerImage = pkgs.dockerTools.buildImage {
           name = "templatespiler-server";
           created = "now";
+          tag = builtins.substring 0 9 (self.rev or "dev");
           config = {
             Cmd = [ "${pkgs.lib.getExe self'.packages.default}" ];
           };

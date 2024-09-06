@@ -102,7 +102,7 @@
         };
 
         packages.dockerImage = pkgs.dockerTools.buildImage {
-          name = "templatespiler-server";
+          name = "codosseum-org/templatespiler-server";
           created = "now";
           tag = builtins.substring 0 9 (self.rev or "dev");
           config = {

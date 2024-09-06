@@ -55,7 +55,7 @@ main = do
         )
 
 app :: State -> Application
-app s = simpleCors $ serve (Proxy @TemplatespilerAPI) $ hoistServer (Proxy @TemplatespilerAPI) (nt s) templatespilerServer
+app s = simpleCors $ serve (Proxy @Api) $ hoistServer (Proxy @Api) (nt s) mainServer
 
 nt :: State -> AppM a -> Handler a
 nt s x = runReaderT x s
@@ -64,6 +64,12 @@ newtype State = State
   { templates :: TVar (Map TemplateID BindingList)
   }
 type AppM = ReaderT State Handler
+
+mainServer :: ServerT Api AppM
+mainServer = templatespilerServer :<|> swaggerServer
+
+swaggerServer :: ServerT SwaggerAPI AppM
+swaggerServer = pure tsOpenAPI
 
 templatespilerServer :: ServerT TemplatespilerAPI AppM
 templatespilerServer =

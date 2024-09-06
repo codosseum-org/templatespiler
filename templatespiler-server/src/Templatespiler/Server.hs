@@ -24,9 +24,19 @@ import Templatespiler.Convert.Target (TargetLanguage (..))
 type TemplatespilerAPI =
   "template"
     :> ( "parse" :> ReqBody '[JSON] TemplateParseRequest :> Post '[JSON] ParsedTemplate
-          :<|> "generate" :> Capture "template_id" TemplateID :> QueryParam' '[Required, Strict] "amount" Int :> Get '[JSON] GenerateResponse
-          :<|> "compile" :> Capture "template_id" TemplateID :> QueryParam' '[Required, Strict] "language" Language :> Get '[JSON] CompiledTemplateResponse
+          :<|> "generate"
+            :> Capture "template_id" TemplateID
+            :> QueryParam' '[Required, Strict] "amount" Int
+            :> Get '[JSON] GenerateResponse
+          :<|> "compile"
+            :> Capture "template_id" TemplateID
+            :> QueryParam' '[Required, Strict] "language" Language
+            :> Get '[JSON] CompiledTemplateResponse
        )
+
+type SwaggerAPI = "swagger.json" :> Get '[JSON] OpenApi
+
+type Api = TemplatespilerAPI :<|> SwaggerAPI
 
 tsOpenAPI :: OpenApi
 tsOpenAPI =

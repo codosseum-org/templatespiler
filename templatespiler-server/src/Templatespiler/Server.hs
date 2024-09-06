@@ -1,11 +1,9 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# HLINT ignore "Use newtype instead of data" #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE NoPatternSynonyms #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 module Templatespiler.Server where
 
@@ -70,7 +68,7 @@ instance ToParamSchema TemplateID where
 instance FromHttpApiData TemplateID where
   parseUrlPiece = fmap TemplateID . parseUrlPiece
 
-data GenerateResponse = GenerateResponse {inputs :: [[Text]]}
+newtype GenerateResponse = GenerateResponse {inputs :: [[Text]]}
   deriving stock (Eq, Show, Generic)
 instance ToSchema GenerateResponse
 

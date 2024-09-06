@@ -9,7 +9,7 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
     flake-root.url = "github:srid/flake-root";
-    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+    pre-commit-hooks.url = "github:cachix/git-hooks.nix";
   };
 
   outputs = { self, pre-commit-hooks, ... } @ inputs:

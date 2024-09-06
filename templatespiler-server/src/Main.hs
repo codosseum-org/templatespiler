@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Main where
@@ -5,11 +6,13 @@ module Main where
 import Data.Map.Strict (insert, lookup)
 
 import Data.OpenApi
+import Data.OpenApi.Internal.Utils (encodePretty)
 import Data.UUID.V4 (nextRandom)
 import Language.Templatespiler.Parser (parseBindingList)
 import Language.Templatespiler.Syntax (BindingList)
 import Network.Wai.Handler.Warp (run)
 import Network.Wai.Middleware.Cors
+import Options.Applicative qualified as Apt
 import Prettyprinter
 import Prettyprinter.Render.Text
 import Servant (Application, Handler, ServerError (..), ServerT, err400, hoistServer, serve, throwError, (:<|>) (..))
@@ -21,13 +24,34 @@ import Templatespiler.Server
 import Text.Trifecta (ErrInfo (_errDoc), Result (..), parseByteString)
 import Prelude hiding (State, state)
 
-main :: IO ()
-main = do
+data StartCommand
+  = StartServer
+  | GenOpenApi
+
+startServer :: IO ()
+startServer = do
   initialState <- State <$> newTVarIO mempty
   putStrLn "Starting server on port 8080..."
 
   run 8080 $ app initialState
   putStrLn ""
+
+main :: IO ()
+main = do
+  Apt.execParser
+    ( Apt.info
+        (Apt.helper <*> opts)
+        Apt.idm
+    )
+    >>= \case
+      StartServer -> startServer
+      GenOpenApi -> putLBSLn $ encodePretty tsOpenAPI
+  where
+    opts =
+      Apt.subparser
+        ( Apt.command "server" (Apt.info (pure StartServer) (Apt.progDesc "Start the server"))
+            <> Apt.command "gen-openapi" (Apt.info (pure GenOpenApi) (Apt.progDesc "Generate OpenAPI spec"))
+        )
 
 tsOpenAPI :: OpenApi
 tsOpenAPI = toOpenApi (Proxy :: Proxy TemplatespilerAPI)

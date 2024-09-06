@@ -29,6 +29,7 @@ common shared
     , lens
     , mtl
     , openapi3
+    , optparse-applicative
     , prettyprinter
     , relude                    >=1.0
     , servant

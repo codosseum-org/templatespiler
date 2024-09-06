@@ -69,8 +69,12 @@
     }
   },
   "info": {
-    "title": "",
-    "version": ""
+    "description": "REST API for generating code & inputs from the Templatespiler language",
+    "license": {
+      "name": "Affero General Public License 3.0 or later"
+    },
+    "title": "Templatespiler API",
+    "version": "0.1.0"
   },
   "openapi": "3.0.0",
   "paths": {

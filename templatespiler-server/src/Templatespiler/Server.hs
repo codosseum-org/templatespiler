@@ -10,7 +10,7 @@ module Templatespiler.Server where
 import Control.Lens
 import Data.Aeson
 import Data.Base64.Types
-import Data.OpenApi (HasVersion (version), License (..), NamedSchema (..), OpenApi, OpenApiType (..), ToParamSchema (..))
+import Data.OpenApi (HasVersion (version), License (..), NamedSchema (..), OpenApi, OpenApiType (..), Referenced (..), ToParamSchema (..), declareResponse)
 import Data.OpenApi.Lens
 import Data.OpenApi.Schema
 import Data.Text (toLower)
@@ -41,11 +41,24 @@ data TemplateParseRequest = TemplateParseRequest
   , template :: Base64String
   }
   deriving stock (Eq, Show, Generic)
-instance ToSchema TemplateParseRequest
+instance ToSchema TemplateParseRequest where
+  declareNamedSchema proxy = do
+    -- okResponse <- declareResponse "application/json" (Proxy @ParsedTemplate)
+
+    genericDeclareNamedSchema defaultSchemaOptions proxy
+      & mapped . schema . title ?~ "Submit a template for parsing"
+      & mapped . schema . description ?~ "Submit a template for parsing, returning a unique ID that can be used to process the parsed template in other ways"
+      & mapped . schema . properties . at "version" . _Just . _Inline . description ?~ "Version of the Templatespiler Language that the template is written in"
+      & mapped . schema . properties . at "template" . _Just . _Inline . description ?~ "Content of the template, described using the Templatespiler Language, encoded as Base64"
+      & mapped . schema . required .~ ["version", "template"]
+
+-- & mapped . schema . at 200 ?~ Inline okResponse
 
 newtype Base64String = Base64String Text deriving newtype (Eq, Show, ToJSON)
 instance ToSchema Base64String where
-  declareNamedSchema _ = declareNamedSchema (Proxy @Text)
+  declareNamedSchema _ =
+    declareNamedSchema (Proxy @Text)
+      & mapped . schema . title ?~ "Base64 encoded string"
 
 unBase64 :: Base64String -> Either Text Text
 unBase64 (Base64String t) = decodeBase64Untyped t

@@ -96,4 +96,4 @@ jobs:
         run: |
           docker load -i $(nix build .#dockerImage --print-out-paths)
           docker tag ${{ env.IMAGE_NAME }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}

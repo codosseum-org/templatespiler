@@ -99,8 +99,22 @@
             config.flake-root.devShell
             config.treefmt.build.devShell
           ];
+        };
 
+        packages.dockerImage = pkgs.dockerTools.buildImage {
+          name = "templatespiler-server";
+          created = "now";
+          config = {
+            Cmd = [ "${pkgs.lib.getExe self'.packages.default}" ];
+          };
 
+          copyToRoot = pkgs.buildEnv {
+            paths = with pkgs; [
+              self'.packages.default
+            ];
+            name = "foo-root";
+            pathsToLink = [ "/bin" ];
+          };
         };
       };
     };

@@ -27,7 +27,6 @@ jobs:
             trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
             substituters = https://cache.garnix.io?priority=41 https://cache.nixos.org/
 
-
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
       - uses: cachix/cachix-action@v12
@@ -39,3 +38,32 @@ jobs:
         with:
           packages: "github:srid/nixci"
       - run: nixci build
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: DeterminateSystems/nix-installer-action@main
+        name: Install Nix
+        with:
+          extra-conf: |
+            trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+            substituters = https://cache.garnix.io?priority=41 https://cache.nixos.org/
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: cachix/cachix-action@v12
+        with:
+          name: codosseum
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish Docker image
+        if: ${{ github.ref == refs/heads/master && runner.os == 'Linux' }}
+        run: |
+          docker load -i $(nix build .#dockerImage --print-out-paths)
+          docker tag $(nix build .#dockerImage --print-out-paths) ${{ env.REGISTRY }}/${{ github.repository }}:latest
+          docker push ${{ env.REGISTRY }}/${{ github.repository }}:latest

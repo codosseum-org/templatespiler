@@ -95,5 +95,5 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' && runner.os == 'Linux' }}
         run: |
           docker load -i $(nix build .#dockerImage --print-out-paths)
-          docker tag $(nix build .#dockerImage --print-out-paths) ${{ env.REGISTRY }}/${{ github.repository }}:latest
+          docker tag ${{ IMAGE_NAME }}:latest ${{ env.REGISTRY }}/${{ IMAGE_NAME }}:latest
           docker push ${{ env.REGISTRY }}/${{ github.repository }}:latest

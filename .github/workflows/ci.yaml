@@ -16,36 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # https://github.com/orgs/community/discussions/25678#discussioncomment-5242449
-      - name: Delete huge unnecessary tools folder
-        if: runner.os == 'Linux'
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf \
-          "$AGENT_TOOLSDIRECTORY" \
-          /opt/google/chrome \
-          /opt/microsoft/msedge \
-          /opt/microsoft/powershell \
-          /opt/pipx \
-          /usr/lib/mono \
-          /usr/local/julia* \
-          /usr/local/lib/android \
-          /usr/local/lib/node_modules \
-          /usr/local/share/chromium \
-          /usr/local/share/powershell \
-          /usr/share/dotnet \
-          /usr/share/swift
-          df -h /
-
       - uses: DeterminateSystems/nix-installer-action@main
         name: Install Nix
-        with:
-          extra-conf: |
-            trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
-            substituters = https://cache.garnix.io?priority=41 https://cache.nixos.org/
 
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
@@ -54,11 +26,15 @@ jobs:
           name: codosseum
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - uses: yaxitech/nix-install-pkgs-action@v3
-        with:
-          packages: "github:srid/nixci"
-      - run: nixci build
-        
+      - name: Install omnix
+        run: nix --accept-flake-config profile install "github:juspay/omnix"
+
+      - name: Build all flake outputs
+        run: om ci
+
+      - name: What GHC version?
+        run: nix develop -c ghc --version
+
   build-docker:
     runs-on: ubuntu-latest
     needs: build

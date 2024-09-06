@@ -26,6 +26,7 @@ common shared
     , data-default
     , directory
     , filepath
+    , lens
     , mtl
     , openapi3
     , prettyprinter

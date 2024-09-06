@@ -4,6 +4,7 @@ module Main where
 
 import Data.Map.Strict (insert, lookup)
 
+import Data.OpenApi
 import Data.UUID.V4 (nextRandom)
 import Language.Templatespiler.Parser (parseBindingList)
 import Language.Templatespiler.Syntax (BindingList)
@@ -12,6 +13,7 @@ import Network.Wai.Middleware.Cors
 import Prettyprinter
 import Prettyprinter.Render.Text
 import Servant (Application, Handler, ServerError (..), ServerT, err400, hoistServer, serve, throwError, (:<|>) (..))
+import Servant.OpenApi
 import Templatespiler.Convert (convertTo, renderConvertResult)
 import Templatespiler.Emit.Common (ConvertResult (..), PDoc, TDoc)
 import Templatespiler.Generator (generateInput)
@@ -26,6 +28,9 @@ main = do
 
   run 8080 $ app initialState
   putStrLn ""
+
+tsOpenAPI :: OpenApi
+tsOpenAPI = toOpenApi (Proxy :: Proxy TemplatespilerAPI)
 
 app :: State -> Application
 app s = simpleCors $ serve (Proxy @TemplatespilerAPI) $ hoistServer (Proxy @TemplatespilerAPI) (nt s) templatespilerServer

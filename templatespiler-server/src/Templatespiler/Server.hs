@@ -4,12 +4,17 @@
 {-# HLINT ignore "Use newtype instead of data" #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE NoPatternSynonyms #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 module Templatespiler.Server where
 
+import Control.Lens
 import Data.Aeson
 import Data.Base64.Types
+import Data.OpenApi (NamedSchema (..), OpenApiType (..), ToParamSchema (..))
+import Data.OpenApi.Lens
+import Data.OpenApi.Schema
 import Data.Text (toLower)
 import Data.Text.Encoding.Base64
 import Data.UUID
@@ -29,8 +34,11 @@ data TemplateParseRequest = TemplateParseRequest
   , template :: Base64String
   }
   deriving stock (Eq, Show, Generic)
+instance ToSchema TemplateParseRequest
 
 newtype Base64String = Base64String Text deriving newtype (Eq, Show, ToJSON)
+instance ToSchema Base64String where
+  declareNamedSchema _ = declareNamedSchema (Proxy @Text)
 
 unBase64 :: Base64String -> Either Text Text
 unBase64 (Base64String t) = decodeBase64Untyped t
@@ -43,13 +51,28 @@ instance FromJSON TemplateParseRequest where
     TemplateParseRequest <$> o .: "version" <*> (Base64String <$> o .: "template")
 
 newtype ParsedTemplate = ParsedTemplate TemplateID deriving newtype (Eq, Show, ToJSON)
+instance ToSchema ParsedTemplate where
+  declareNamedSchema _ = do
+    pure $
+      NamedSchema (Just "ParsedTemplate") $
+        toParamSchema (Proxy @TemplateID)
+
 newtype TemplateID = TemplateID UUID deriving newtype (Eq, Show, Ord)
+instance ToParamSchema TemplateID where
+  toParamSchema _ =
+    mempty
+      & type_ ?~ OpenApiString
+      & format ?~ "uuid"
+      & pattern ?~ "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      & minLength ?~ 36
+      & maxLength ?~ 36
 
 instance FromHttpApiData TemplateID where
   parseUrlPiece = fmap TemplateID . parseUrlPiece
 
 data GenerateResponse = GenerateResponse {inputs :: [[Text]]}
   deriving stock (Eq, Show, Generic)
+instance ToSchema GenerateResponse
 
 data CompiledTemplateResponse = CompiledTemplateResponse
   { warnings :: [Text]
@@ -57,13 +80,19 @@ data CompiledTemplateResponse = CompiledTemplateResponse
   }
   deriving stock (Eq, Show, Generic)
 
+instance ToSchema CompiledTemplateResponse
+
 data CompiledTemplate = CompiledTemplate
   { language :: Language
   , code :: Base64String
   }
   deriving stock (Eq, Show, Generic)
 
+instance ToSchema CompiledTemplate
+
 newtype Language = Language TargetLanguage deriving newtype (Eq, Show, Generic)
+instance ToSchema Language
+instance ToParamSchema Language
 
 instance FromHttpApiData Language where
   parseUrlPiece = fmap Language . parseTargetLanguage

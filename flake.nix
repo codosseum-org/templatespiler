@@ -108,13 +108,10 @@
           config = {
             Cmd = [ "${pkgs.lib.getExe self'.packages.default} server" ];
           };
-          contents = with pkgs; [
-            self'.packages.default
-            pkgs.bash
-          ];
           copyToRoot = pkgs.buildEnv {
             paths = with pkgs; [
               self'.packages.default
+              pkgs.bash
             ];
             name = "server";
             pathsToLink = [ "/bin" ];

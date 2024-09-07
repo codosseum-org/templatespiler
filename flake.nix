@@ -113,7 +113,7 @@
               self'.packages.default
               pkgs.bash
             ];
-            name = "server";
+            name = "server-root";
             pathsToLink = [ "/bin" ];
           };
         };

@@ -5,8 +5,6 @@ module Main where
 
 import Data.Map.Strict (insert, lookup)
 
-import Control.Lens ((.~))
-import Data.OpenApi
 import Data.OpenApi.Internal.Utils (encodePretty)
 import Data.UUID.V4 (nextRandom)
 import Language.Templatespiler.Parser (parseBindingList)
@@ -17,7 +15,6 @@ import Options.Applicative qualified as Apt
 import Prettyprinter
 import Prettyprinter.Render.Text
 import Servant (Application, Handler, ServerError (..), ServerT, err400, hoistServer, serve, throwError, (:<|>) (..))
-import Servant.OpenApi
 import Templatespiler.Convert (convertTo, renderConvertResult)
 import Templatespiler.Emit.Common (ConvertResult (..), PDoc, TDoc)
 import Templatespiler.Generator (generateInput)
@@ -77,10 +74,8 @@ templatespilerServer =
   where
     parse :: TemplateParseRequest -> AppM ParsedTemplate
     parse TemplateParseRequest {..} = do
-      template' <- either (\err -> throwError $ err400 {errBody = "Bad Base64 Template: " <> encodeUtf8 err}) pure (unBase64 template)
-
       state <- ask
-      let parsed = parseByteString parseBindingList mempty (encodeUtf8 template')
+      let parsed = parseByteString parseBindingList mempty (encodeUtf8 template)
       case parsed of
         Success bindingList -> do
           templateID <- TemplateID <$> liftIO nextRandom
@@ -112,7 +107,7 @@ templatespilerServer =
               liftIO $ putTextLn $ renderConvertResult compileResult
               case compileResult of
                 ConversionFailed doc -> throwError $ err400 {errBody = encodeUtf8 $ renderPDoc doc}
-                ConvertResult warnings code -> pure $ CompiledTemplateResponse (renderPDoc <$> warnings) (CompiledTemplate l (toBase64 (renderTDoc code)))
+                ConvertResult warnings code -> pure $ CompiledTemplateResponse (renderPDoc <$> warnings) (CompiledTemplate l (renderTDoc code))
 
 renderPDoc :: PDoc -> Text
 renderPDoc = renderTDoc . unAnnotate

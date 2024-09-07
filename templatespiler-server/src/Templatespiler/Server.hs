@@ -9,12 +9,10 @@ module Templatespiler.Server where
 
 import Control.Lens
 import Data.Aeson
-import Data.Base64.Types
-import Data.OpenApi (HasVersion (version), License (..), NamedSchema (..), OpenApi, OpenApiType (..), Referenced (..), ToParamSchema (..), declareResponse)
+import Data.OpenApi (HasVersion (version), License (..), NamedSchema (..), OpenApi, OpenApiType (..), ToParamSchema (..))
 import Data.OpenApi.Lens
 import Data.OpenApi.Schema
 import Data.Text (toLower)
-import Data.Text.Encoding.Base64
 import Data.UUID
 import Data.UUID qualified as UUID
 import Servant.API
@@ -48,7 +46,7 @@ tsOpenAPI =
 
 data TemplateParseRequest = TemplateParseRequest
   { version :: Text
-  , template :: Base64String
+  , template :: Text
   }
   deriving stock (Eq, Show, Generic)
 instance ToSchema TemplateParseRequest where
@@ -59,26 +57,14 @@ instance ToSchema TemplateParseRequest where
       & mapped . schema . title ?~ "Submit a template for parsing"
       & mapped . schema . description ?~ "Submit a template for parsing, returning a unique ID that can be used to process the parsed template in other ways"
       & mapped . schema . properties . at "version" . _Just . _Inline . description ?~ "Version of the Templatespiler Language that the template is written in"
-      & mapped . schema . properties . at "template" . _Just . _Inline . description ?~ "Content of the template, described using the Templatespiler Language, encoded as Base64"
+      & mapped . schema . properties . at "template" . _Just . _Inline . description ?~ "Content of the template, described using the Templatespiler Language"
       & mapped . schema . required .~ ["version", "template"]
 
 -- & mapped . schema . at 200 ?~ Inline okResponse
 
-newtype Base64String = Base64String Text deriving newtype (Eq, Show, ToJSON)
-instance ToSchema Base64String where
-  declareNamedSchema _ =
-    declareNamedSchema (Proxy @Text)
-      & mapped . schema . title ?~ "Base64 encoded string"
-
-unBase64 :: Base64String -> Either Text Text
-unBase64 (Base64String t) = decodeBase64Untyped t
-
-toBase64 :: Text -> Base64String
-toBase64 = Base64String . extractBase64 . encodeBase64
-
 instance FromJSON TemplateParseRequest where
   parseJSON = withObject "TemplateParseRequest" $ \o ->
-    TemplateParseRequest <$> o .: "version" <*> (Base64String <$> o .: "template")
+    TemplateParseRequest <$> o .: "version" <*> (o .: "template")
 
 newtype ParsedTemplate = ParsedTemplate TemplateID deriving newtype (Eq, Show, ToJSON)
 instance ToSchema ParsedTemplate where
@@ -114,7 +100,7 @@ instance ToSchema CompiledTemplateResponse
 
 data CompiledTemplate = CompiledTemplate
   { language :: Language
-  , code :: Base64String
+  , code :: Text
   }
   deriving stock (Eq, Show, Generic)
 

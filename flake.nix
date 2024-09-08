@@ -92,6 +92,7 @@
           nativeBuildInputs = with pkgs; [
             just
             config.treefmt.build.wrapper
+            python3
           ];
           # See https://zero-to-flakes.com/haskell-flake/devshell#composing-devshells
           inputsFrom = [

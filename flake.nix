@@ -93,6 +93,7 @@
             just
             config.treefmt.build.wrapper
             python3
+            gcc
           ];
           # See https://zero-to-flakes.com/haskell-flake/devshell#composing-devshells
           inputsFrom = [

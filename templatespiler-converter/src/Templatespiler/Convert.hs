@@ -14,6 +14,7 @@ import Templatespiler.ToLang.Target
 convertTo :: BindingList -> TargetLanguage -> Maybe ConvertResult
 convertTo bindingList lang = case lang of
   Python -> Just $ convertTo' @Python bindingList
+  C -> Just $ convertTo' @C bindingList
   _ -> Nothing
 
 convertTo' ::

@@ -12,6 +12,7 @@ common shared
     -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns
     -Wmissing-deriving-strategies -Wunused-foralls -Wunused-foralls
     -fprint-explicit-foralls -fprint-explicit-kinds
+    -threaded -rtsopts -with-rtsopts=-N
 
   mixins:
     base hiding (Prelude),
@@ -63,3 +64,24 @@ executable converter
   main-is:        Main.hs
   build-depends:  templatespiler-converter
   hs-source-dirs: app
+
+test-suite test
+  import:             shared
+  type:               exitcode-stdio-1.0
+  main-is:            Main.hs
+  build-depends:
+    , hedgehog               >=1.4
+    , sydtest
+    , sydtest-hedgehog
+    , templatespiler-generator
+    , templatespiler-converter
+    , process
+    , temporary
+    , temporary-resourcet
+    , exceptions
+    , unliftio-core
+    , mmorph
+    , resourcet
+
+  default-extensions: TemplateHaskell
+  hs-source-dirs:     test

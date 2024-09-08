@@ -12,14 +12,15 @@ import Templatespiler.Convert.ToImperative qualified as Imperative
 import Templatespiler.IR.Declarative as DecIR
 import Templatespiler.IR.Imperative as ImpIR
 
-data TargetLanguage = C | Python | Haskell deriving stock (Eq, Show, Generic)
+data TargetLanguage = C | Python deriving stock (Eq, Show, Generic, Enum, Bounded)
 
 data LanguageKind = Imperative | Declarative
 
 type family ParadigmOf (lang :: TargetLanguage) where
   ParadigmOf C = Imperative
   ParadigmOf Python = Imperative
-  ParadigmOf Haskell = Declarative
+
+-- ParadigmOf Haskell = Declarative -- TODO
 
 type family IRTarget (lang :: LanguageKind) = p | p -> lang where
   IRTarget Imperative = ImpIR.Program

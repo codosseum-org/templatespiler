@@ -6,6 +6,9 @@ cradle:
     - path: "templatespiler-converter/src/Main.hs"
       component: "templatespiler-converter:exe:converter"
 
+    - path: "templatespiler-converter/test"
+      component: "templatespiler-converter:test:test"
+
     - path: "templatespiler-generator/src"
       component: "lib:templatespiler-generator"
 

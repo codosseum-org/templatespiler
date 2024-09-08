@@ -1,6 +1,7 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FunctionalDependencies #-}
 
 module Templatespiler.ToLang.Target where
 
@@ -17,7 +18,7 @@ type family LangASTRes (lang :: TargetLanguage) where
   LangASTRes 'Python = (Py.Program, [Py.ToPythonWarning])
   LangASTRes 'C = Either C.ToCError (C.Program, [C.ToCWarning])
 
-class (LangAST lang ~ ast) => ToLang (lang :: TargetLanguage) ast where
+class (LangAST lang ~ ast) => ToLang (lang :: TargetLanguage) ast | lang -> ast where
   toLang :: IRTarget (ParadigmOf lang) -> LangASTRes lang
 
 instance ToLang 'Python Py.Program where

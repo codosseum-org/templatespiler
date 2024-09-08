@@ -15,7 +15,6 @@ convertTo :: BindingList -> TargetLanguage -> Maybe ConvertResult
 convertTo bindingList lang = case lang of
   Python -> Just $ convertTo' @Python bindingList
   C -> Just $ convertTo' @C bindingList
-  _ -> Nothing
 
 convertTo' ::
   forall (target :: TargetLanguage) ast.
@@ -23,9 +22,9 @@ convertTo' ::
   BindingList ->
   ConvertResult
 convertTo' bindingList = do
-  let ir = toIR @target bindingList :: IRTarget (ParadigmOf target)
-  let ast = toLang @target @ast ir
-  emitLang @target @ast ast
+  let ir = toIR @target bindingList
+  let ast = toLang @target ir
+  emitLang @target ast
 
 renderConvertResult :: ConvertResult -> Text
 renderConvertResult (ConversionFailed doc) = renderStrict $ layoutPretty defaultLayoutOptions doc

@@ -1,9 +1,9 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FunctionalDependencies #-}
 
 module Templatespiler.Emit.Target where
 
-import Prettyprinter
 import Templatespiler.Convert.Target
 import Templatespiler.Emit.C qualified as C
 import Templatespiler.Emit.Common (ConvertResult)
@@ -12,7 +12,7 @@ import Templatespiler.ToLang.C qualified as C
 import Templatespiler.ToLang.Python qualified as Py
 import Templatespiler.ToLang.Target
 
-class (LangAST lang ~ ast) => EmitLang (lang :: TargetLanguage) ast where
+class (LangAST lang ~ ast) => EmitLang (lang :: TargetLanguage) ast | lang -> ast where
   emitLang :: LangASTRes lang -> ConvertResult
 
 instance EmitLang 'Python Py.Program where

@@ -62,7 +62,7 @@ withCompiled lang code = do
   compiledFile <- case lang of
     Python -> pure sourceFp
     C -> do
-      liftIO $ callProcess "gcc" [sourceFp, "-o", fp </> "a.out"]
+      liftIO $ callProcess "cc" [sourceFp, "-o", fp </> "a.out"]
       pure $ fp <> "/a.out"
 
   let (cmdToRun, argsToRun) = case lang of

@@ -92,8 +92,6 @@
           nativeBuildInputs = with pkgs; [
             just
             config.treefmt.build.wrapper
-            python3
-            gcc
           ];
           # See https://zero-to-flakes.com/haskell-flake/devshell#composing-devshells
           inputsFrom = [
@@ -101,6 +99,7 @@
             config.flake-root.devShell
             config.treefmt.build.devShell
           ];
+
         };
 
         packages.dockerImage = pkgs.dockerTools.buildImage {

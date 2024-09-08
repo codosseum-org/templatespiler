@@ -74,7 +74,7 @@ withCompiled lang code = do
 runProcessWithStdin :: Text -> [Text] -> [Text] -> IO ()
 runProcessWithStdin processName args input = do
   let inputText = unlines input
-  (Just hin, Just hout, _, _) <- createProcess (proc (toString processName) (map toString args)) {std_in = CreatePipe, std_out = CreatePipe}
+  (Just hin, Just hout, _, _) <- createProcess (proc "sh" (["-c", toString processName] ++ map toString args)) {std_in = CreatePipe, std_out = CreatePipe}
   Text.hPutStrLn hin inputText
   hFlush hin
   -- assert that the process exits successfully with no output

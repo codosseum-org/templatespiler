@@ -12,11 +12,12 @@ env:
 
 jobs:
   build:
-    runs-on: [ubuntu-latest]
+    runs-on: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
 
       - name: Free disk space
+        if: runner.os == 'Linux'
         run: |
           sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1 || true
           sudo rm -rf \

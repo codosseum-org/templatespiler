@@ -19,6 +19,7 @@ import Templatespiler.Convert.Target
 import Templatespiler.Emit.Common
 import Templatespiler.Generate (arbitraryInput)
 import Test.Syd
+import Test.Syd.Hedgehog ()
 import Text.Trifecta
 import "temporary-resourcet" System.IO.Temp qualified as TempResourceT
 
@@ -91,4 +92,4 @@ simpleTemplate3Ints :: Text
 simpleTemplate3Ints = "a : Integer\n b : Integer\n c : Integer\n"
 
 templateFromReadme :: Text
-templateFromReadme = "count : Integer\ninputs: array count (num : Integer)"
+templateFromReadme = "inputs: list (num : Integer)"

@@ -1,9 +1,11 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE PackageImports #-}
 
 module Main where
 
 import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Resource
+import Data.List (intersperse)
 import Data.Text.IO qualified as Text
 import Hedgehog (Property, evalEither, evalMaybe, forAll, property)
 import Hedgehog.Internal.Property (failWith)
@@ -22,9 +24,12 @@ import Test.Syd
 import Test.Syd.Hedgehog ()
 import Text.Trifecta
 import "temporary-resourcet" System.IO.Temp qualified as TempResourceT
+import System.Environment (getEnv)
 
 main :: IO ()
-main = sydTest spec
+main = do
+  getEnv "PATH" >>= putStrLn
+  sydTest spec
 
 spec :: Spec
 spec = describe "Integration Test" $ do
@@ -62,7 +67,7 @@ withCompiled lang code = do
   compiledFile <- case lang of
     Python -> pure sourceFp
     C -> do
-      liftIO $ callProcess "cc" [sourceFp, "-o", fp </> "a.out"]
+      liftIO $ callProcess "gcc" [sourceFp, "-o", fp </> "a.out"]
       pure $ fp <> "/a.out"
 
   let (cmdToRun, argsToRun) = case lang of
@@ -73,12 +78,7 @@ withCompiled lang code = do
 
 runProcessWithStdin :: Text -> [Text] -> [Text] -> IO ()
 runProcessWithStdin processName args input = do
-  let inputText = unlines input
-  (Just hin, Just hout, _, _) <- createProcess (proc "sh" (["-c", toString processName] ++ map toString args)) {std_in = CreatePipe, std_out = CreatePipe}
-  Text.hPutStrLn hin inputText
-  hFlush hin
-  -- assert that the process exits successfully with no output
-  output <- Text.hGetContents hout
+  output <- readProcess (toString processName) (toString <$> args) (toString $ unlines input)
   output `shouldBe` ""
 
 parseTemplate :: Text -> Either Text BindingList

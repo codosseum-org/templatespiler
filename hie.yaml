@@ -3,29 +3,26 @@ cradle:
     - path: "templatespiler-converter/src"
       component: "lib:templatespiler-converter"
 
-    - path: "templatespiler-converter/src/Main.hs"
+    - path: "templatespiler-converter/app/Main.hs"
       component: "templatespiler-converter:exe:converter"
-
-    - path: "templatespiler-converter/test"
-      component: "templatespiler-converter:test:test"
 
     - path: "templatespiler-generator/src"
       component: "lib:templatespiler-generator"
 
-    - path: "templatespiler-generator/src/Main.hs"
+    - path: "templatespiler-generator/app/Main.hs"
       component: "templatespiler-generator:exe:generator"
+
+    - path: "templatespiler-integration-tests/src/Main.hs"
+      component: "templatespiler-integration-tests:exe:test"
 
     - path: "templatespiler-parser/src"
       component: "lib:templatespiler-parser"
 
-    - path: "templatespiler-parser/src/Main.hs"
-      component: "templatespiler-parser:exe:parser-exe"
-
     - path: "templatespiler-parser/test"
       component: "templatespiler-parser:test:test"
 
-    - path: "templatespiler-server/src"
+    - path: "templatespiler-server/src/Main.hs"
       component: "templatespiler-server:exe:server"
 
-    - path: "templatespiler-server/src/Main.hs"
+    - path: "templatespiler-server/src/Templatespiler/Server.hs"
       component: "templatespiler-server:exe:server"

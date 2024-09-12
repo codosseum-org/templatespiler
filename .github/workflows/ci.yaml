@@ -63,6 +63,9 @@ jobs:
       - name: Build all flake outputs
         run: nix develop -c om ci
 
+      - name: Run integration tests
+        run: nix develop -c cabal run templatespiler-integration-tests
+        
       - name: What GHC version?
         run: nix develop -c ghc --version
 

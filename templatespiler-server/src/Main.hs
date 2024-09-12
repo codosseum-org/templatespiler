@@ -23,6 +23,9 @@ import Templatespiler.Generator (generateInput)
 import Templatespiler.Server
 import Text.Trifecta (ErrInfo (_errDoc), Result (..), parseByteString)
 import Prelude hiding (State, state)
+import Network.Wai.Middleware.Prometheus (prometheus, PrometheusSettings(..))
+import Prometheus (register)
+import Prometheus.Metric.GHC (ghcMetrics)
 
 data StartCommand
   = StartServer
@@ -30,10 +33,12 @@ data StartCommand
 
 startServer :: IO ()
 startServer = do
+  register ghcMetrics
+  let promMiddleware = prometheus $ PrometheusSettings ["metrics"] True True
   initialState <- State <$> newTVarIO mempty
   putStrLn "Starting server on port 8080..."
 
-  run 8080 $ app initialState
+  run 8080 $ promMiddleware $ app initialState
   putStrLn ""
 
 main :: IO ()

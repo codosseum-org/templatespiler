@@ -22,7 +22,7 @@ common shared
   build-depends:
     , aeson
     , base
-    , base64                    >=1.0
+    , base64                     >=1.0
     , data-default
     , directory
     , filepath
@@ -31,7 +31,9 @@ common shared
     , openapi3
     , optparse-applicative
     , prettyprinter
-    , relude                    >=1.0
+    , prometheus-client
+    , prometheus-metrics-ghc
+    , relude                     >=1.0
     , servant
     , servant-openapi3
     , servant-server
@@ -44,6 +46,7 @@ common shared
     , wai
     , wai-cors
     , wai-extra
+    , wai-middleware-prometheus
     , warp
 
   default-language:   GHC2021
@@ -53,3 +56,4 @@ executable server
   main-is:        Main.hs
   hs-source-dirs: src
   other-modules:  Templatespiler.Server
+  ghc-options:    -threaded -rtsopts -with-rtsopts=-TN

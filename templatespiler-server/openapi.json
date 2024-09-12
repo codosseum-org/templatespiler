@@ -70,10 +70,11 @@
                 "properties": {
                     "template": {
                         "description": "Content of the template, described using the Templatespiler Language",
+                        "example": "a : Integer\n b : list (c : Integer)",
                         "type": "string"
                     },
                     "version": {
-                        "description": "Version of the Templatespiler Language that the template is written in",
+                        "description": "Version of the Templatespiler Language that the template is written in. Currently unused.",
                         "type": "string"
                     }
                 },

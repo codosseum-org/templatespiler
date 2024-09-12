@@ -9,7 +9,7 @@ module Templatespiler.Server where
 
 import Control.Lens
 import Data.Aeson
-import Data.OpenApi (HasVersion (version), License (..), NamedSchema (..), OpenApi, OpenApiType (..), ToParamSchema (..))
+import Data.OpenApi (HasVersion (version), License (..), NamedSchema (..), OpenApi, OpenApiType (..), Server (..), ToParamSchema (..))
 import Data.OpenApi.Lens
 import Data.OpenApi.Schema
 import Data.Text (toLower)
@@ -43,6 +43,7 @@ tsOpenAPI =
     & info . Data.OpenApi.version .~ "0.1.0"
     & info . description ?~ "REST API for generating code & inputs from the Templatespiler language"
     & info . license ?~ License "Affero General Public License 3.0 or later" Nothing
+    & servers .~ [Server "https://templatespiler.codosseum.developerden.org" Nothing mempty]
 
 data TemplateParseRequest = TemplateParseRequest
   { version :: Text

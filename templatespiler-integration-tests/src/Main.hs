@@ -1,11 +1,9 @@
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE PackageImports #-}
 
 module Main where
 
 import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Resource
-import Data.List (intersperse)
 import Data.Text.IO qualified as Text
 import Hedgehog (Property, evalEither, evalMaybe, forAll, property)
 import Hedgehog.Internal.Property (failWith)
@@ -13,6 +11,7 @@ import Language.Templatespiler.Parser
 import Language.Templatespiler.Syntax
 import Prettyprinter
 import Prettyprinter.Render.Terminal
+import System.Environment (getEnv)
 import System.FilePath ((</>))
 import System.IO (hClose)
 import System.Process
@@ -24,7 +23,6 @@ import Test.Syd
 import Test.Syd.Hedgehog ()
 import Text.Trifecta
 import "temporary-resourcet" System.IO.Temp qualified as TempResourceT
-import System.Environment (getEnv)
 
 main :: IO ()
 main = do

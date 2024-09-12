@@ -1,5 +1,5 @@
 cabal-version: 3.4
-name:          templatespiler-converter
+name:          templatespiler-integration-tests
 version:       0.1.0.0
 license:       MIT
 copyright:     2023 Alexander Wood
@@ -37,30 +37,23 @@ common shared
 
   default-language:   GHC2021
 
-library
-  import:          shared
-  hs-source-dirs:  src
+executable test
+  import:             shared
+  type:               exitcode-stdio-1.0
+  main-is:            Main.hs
+  build-depends:
+    , exceptions
+    , hedgehog                  >=1.4
+    , mmorph
+    , process
+    , resourcet
+    , sydtest
+    , sydtest-hedgehog
+    , templatespiler-converter
+    , templatespiler-generator
+    , temporary
+    , temporary-resourcet
+    , unliftio-core
 
-  -- cabal-fmt: expand src
-  exposed-modules:
-    Templatespiler.Convert
-    Templatespiler.Convert.Target
-    Templatespiler.Convert.ToDeclarative
-    Templatespiler.Convert.ToImperative
-    Templatespiler.Emit.C
-    Templatespiler.Emit.Common
-    Templatespiler.Emit.Python
-    Templatespiler.Emit.Target
-    Templatespiler.IR.Common
-    Templatespiler.IR.Declarative
-    Templatespiler.IR.Imperative
-    Templatespiler.ToLang.C
-    Templatespiler.ToLang.Monad
-    Templatespiler.ToLang.Python
-    Templatespiler.ToLang.Target
-
-executable converter
-  import:         shared
-  main-is:        Main.hs
-  build-depends:  templatespiler-converter
-  hs-source-dirs: app
+  default-extensions: TemplateHaskell
+  hs-source-dirs:     src

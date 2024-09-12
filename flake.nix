@@ -36,6 +36,7 @@
             templatespiler-parser.source = ./templatespiler-parser;
             templatespiler-converter.source = ./templatespiler-converter;
             templatespiler-generator.source = ./templatespiler-generator;
+
             templatespiler-server.source = ./templatespiler-server;
           };
 

@@ -2,5 +2,6 @@ packages:
   templatespiler-parser/
   templatespiler-generator/
   templatespiler-converter/
+  templatespiler-integration-tests/
   templatespiler-server/
   

@@ -9,8 +9,10 @@ import Data.OpenApi.Internal.Utils (encodePretty)
 import Data.UUID.V4 (nextRandom)
 import Language.Templatespiler.Parser (parseBindingList)
 import Language.Templatespiler.Syntax (BindingList)
+import Network.Wai (Middleware)
 import Network.Wai.Handler.Warp (run)
 import Network.Wai.Middleware.Cors
+import Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import Options.Applicative qualified as Apt
 import Prettyprinter
 import Prettyprinter.Render.Text
@@ -52,7 +54,15 @@ main = do
         )
 
 app :: State -> Application
-app s = simpleCors $ serve (Proxy @Api) $ hoistServer (Proxy @Api) (nt s) mainServer
+app s = myCors $ logStdoutDev $ serve (Proxy @Api) $ hoistServer (Proxy @Api) (nt s) mainServer
+
+myCors :: Middleware
+myCors = cors (const $ Just policy)
+  where
+    policy =
+      simpleCorsResourcePolicy
+        { corsRequestHeaders = ["Content-Type"]
+        }
 
 nt :: State -> AppM a -> Handler a
 nt s x = runReaderT x s

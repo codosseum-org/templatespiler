@@ -43,6 +43,7 @@ common shared
     , uuid
     , wai
     , wai-cors
+    , wai-extra
     , warp
 
   default-language:   GHC2021

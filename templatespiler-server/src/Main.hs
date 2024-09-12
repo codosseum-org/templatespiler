@@ -61,7 +61,8 @@ myCors = cors (const $ Just policy)
   where
     policy =
       simpleCorsResourcePolicy
-        { corsRequestHeaders = ["Content-Type"]
+        { corsMethods = ["OPTIONS", "GET", "PUT", "POST"]
+        , corsRequestHeaders = ["Authorization", "Content-Type"]
         }
 
 nt :: State -> AppM a -> Handler a

@@ -38,7 +38,7 @@ type Api = TemplatespilerAPI :<|> SwaggerAPI
 
 tsOpenAPI :: OpenApi
 tsOpenAPI =
-  toOpenApi (Proxy :: Proxy TemplatespilerAPI)
+  toOpenApi (Proxy @TemplatespilerAPI)
     & info . title .~ "Templatespiler API"
     & info . Data.OpenApi.version .~ "0.1.0"
     & info . description ?~ "REST API for generating code & inputs from the Templatespiler language"
@@ -57,8 +57,9 @@ instance ToSchema TemplateParseRequest where
     genericDeclareNamedSchema defaultSchemaOptions proxy
       & mapped . schema . title ?~ "Submit a template for parsing"
       & mapped . schema . description ?~ "Submit a template for parsing, returning a unique ID that can be used to process the parsed template in other ways"
-      & mapped . schema . properties . at "version" . _Just . _Inline . description ?~ "Version of the Templatespiler Language that the template is written in"
+      & mapped . schema . properties . at "version" . _Just . _Inline . description ?~ "Version of the Templatespiler Language that the template is written in. Currently unused."
       & mapped . schema . properties . at "template" . _Just . _Inline . description ?~ "Content of the template, described using the Templatespiler Language"
+      & mapped . schema . properties . at "template" . _Just . _Inline . example ?~ "a : Integer\n b : list (c : Integer)"
       & mapped . schema . required .~ ["version", "template"]
 
 -- & mapped . schema . at 200 ?~ Inline okResponse

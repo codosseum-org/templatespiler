@@ -88,6 +88,20 @@ jobs:
         with:
           commit_message: "chore: update openapi file"
 
+  build-new-openapi:
+    needs: [update-openapi-file]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      # run swagger-ui.yaml
+      - uses: ./swagger-ui.yaml
+        
+
   build-docker:
     runs-on: ubuntu-latest
     needs: [build, update-openapi-file]

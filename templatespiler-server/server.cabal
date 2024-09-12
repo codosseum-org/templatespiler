@@ -56,4 +56,4 @@ executable server
   main-is:        Main.hs
   hs-source-dirs: src
   other-modules:  Templatespiler.Server
-  ghc-options:    -threaded -rtsopts -with-rtsopts=-TN
+  ghc-options:    -threaded -rtsopts -with-rtsopts=-T

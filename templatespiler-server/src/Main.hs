@@ -12,10 +12,13 @@ import Language.Templatespiler.Syntax (BindingList)
 import Network.Wai (Middleware)
 import Network.Wai.Handler.Warp (run)
 import Network.Wai.Middleware.Cors
+import Network.Wai.Middleware.Prometheus (PrometheusSettings (..), prometheus)
 import Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import Options.Applicative qualified as Apt
 import Prettyprinter
 import Prettyprinter.Render.Text
+import Prometheus (register)
+import Prometheus.Metric.GHC (ghcMetrics)
 import Servant (Application, Handler, ServerError (..), ServerT, err400, hoistServer, serve, throwError, (:<|>) (..))
 import Templatespiler.Convert (convertTo, renderConvertResult)
 import Templatespiler.Emit.Common (ConvertResult (..), PDoc, TDoc)
@@ -23,9 +26,6 @@ import Templatespiler.Generator (generateInput)
 import Templatespiler.Server
 import Text.Trifecta (ErrInfo (_errDoc), Result (..), parseByteString)
 import Prelude hiding (State, state)
-import Network.Wai.Middleware.Prometheus (prometheus, PrometheusSettings(..))
-import Prometheus (register)
-import Prometheus.Metric.GHC (ghcMetrics)
 
 data StartCommand
   = StartServer

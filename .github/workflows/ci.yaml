@@ -99,7 +99,7 @@ jobs:
 
     steps:
       # run swagger-ui.yaml
-      - uses: codosseum-org/templatespiler/.github/workflows/swagger-ui.yaml
+      - uses: codosseum-org/templatespiler/.github/workflows/swagger-ui.yaml@main
         
 
   build-docker:

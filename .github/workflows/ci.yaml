@@ -90,17 +90,14 @@ jobs:
 
   build-new-openapi:
     needs: [update-openapi-file]
-    runs-on: ubuntu-latest
+
 
     permissions:
       contents: read
       pages: write
       id-token: write
 
-    steps:
-      # run swagger-ui.yaml
-      - uses: codosseum-org/templatespiler/.github/workflows/swagger-ui.yaml@main
-        
+    uses: codosseum-org/templatespiler/.github/workflows/swagger-ui.yaml@main
 
   build-docker:
     runs-on: ubuntu-latest

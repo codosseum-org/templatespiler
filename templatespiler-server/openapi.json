@@ -218,5 +218,10 @@
                 }
             }
         }
-    }
+    },
+    "servers": [
+        {
+            "url": "https://templatespiler.codosseum.developerden.org"
+        }
+    ]
 }

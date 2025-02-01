@@ -7,7 +7,7 @@ import Data.Map.Strict (insert, lookup)
 
 import Data.OpenApi.Internal.Utils (encodePretty)
 import Data.UUID.V4 (nextRandom)
-import Language.Templatespiler.Parser (parseBindingList)
+import Language.Templatespiler.Parser (parseTemplateProgram)
 import Language.Templatespiler.Syntax (BindingList)
 import Network.Wai (Middleware)
 import Network.Wai.Handler.Warp (run)
@@ -91,7 +91,7 @@ templatespilerServer =
     parse :: TemplateParseRequest -> AppM ParsedTemplate
     parse TemplateParseRequest {..} = do
       state <- ask
-      let parsed = parseByteString parseBindingList mempty (encodeUtf8 template)
+      let parsed = parseByteString parseTemplateProgram mempty (encodeUtf8 template)
       case parsed of
         Success bindingList -> do
           templateID <- TemplateID <$> liftIO nextRandom

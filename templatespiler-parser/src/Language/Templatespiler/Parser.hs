@@ -23,6 +23,9 @@ identifierStyle =
     , _styleReservedHighlight = ReservedIdentifier
     }
 
+parseTemplateProgram :: Parser BindingList
+parseTemplateProgram = parseBindingList <* eof
+
 parseBindingList :: Parser BindingList
 parseBindingList = BindingList . fromList <$> some parseBinding
 
@@ -37,8 +40,9 @@ parseIdent = Ident <$> ident identifierStyle
 
 parseType :: Parser Type
 parseType =
-  (TerminalType <$> try parseTerminalType)
-    <|> parseCombinatorType
+  TerminalType
+    <$> try parseTerminalType
+      <|> parseCombinatorType
 
 parseTerminalType :: Parser TerminalType
 parseTerminalType =
@@ -50,16 +54,15 @@ parseTerminalType =
     <$ symbol "String"
 
 parseCombinatorType :: Parser Type
-parseCombinatorType = CombinatorType <$> parseCombinator <?> "combinator"
+parseCombinatorType = CombinatorType <$> parseCombinator
 
 parseCombinator :: Parser Combinator
 parseCombinator =
-  -- (GroupCombinator <$> parseGroupCombinator <?> "group combinator")
-  (parens parseCombinator <?> "combinator in parens")
-    <|> (parseArrayCombinator <?> "array combinator")
-    <|> (parseSepByCombinator <?> "combinator")
-    <|> (parseListCombinator <?> "list combinator")
-    <|> (parseNamedCombinator <?> "named combinator")
+  parens parseCombinator
+    <|> parseArrayCombinator
+    <|> parseSepByCombinator
+    <|> parseListCombinator
+    <|> parseNamedCombinator
 
 parseNamedCombinator :: Parser Combinator
 parseNamedCombinator = do
@@ -93,6 +96,11 @@ parseSepByCombinator = do
 
 parseBindingOrCombinator :: Parser BindingOrCombinator
 parseBindingOrCombinator =
-  (NamedBinding <$> parseBinding <?> "named binding")
-    <|> (GroupBinding <$> parseGroupCombinator <?> "group binding")
-    <|> (UnnamedBinding <$> parseCombinator <?> "unnamed binding")
+  NamedBinding
+    <$> parseBinding
+      <?> "named binding"
+      <|> GroupBinding
+    <$> parseGroupCombinator
+      <?> "group binding"
+      <|> UnnamedBinding
+    <$> parseCombinator <?> "unnamed binding"

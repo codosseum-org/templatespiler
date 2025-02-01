@@ -82,7 +82,7 @@ prop_pprParse = withTests 1000 $ property $ do
   bindingList <- forAll arbitraryBindingList
   let showPrettyUnannotated = renderString . layoutPretty defaultLayoutOptions . unAnnotate . prettyBindingList
 
-  trippingTrifecta bindingList showPrettyUnannotated (parseString parseBindingList mempty)
+  trippingTrifecta bindingList showPrettyUnannotated (parseString parseTemplateProgram mempty)
 
 trippingTrifecta x encode decode = do
   let i = encode x

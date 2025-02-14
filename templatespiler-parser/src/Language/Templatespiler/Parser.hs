@@ -96,11 +96,13 @@ parseSepByCombinator = do
 
 parseBindingOrCombinator :: Parser BindingOrCombinator
 parseBindingOrCombinator =
-  NamedBinding
-    <$> parseBinding
-      <?> "named binding"
-      <|> GroupBinding
-    <$> parseGroupCombinator
-      <?> "group binding"
-      <|> UnnamedBinding
+  ( NamedBinding
+      <$> parseBinding
+        <?> "named binding"
+  )
+    <|> ( GroupBinding
+            <$> parseGroupCombinator
+              <?> "group binding"
+        )
+    <|> UnnamedBinding
     <$> parseCombinator <?> "unnamed binding"

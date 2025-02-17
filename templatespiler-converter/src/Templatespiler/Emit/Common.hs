@@ -6,13 +6,12 @@ import Prettyprinter.Render.Terminal (AnsiStyle)
 indentDepth :: Int
 indentDepth = 4
 
-type TDoc = Doc ()
 type PDoc = Doc AnsiStyle
 
 data ConvertResult
   = ConversionFailed PDoc
   | ConvertResult
       { warnings :: [PDoc]
-      , code :: TDoc
+      , code :: PDoc
       }
   deriving stock (Show)

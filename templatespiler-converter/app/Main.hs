@@ -32,3 +32,8 @@ main = do
       let doc2 = emitLang @C c
       putTextLn $ renderConvertResult doc2
       putStrLn ""
+
+      let toHaskell = toLang @Haskell bs
+      let doc3 = emitLang @Haskell toHaskell
+      putTextLn $ renderConvertResult doc3
+      putStrLn ""

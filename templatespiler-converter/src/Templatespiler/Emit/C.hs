@@ -14,7 +14,7 @@ emitCResult :: Either ToCError (Program, [ToCWarning]) -> ConvertResult
 emitCResult (Left e) = ConversionFailed $ emitToCError e
 emitCResult (Right (program, warnings)) = ConvertResult (fmap emitCWarning warnings) (emitC program)
 
-emitC :: Program -> Doc ()
+emitC :: Program -> PDoc
 emitC program = do
   let inner = vsep $ fmap emitStmt program
   vsep
@@ -25,7 +25,7 @@ emitC program = do
     , "}"
     ]
 
-emitStmt :: Stmt -> Doc ()
+emitStmt :: Stmt -> PDoc
 emitStmt (Declare var t) = emitCTypePrefix t <+> pretty var <> emitCTypeSuffix t <> ";"
 emitStmt (Assign var e) = pretty var <+> "=" <+> emitExpr e <> ";"
 emitStmt (Scanf var vars) = "scanf(" <> dquotes (pretty var) <> ", " <> hsep (punctuate "," (fmap emitExpr vars)) <> ");"
@@ -51,7 +51,7 @@ emitStmt (ListAssign to idx val) = emitExpr to <> brackets (emitExpr idx) <+> "=
 --   where
 --     emitField (name, t) = emitCTypePrefix t <+> pretty name <> emitCTypeSuffix t <> ";"
 
-emitCTypePrefix :: CType -> Doc ()
+emitCTypePrefix :: CType -> PDoc
 emitCTypePrefix IntType = "int"
 emitCTypePrefix FloatType = "float"
 emitCTypePrefix StringType = "char"
@@ -59,12 +59,12 @@ emitCTypePrefix (PointerType t) = emitCTypePrefix t <> "*"
 emitCTypePrefix (ArrayType t _) = emitCTypePrefix t
 emitCTypePrefix (StructType name) = pretty name
 
-emitCTypeSuffix :: CType -> Doc ()
+emitCTypeSuffix :: CType -> PDoc
 emitCTypeSuffix (ArrayType _ size) = "[" <> emitExpr size <> "]"
 emitCTypeSuffix StringType = "[500]"
 emitCTypeSuffix _ = ""
 
-emitExpr :: Expr -> Doc ()
+emitExpr :: Expr -> PDoc
 emitExpr (Int i) = pretty i
 emitExpr (Float f) = pretty f
 emitExpr (String s) = toStringLit s
@@ -75,5 +75,5 @@ emitExpr (Deref e) = "*" <> emitExpr e
 emitExpr (Times e1 e2) = emitExpr e1 <+> "*" <+> emitExpr e2
 emitExpr (Range start end) = "range(" <> emitExpr start <> ", " <> emitExpr end <> ")"
 
-toStringLit :: Text -> Doc ()
+toStringLit :: Text -> PDoc
 toStringLit t = dquotes $ pretty t

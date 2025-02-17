@@ -49,12 +49,14 @@ library
     Templatespiler.Convert.ToImperative
     Templatespiler.Emit.C
     Templatespiler.Emit.Common
+    Templatespiler.Emit.Haskell
     Templatespiler.Emit.Python
     Templatespiler.Emit.Target
     Templatespiler.IR.Common
     Templatespiler.IR.Declarative
     Templatespiler.IR.Imperative
     Templatespiler.ToLang.C
+    Templatespiler.ToLang.Haskell
     Templatespiler.ToLang.Monad
     Templatespiler.ToLang.Python
     Templatespiler.ToLang.Target

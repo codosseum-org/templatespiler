@@ -10,10 +10,10 @@ emitPyWarning x = case x of {}
 emitPyResult :: (Program, [ToPythonWarning]) -> ConvertResult
 emitPyResult (program, warnings) = ConvertResult (emitPyWarning <$> warnings) (emitPy program)
 
-emitPy :: Program -> Doc ()
+emitPy :: Program -> PDoc
 emitPy = vsep . fmap emitStmt
 
-emitFor :: (Pretty a) => a -> Doc () -> [Stmt] -> Doc ()
+emitFor :: (Pretty a) => a -> PDoc -> [Stmt] -> PDoc
 emitFor i rangeParams body =
   vsep
     [ "for" <+> pretty i <+> "in range(" <> rangeParams <> "):"
@@ -21,7 +21,7 @@ emitFor i rangeParams body =
     , "" -- add a newline after the for loop for more readability
     ]
 
-emitStmt :: Stmt -> Doc ()
+emitStmt :: Stmt -> PDoc
 emitStmt (Assign var e) = pretty var <+> "=" <+> emitExpr e
 emitStmt (For i (Int 0) end statements) = emitFor i (emitExpr end) statements
 emitStmt (For i start end statements) = emitFor i (emitExpr start <> ", " <> emitExpr end) statements
@@ -29,7 +29,7 @@ emitStmt (MultiAssign names e) = parens (hsep $ punctuate "," (fmap pretty names
 emitStmt (Append to e) = emitExpr to <> ".append(" <> emitExpr e <> ")"
 emitStmt (ListAssign to idx val) = emitExpr to <> brackets (emitExpr idx) <+> "=" <+> emitExpr val
 
-emitExpr :: Expr -> Doc ()
+emitExpr :: Expr -> PDoc
 emitExpr (Int i) = pretty i
 emitExpr (Float f) = pretty f
 emitExpr (String s) = toStringLit s
@@ -45,5 +45,5 @@ emitExpr (Times e1 e2) = emitExpr e1 <+> "*" <+> emitExpr e2
 emitExpr (Range start end) = "range(" <> emitExpr start <> ", " <> emitExpr end <> ")"
 emitExpr (Map f x) = "map" <> parens (emitExpr f <> ", " <> emitExpr x)
 
-toStringLit :: Text -> Doc ()
+toStringLit :: Text -> PDoc
 toStringLit t = dquotes $ pretty t

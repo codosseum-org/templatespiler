@@ -18,12 +18,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
           version: "5.3.1"
           output: swagger-ui
           spec-file: templatespiler-server/openapi.json
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3.0.1
         with:

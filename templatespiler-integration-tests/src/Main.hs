@@ -3,12 +3,10 @@
 
 module Main where
 
-import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Resource
 import Data.Map qualified as Map
 import Data.Text.IO qualified as Text
-import Hedgehog (Property, evalEither, evalMaybe, forAll, property, withRetries, withShrinks)
-import Hedgehog.Internal.Property (failWith)
+import Hedgehog (Property, forAll, property)
 import Language.Templatespiler.Parser
 import Language.Templatespiler.Syntax
 import Prettyprinter
@@ -22,7 +20,6 @@ import Templatespiler.Convert.Target
 import Templatespiler.Emit.Common
 import Templatespiler.Generate (arbitraryInput)
 import Test.Syd
-import Test.Syd (aroundAll)
 import Test.Syd.Hedgehog ()
 import Text.Trifecta
 import "temporary-resourcet" System.IO.Temp qualified as TempResourceT

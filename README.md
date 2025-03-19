@@ -75,8 +75,8 @@ For example, an input might look like this:
 
 We can describe the inputs using Templatespiler like so 
 ```js
-start: sep-by " " [x : Integer, y : Integer]
-inputs: list (sep-by " " [x : Integer, y : Integer])
+start: sep-by " " [x : Integer y : Integer]
+inputs: list (sep-by " " [x : Integer y : Integer])
 ```
 
 

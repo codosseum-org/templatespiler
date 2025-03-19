@@ -1,5 +1,2 @@
-prices: list (sep-by " " [item : String price : Float])
-orders: list [
-  order_name: String
-  order: list (sep-by " " [quantity : Integer item : String])
-]
+start: sep-by " " [x : Integer y : Integer]
+inputs: list (sep-by " " [x : Integer y : Integer])

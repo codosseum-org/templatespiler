@@ -12,7 +12,7 @@ import Templatespiler.Convert.ToImperative qualified as Imperative
 import Templatespiler.IR.Declarative as DecIR
 import Templatespiler.IR.Imperative as ImpIR
 
-data TargetLanguage = C | Python | Haskell deriving stock (Eq, Show, Generic, Enum, Bounded)
+data TargetLanguage = C | Python | Haskell deriving stock (Eq, Show, Ord, Generic, Enum, Bounded)
 
 data LanguageKind = Imperative | Declarative
 

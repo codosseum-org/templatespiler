@@ -4,11 +4,16 @@ import Prettyprinter
 import Templatespiler.Emit.Common (ConvertResult (ConvertResult), PDoc, indentDepth)
 import Templatespiler.ToLang.Haskell
 
+haskellPreamble :: PDoc
+haskellPreamble =
+  vsep
+    ["import Control.Monad"]
+
 emitHaskellResult :: (HaskellProgram, [ToHaskellWarning]) -> ConvertResult
 emitHaskellResult (program, warnings) =
   ConvertResult
     (emitHaskellWarning <$> warnings)
-    ("main = " <> emitHaskell program)
+    (haskellPreamble <> line <> "main = " <> emitHaskell program)
 
 emitHaskellWarning :: ToHaskellWarning -> PDoc
 emitHaskellWarning x = case x of {}
@@ -30,7 +35,6 @@ emitHaskell (e1 :<$>: (e2 :<$>: e3)) = emitHaskell e1 <+> "<$>" <+> emitHaskell 
 emitHaskell (e1 :<$>: e2) = emitHaskell e1 <+> "<$>" <+> emitHaskell e2
 emitHaskell (Read t e) = "read" <> maybe mempty (\inputType -> " @" <> pretty inputType) t <+> emitHaskell e
 emitHaskell (Pure e) = "pure" <+> emitHaskell e
-
 
 -- emitDo :: [Statement] -> PDoc
 emitDo :: (Foldable t, Functor t) => t Statement -> PDoc

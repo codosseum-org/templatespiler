@@ -59,7 +59,7 @@ bindingToHaskell (Binding name t) = do
   (bind, expr) <- readBindingExpr t
 
   let binder = fromMaybe (NamedBinder varName) bind
-  pure $ (Just binder, Bind binder expr)
+  pure (Just binder, Bind binder expr)
 
 bindingOrCombinatorToHaskell :: IR.BindingOrCombinator -> HaskellWriter (Maybe Binder, Expression)
 bindingOrCombinatorToHaskell (NamedBinding b) =

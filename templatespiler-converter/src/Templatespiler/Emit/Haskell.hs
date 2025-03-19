@@ -19,23 +19,32 @@ emitHaskellWarning :: ToHaskellWarning -> PDoc
 emitHaskellWarning x = case x of {}
 
 emitHaskell :: Expression -> PDoc
-emitHaskell (Int i) = pretty i
-emitHaskell (Float f) = pretty f
-emitHaskell (String s) = dquotes $ pretty s
-emitHaskell (Var x) = pretty x
-emitHaskell (Tuple xs) = tupled $ fmap emitHaskell xs
-emitHaskell (List xs) = list $ fmap emitHaskell xs
-emitHaskell (ReadLn t) = "readLn" <> maybe mempty (\inputType -> " @" <> pretty inputType) t
-emitHaskell GetLine = "getLine"
-emitHaskell (ReplicateM n x@(Do _)) = "replicateM " <> emitHaskell n <+> "$" <+> emitHaskell x
-emitHaskell (ReplicateM n r@(ReadLn _)) = "replicateM" <+> emitHaskell n <> parens (emitHaskell r)
-emitHaskell (ReplicateM n x) = "replicateM" <+> emitHaskell n <+> emitHaskell x
-emitHaskell (LetIn x e1 e2) = "let" <+> pretty x <+> "=" <+> emitHaskell e1 <+> "in" <+> emitHaskell e2
-emitHaskell (Do xs) = emitDo xs
-emitHaskell (e1 :<$>: (e2 :<$>: e3)) = emitHaskell e1 <+> "<$>" <+> emitHaskell e2 <+> "<$>" <+> emitHaskell e3
-emitHaskell (e1 :<$>: e2) = emitHaskell e1 <+> "<$>" <+> emitHaskell e2
-emitHaskell (Read t e) = "read" <> maybe mempty (\inputType -> " @" <> pretty inputType) t <+> emitHaskell e
-emitHaskell (Pure e) = "pure" <+> emitHaskell e
+emitHaskell = go False
+  where
+    go :: Bool -> Expression -> PDoc
+    go _ (Int i) = pretty i
+    go _ (Float f) = pretty f
+    go _ (String s) = dquotes $ pretty s
+    go _ (Var x) = pretty x
+    go _ (Tuple xs) = tupled $ fmap (go False) xs
+    go _ (List xs) = list $ fmap (go False) xs
+    go _ (ReadLn t) = "readLn" <> maybe mempty (\inputType -> " @" <> pretty inputType) t
+    go _ GetLine = "getLine"
+    go _ (ReplicateM n x@(Do _)) = "replicateM " <> go False n <+> "$" <+> go False x
+    go _ (ReplicateM n r@(ReadLn {})) = "replicateM" <+> go False n <> parens (go False r)
+    go _ (ReplicateM n r@(Read {})) = "replicateM" <+> go False n <> parens (go False r)
+    go _ (ReplicateM n x) = "replicateM" <+> go False n <+> go True x
+    go _ (LetIn x e1 e2) = "let" <+> pretty x <+> "=" <+> go False e1 <+> "in" <+> go False e2
+    go _ (Do xs) = emitDo xs
+    go p (e1 :<$>: e2@(_ :<$>: _)) = maybeParens p $ go False e1 <+> "<$>" <+> parens (go False e2)
+    go p (e1 :<$>: e2) = maybeParens p $ go False e1 <+> "<$>" <+> go True e2
+    go _ (Read t e) = "read" <> maybe mempty (\inputType -> " @" <> pretty inputType) t <+> go True e
+    go _ (Pure e) = "pure" <+> go True e
+    go p (FmapCurried e) = maybeParens p $ "fmap" <+> go True e
+
+    maybeParens :: Bool -> PDoc -> PDoc
+    maybeParens True = parens
+    maybeParens False = id
 
 -- emitDo :: [Statement] -> PDoc
 emitDo :: (Foldable t, Functor t) => t Statement -> PDoc

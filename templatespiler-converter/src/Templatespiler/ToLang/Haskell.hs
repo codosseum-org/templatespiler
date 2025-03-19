@@ -26,6 +26,7 @@ data Expression
   | ReplicateM Expression Expression
   | LetIn Text Expression Expression
   | Expression :<$>: Expression
+  | FmapCurried Expression -- fmap x
   | Pure Expression
   deriving stock (Show)
 
@@ -58,8 +59,8 @@ bindingToHaskell (Binding name t) = do
   let varName = identToVarName name
   (bind, expr) <- readBindingExpr t
 
-  let binder = fromMaybe (NamedBinder varName) bind
-  pure (Just binder, Bind binder expr)
+  let binder =NamedBinder varName 
+  pure (Just $ binder, Bind binder expr)
 
 bindingOrCombinatorToHaskell :: IR.BindingOrCombinator -> HaskellWriter (Maybe Binder, Expression)
 bindingOrCombinatorToHaskell (NamedBinding b) =
@@ -113,7 +114,7 @@ combinatorVarToHaskell (ListCombinator b) = do
   let replicateMExpr = ReplicateM (Var "count") bExpr
   pure (bind, Do $ countBind :| [LiftExpr replicateMExpr])
 combinatorVarToHaskell (SepByCombinator " " (BindingList binders)) = do
-  let getWords = Var "words" :<$>: GetLine
+  let getWords = Var "words" :<$>: GetLine -- words <$> getLine :: IO [String]
 
   -- there is now a special case where we can either use the result of `words <$> getLine` directly, or apply a `fmap read`
   -- to it, if the binder is all the same terminal type
@@ -123,8 +124,8 @@ combinatorVarToHaskell (SepByCombinator " " (BindingList binders)) = do
   let listBinder = bindingNames AsList binders
   case nubOrd (bindingType <$> toList binders) of
     [TerminalType StringType] -> pure (Just listBinder, getWords)
-    [TerminalType IntType] -> pure (Just listBinder, Var "read" :<$>: getWords)
-    [TerminalType FloatType] -> pure (Just listBinder, Var "read" :<$>: getWords)
+    [TerminalType IntType] -> pure (Just listBinder, FmapCurried (Var "(read @Int)") :<$>: getWords)
+    [TerminalType FloatType] -> pure (Just listBinder, FmapCurried (Var "(read @Float)") :<$>: getWords)
     _different -> do
       -- if they're different, we have to write a multi-liner:
       -- 1 - read the line :  [bind1, bind2, ...] <- words <$> getLine
@@ -163,7 +164,7 @@ binderNames as binders =
         ListBinder names -> concatMap allNames names
         TupleBinder names -> concatMap allNames names
    in let names = concatMap allNames binders
-       in case names of
+       in case names of 
             [x] -> NamedBinder x
             _names -> case as of
               AsTuple -> TupleBinder (NamedBinder <$> names)

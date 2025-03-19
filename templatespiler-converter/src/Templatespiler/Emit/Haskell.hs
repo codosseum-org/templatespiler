@@ -28,6 +28,7 @@ emitHaskell (List xs) = list $ fmap emitHaskell xs
 emitHaskell (ReadLn t) = "readLn" <> maybe mempty (\inputType -> " @" <> pretty inputType) t
 emitHaskell GetLine = "getLine"
 emitHaskell (ReplicateM n x@(Do _)) = "replicateM " <> emitHaskell n <+> "$" <+> emitHaskell x
+emitHaskell (ReplicateM n r@(ReadLn _)) = "replicateM" <+> emitHaskell n <> parens (emitHaskell r)
 emitHaskell (ReplicateM n x) = "replicateM" <+> emitHaskell n <+> emitHaskell x
 emitHaskell (LetIn x e1 e2) = "let" <+> pretty x <+> "=" <+> emitHaskell e1 <+> "in" <+> emitHaskell e2
 emitHaskell (Do xs) = emitDo xs

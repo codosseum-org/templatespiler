@@ -71,7 +71,7 @@ jobs:
         run: nix develop -c om ci
 
       - name: Run integration tests
-        run: nix develop -c nix run .#\integration-tests -- +RTS -N -RTS
+        run: nix develop -c nix run .#\integration-tests -- +RTS -N4 -RTS
 
   update-openapi-file:
     runs-on: ubuntu-latest

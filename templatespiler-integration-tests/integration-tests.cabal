@@ -27,13 +27,11 @@ common shared
     , base
     , containers
     , filepath
-    , mtl
     , prettyprinter
     , prettyprinter-ansi-terminal
     , relude                       >=1.0
     , templatespiler-parser
     , trifecta
-    , with-utf8
 
   default-language:   GHC2021
 
@@ -42,18 +40,15 @@ executable test
   type:               exitcode-stdio-1.0
   main-is:            Main.hs
   build-depends:
-    , exceptions
+    , async
     , hedgehog                  >=1.4
-    , mmorph
     , process
     , resourcet
     , sydtest
     , sydtest-hedgehog
     , templatespiler-converter
     , templatespiler-generator
-    , temporary
     , temporary-resourcet
-    , unliftio-core
 
   default-extensions: TemplateHaskell
   hs-source-dirs:     src

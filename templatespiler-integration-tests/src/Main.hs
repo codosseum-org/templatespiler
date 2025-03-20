@@ -3,6 +3,9 @@
 
 module Main where
 
+import Control.Concurrent (forkIO)
+import Control.Concurrent.Async (mapConcurrently, mapConcurrently_)
+import Control.Monad (forM_)
 import Control.Monad.Trans.Resource
 import Data.Map qualified as Map
 import Data.Text.IO qualified as Text
@@ -44,12 +47,11 @@ spec = describe "Integration Test" $ do
   templatespilerIntegrationTest "Template from README 2" templateFromReadme2
   templatespilerIntegrationTest "Template from README 3" templateFromReadme3
 
-templatespilerIntegrationTestBody :: (BindingList, Map TargetLanguage ([Text] -> IO b)) -> Property
+templatespilerIntegrationTestBody :: (BindingList, Map TargetLanguage ([Text] -> IO ())) -> Property
 templatespilerIntegrationTestBody (res, runners) = property $ do
   input' <- forAll $ arbitraryInput res
-  for_ [minBound ..] $ \lang -> do
-    let runner = runners Map.! lang
-    liftIO $ runner input'
+
+  liftIO $ mapConcurrently_ (\lang -> (runners Map.! lang) input') [minBound @TargetLanguage ..]
 
 templatespilerIntegrationTest :: String -> Text -> TestDefM outers () ()
 templatespilerIntegrationTest name input =

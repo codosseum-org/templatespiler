@@ -54,7 +54,8 @@
             "Language": {
                 "enum": [
                     "C",
-                    "Python"
+                    "Python",
+                    "Haskell"
                 ],
                 "type": "string"
             },
@@ -119,7 +120,8 @@
                         "schema": {
                             "enum": [
                                 "C",
-                                "Python"
+                                "Python",
+                                "Haskell"
                             ],
                             "type": "string"
                         }

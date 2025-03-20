@@ -3,9 +3,7 @@
 
 module Main where
 
-import Control.Concurrent (forkIO)
-import Control.Concurrent.Async (mapConcurrently, mapConcurrently_)
-import Control.Monad (forM_)
+import Control.Concurrent.Async (mapConcurrently_)
 import Control.Monad.Trans.Resource
 import Data.Map qualified as Map
 import Data.Text.IO qualified as Text

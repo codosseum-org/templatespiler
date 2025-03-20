@@ -1,7 +1,8 @@
 module Templatespiler.Emit.Haskell where
 
+import Language.Templatespiler.Pretty (prettyCombinator)
 import Prettyprinter
-import Templatespiler.Emit.Common (ConvertResult (ConvertResult), PDoc, indentDepth)
+import Templatespiler.Emit.Common (ConvertResult (..), PDoc, indentDepth)
 import Templatespiler.ToLang.Haskell
 
 haskellPreamble :: PDoc
@@ -9,14 +10,21 @@ haskellPreamble =
   vsep
     ["import Control.Monad"]
 
-emitHaskellResult :: (HaskellProgram, [ToHaskellWarning]) -> ConvertResult
-emitHaskellResult (program, warnings) =
+emitHaskellResult :: Either ToHaskellError (HaskellProgram, [ToHaskellWarning]) -> ConvertResult
+emitHaskellResult (Left err) =
+  ConversionFailed
+    (emitToHaskellError err)
+emitHaskellResult (Right (program, warnings)) =
   ConvertResult
     (emitHaskellWarning <$> warnings)
     (haskellPreamble <> line <> "main = " <> emitHaskell program)
 
 emitHaskellWarning :: ToHaskellWarning -> PDoc
 emitHaskellWarning x = case x of {}
+
+emitToHaskellError :: ToHaskellError -> PDoc
+emitToHaskellError (CantEmitSepByCombinator combinator sep _) =
+  "Cannot emit the combinator" <+> prettyCombinator combinator <+> "as a Haskell expression, because the separator " <> dquotes (pretty sep) <> "is not a valid Haskell expression. Only single spaces are allowed as separators in Haskell."
 
 emitHaskell :: Expression -> PDoc
 emitHaskell = go False

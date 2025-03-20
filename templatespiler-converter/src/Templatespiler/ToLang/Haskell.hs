@@ -2,6 +2,7 @@
 
 module Templatespiler.ToLang.Haskell where
 
+import Control.Monad.Error.Class
 import Data.Containers.ListUtils
 import Data.List.NonEmpty ((<|))
 import Data.List.NonEmpty qualified as NE
@@ -9,7 +10,11 @@ import Language.Templatespiler.Syntax (Binding, BindingList)
 import Language.Templatespiler.Syntax as IR
 import Templatespiler.Convert.ToImperative (identToVarName)
 import Templatespiler.IR.Common
-import Templatespiler.ToLang.Monad (ToLang, ToLangT, runToLang)
+import Templatespiler.ToLang.Monad (ToLang, ToLangT, runToLang, runToLangT)
+
+data ToHaskellError
+  = CantEmitSepByCombinator IR.Combinator Text BindingList
+  deriving stock (Show)
 
 data Expression
   = Int Int
@@ -46,13 +51,15 @@ data Binder
 type HaskellProgram = Expression
 
 data ToHaskellWarning
-type HaskellWriter a = ToLang [ToHaskellWarning] a
+type HaskellWriterT a = ToLangT [ToHaskellWarning] (ExceptT ToHaskellError a)
+type HaskellWriter = HaskellWriterT Identity
 
-toHaskell :: BindingList -> (HaskellProgram, [ToHaskellWarning])
-toHaskell (BindingList bindings) = runToLang $ do
+toHaskell :: BindingList -> Either ToHaskellError (HaskellProgram, [ToHaskellWarning])
+toHaskell (BindingList bindings) = runIdentity $ runExceptT <$> runToLangT $ do
   decls <- traverse bindingToHaskell bindings
   -- add a pure () at the end to make sure the program compiles
-  pure $ Do (fmap snd decls <> (LiftExpr (Pure $ Tuple []) :| []))
+  let pure' = one $ LiftExpr (Pure $ Tuple [])
+  pure $ Do (fmap snd decls <> pure')
 
 bindingToHaskell :: Binding -> HaskellWriter (Maybe Binder, Statement)
 bindingToHaskell (Binding name t) = do
@@ -60,7 +67,7 @@ bindingToHaskell (Binding name t) = do
   (bind, expr) <- readBindingExpr t
 
   let binder = NamedBinder varName
-  pure (Just $ binder, Bind binder expr)
+  pure (Just binder, Bind binder expr)
 
 bindingOrCombinatorToHaskell :: IR.BindingOrCombinator -> HaskellWriter (Maybe Binder, Expression)
 bindingOrCombinatorToHaskell (NamedBinding b) =
@@ -78,25 +85,29 @@ bindingOrCombinatorToHaskell (GroupBinding (BindingList bindings)) = do
       let asTuple = binderNames AsTuple (x :| xs)
        in pure (Just asTuple, Do $ decls <> (pure' :| []))
 
-{- | Given a set of bindings, create:
-1. A pure expression that returns the values of the bindings
-2. A list of let statements that bind the values to temporary versions of names
-    (e.g. `let foo_tmp = <func> foo` for each binding)
-3. A list of names that are bound
+{- | Takes a list of bindings and returns a tuple of:
+1. The pure expression that returns the values of the bindings
+2. The names of the bindings
+3. The let statements that bind the values to the names
+
+Be aware that the let statements returned by this function will be invalid in many situations
+as they assume the existence of variables named '<binding_name>_tmp' in scope (these are )
 -}
 createPureOfBindings :: (Functor f, Foldable f) => f Binding -> (Statement, f VarName, f Statement)
 createPureOfBindings bindings =
+  -- takes a binding, returns a tuple of:
+  -- 1. The name of the binding
+  -- 2. A let statement reading the value of the binding from <binding_name>_tmp
   let bindingValue (Binding name t) =
-        let varName = identToVarName name
-         in ( varName
+        let bindingName = identToVarName name
+         in ( bindingName
             , Let
-                (varName `withSuffix` "tmp")
-                (parseBindingExpr (Var varName) t)
+                bindingName
+                (parseBindingExpr (Var $ bindingName `withSuffix` "tmp") t)
             )
    in let (names, lets) = NE.unzip (fmap bindingValue bindings)
-       in -- and now return the values in a tuple
-          let pure' = LiftExpr $ Pure (Tuple (Var <$> toList names))
-           in (pure', names, lets)
+          pure' = LiftExpr $ Pure (Tuple (Var <$> toList names)) -- and now return the values in a tuple
+       in (pure', names, lets)
 
 readBindingExpr :: IR.Type -> HaskellWriter (Maybe Binder, Expression)
 readBindingExpr (TerminalType IntType) = pure (Nothing, ReadLn (Just "Int"))
@@ -159,10 +170,10 @@ combinatorVarToHaskell (SepByCombinator " " (BindingList binders)) = do
 
       let wordsLine = Bind listBinder (Var "words" :<$>: GetLine)
       let (pure', names, lets) = createPureOfBindings binders
-      -- and now return the values in a tuple
       pure (Just (ListBinder (NamedBinder <$> toList names)), Do $ wordsLine <| lets <> (pure' :| []))
-
+combinatorVarToHaskell combinator@(SepByCombinator sep c) = throwError $ CantEmitSepByCombinator combinator sep c
 data BindingNamesAs = AsTuple | AsList
+
 bindingNames :: BindingNamesAs -> NonEmpty Binding -> Binder
 bindingNames as bindings =
   let names = fmap (\(Binding name _) -> identToVarName name `withSuffix` "tmp") bindings

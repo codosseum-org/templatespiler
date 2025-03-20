@@ -19,7 +19,7 @@ type family LangAST (lang :: TargetLanguage) where
 type family LangASTRes (lang :: TargetLanguage) where
   LangASTRes 'Python = (Py.Program, [Py.ToPythonWarning])
   LangASTRes 'C = Either C.ToCError (C.Program, [C.ToCWarning])
-  LangASTRes 'Haskell = (Haskell.HaskellProgram, [Haskell.ToHaskellWarning])
+  LangASTRes 'Haskell = Either Haskell.ToHaskellError (Haskell.HaskellProgram, [Haskell.ToHaskellWarning])
 
 class (LangAST lang ~ ast) => ToLang (lang :: TargetLanguage) ast | lang -> ast where
   toLang :: IRTarget (ParadigmOf lang) -> LangASTRes lang

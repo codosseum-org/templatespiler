@@ -26,6 +26,7 @@ common shared
     , data-default
     , directory
     , filepath
+    , http-api-data
     , lens
     , mtl
     , openapi3

@@ -2,7 +2,6 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE NoPatternSynonyms #-}
 
 module Templatespiler.Server where
@@ -18,6 +17,7 @@ import Data.UUID qualified as UUID
 import Servant.API
 import Servant.OpenApi
 import Templatespiler.Convert.Target (TargetLanguage (..))
+import Web.HttpApiData
 
 type TemplatespilerAPI =
   "template"
@@ -116,9 +116,7 @@ instance FromHttpApiData Language where
   parseUrlPiece = fmap Language . parseTargetLanguage
 
 parseTargetLanguage :: Text -> Either Text TargetLanguage
-parseTargetLanguage (toLower -> t) = case t of
-  "python" -> Right Python
-  other -> Left $ "Unknown language: " <> other <> ". Supported languages: python"
+parseTargetLanguage = parseBoundedTextData
 
 instance ToJSON TemplateID where
   toJSON (TemplateID uuid) = toJSON $ UUID.toText uuid

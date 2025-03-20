@@ -71,7 +71,7 @@ jobs:
         run: nix develop -c om ci
 
       - name: Run integration tests
-        run: nix run .#\integration-tests
+        run: nix develop -c nix run .#\integration-tests
 
       - name: What GHC version?
         run: nix develop -c ghc --version

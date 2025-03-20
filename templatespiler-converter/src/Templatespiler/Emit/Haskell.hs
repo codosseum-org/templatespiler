@@ -60,7 +60,6 @@ emitDo body =
   vsep
     [ "do"
     , indent indentDepth $ vsep $ toList $ fmap emitStatement body
-    , "" -- add a newline after the do block for more readability
     ]
 
 emitStatement :: Statement -> PDoc

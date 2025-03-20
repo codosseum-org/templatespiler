@@ -108,11 +108,11 @@
           created = "now";
           tag = builtins.substring 0 7 (self.rev or "dev");
           config = {
-            Cmd = [ "${pkgs.lib.getExe self'.packages.default} server" ];
+            Cmd = [ "${pkgs.lib.getExe self'.packages.server}" "server" ];
           };
           copyToRoot = pkgs.buildEnv {
             paths = with pkgs; [
-              self'.packages.default
+              self'.packages.server
               pkgs.bash
             ];
             name = "server-root";

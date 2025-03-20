@@ -21,7 +21,7 @@ import Prometheus (register)
 import Prometheus.Metric.GHC (ghcMetrics)
 import Servant (Application, Handler, ServerError (..), ServerT, err400, hoistServer, serve, throwError, (:<|>) (..))
 import Templatespiler.Convert (convertTo, renderConvertResult)
-import Templatespiler.Emit.Common (ConvertResult (..), PDoc, TDoc)
+import Templatespiler.Emit.Common (ConvertResult (..), PDoc)
 import Templatespiler.Generator (generateInput)
 import Templatespiler.Server
 import Text.Trifecta (ErrInfo (_errDoc), Result (..), parseByteString)
@@ -123,10 +123,7 @@ templatespilerServer =
               liftIO $ putTextLn $ renderConvertResult compileResult
               case compileResult of
                 ConversionFailed doc -> throwError $ err400 {errBody = encodeUtf8 $ renderPDoc doc}
-                ConvertResult warnings code -> pure $ CompiledTemplateResponse (renderPDoc <$> warnings) (CompiledTemplate l (renderTDoc code))
+                ConvertResult warnings code -> pure $ CompiledTemplateResponse (renderPDoc <$> warnings) (CompiledTemplate l (renderPDoc code))
 
 renderPDoc :: PDoc -> Text
-renderPDoc = renderTDoc . unAnnotate
-
-renderTDoc :: TDoc -> Text
-renderTDoc = renderStrict . layoutPretty defaultLayoutOptions
+renderPDoc = renderStrict . layoutPretty defaultLayoutOptions . unAnnotate

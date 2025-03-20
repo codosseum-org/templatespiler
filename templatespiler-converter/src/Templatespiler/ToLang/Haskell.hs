@@ -59,7 +59,7 @@ bindingToHaskell (Binding name t) = do
   let varName = identToVarName name
   (bind, expr) <- readBindingExpr t
 
-  let binder =NamedBinder varName 
+  let binder = NamedBinder varName
   pure (Just $ binder, Bind binder expr)
 
 bindingOrCombinatorToHaskell :: IR.BindingOrCombinator -> HaskellWriter (Maybe Binder, Expression)
@@ -71,9 +71,32 @@ bindingOrCombinatorToHaskell (UnnamedBinding c) = combinatorVarToHaskell c
 bindingOrCombinatorToHaskell (GroupBinding (BindingList bindings)) = do
   (binds, decls) <- NE.unzip <$> traverse bindingToHaskell bindings
   let justBinds = catMaybes $ toList binds
+  let (pure', _, _) = createPureOfBindings bindings
   case justBinds of
-    [] -> pure (Nothing, Do decls)
-    x : xs -> let asTuple = binderNames AsTuple (x :| xs) in pure (Just asTuple, Do decls)
+    [] -> pure (Nothing, Do $ decls <> (pure' :| []))
+    x : xs ->
+      let asTuple = binderNames AsTuple (x :| xs)
+       in pure (Just asTuple, Do $ decls <> (pure' :| []))
+
+{- | Given a set of bindings, create:
+1. A pure expression that returns the values of the bindings
+2. A list of let statements that bind the values to temporary versions of names
+    (e.g. `let foo_tmp = <func> foo` for each binding)
+3. A list of names that are bound
+-}
+createPureOfBindings :: (Functor f, Foldable f) => f Binding -> (Statement, f VarName, f Statement)
+createPureOfBindings bindings =
+  let bindingValue (Binding name t) =
+        let varName = identToVarName name
+         in ( varName
+            , Let
+                (varName `withSuffix` "tmp")
+                (parseBindingExpr (Var varName) t)
+            )
+   in let (names, lets) = NE.unzip (fmap bindingValue bindings)
+       in -- and now return the values in a tuple
+          let pure' = LiftExpr $ Pure (Tuple (Var <$> toList names))
+           in (pure', names, lets)
 
 readBindingExpr :: IR.Type -> HaskellWriter (Maybe Binder, Expression)
 readBindingExpr (TerminalType IntType) = pure (Nothing, ReadLn (Just "Int"))
@@ -89,7 +112,7 @@ parseBindingExpr :: Expression -> IR.Type -> Expression
 parseBindingExpr expr (TerminalType IntType) = Read (Just "Int") expr
 parseBindingExpr expr (TerminalType FloatType) = Read (Just "Float") expr
 parseBindingExpr expr (TerminalType StringType) = expr
-parseBindingExpr expr (CombinatorType c) = error $ "TODO: " <> show c
+parseBindingExpr expr (CombinatorType c) = expr -- is this right?
 
 combinatorVarToHaskell :: IR.Combinator -> HaskellWriter (Maybe Binder, Expression)
 combinatorVarToHaskell (NamedCombinator newName c) = do
@@ -135,16 +158,8 @@ combinatorVarToHaskell (SepByCombinator " " (BindingList binders)) = do
       --  ...
 
       let wordsLine = Bind listBinder (Var "words" :<$>: GetLine)
-      let (names, lets) =
-            NE.unzip
-              ( fmap
-                  ( \(Binding name t) ->
-                      (identToVarName name, Let (identToVarName name) (parseBindingExpr (Var $ identToVarName name `withSuffix` "tmp") t))
-                  )
-                  binders
-              )
+      let (pure', names, lets) = createPureOfBindings binders
       -- and now return the values in a tuple
-      let pure' = LiftExpr $ Pure (Tuple (Var <$> toList names))
       pure (Just (ListBinder (NamedBinder <$> toList names)), Do $ wordsLine <| lets <> (pure' :| []))
 
 data BindingNamesAs = AsTuple | AsList
@@ -164,7 +179,7 @@ binderNames as binders =
         ListBinder names -> concatMap allNames names
         TupleBinder names -> concatMap allNames names
    in let names = concatMap allNames binders
-       in case names of 
+       in case names of
             [x] -> NamedBinder x
             _names -> case as of
               AsTuple -> TupleBinder (NamedBinder <$> names)

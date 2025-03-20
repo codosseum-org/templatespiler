@@ -42,6 +42,7 @@ spec = describe "Integration Test" $ do
   templatespilerIntegrationTest "Simple Template with 3 Integers" simpleTemplate3Ints
   templatespilerIntegrationTest "Template from README" templateFromReadme
   templatespilerIntegrationTest "Template from README 2" templateFromReadme2
+  templatespilerIntegrationTest "Template from README 3" templateFromReadme3
 
 templatespilerIntegrationTestBody :: (BindingList, Map TargetLanguage ([Text] -> IO b)) -> Property
 templatespilerIntegrationTestBody (res, runners) = property $ do
@@ -141,3 +142,13 @@ templateFromReadme = "inputs: list (num : Integer)"
 
 templateFromReadme2 :: Text
 templateFromReadme2 = "start: sep-by \" \" [x : Integer y : Integer]\ninputs: list (sep-by \" \" [x : Integer y : Integer])"
+
+templateFromReadme3 :: Text
+templateFromReadme3 =
+  unlines
+    [ "prices: list (sep-by \" \" [item : String price : Float])"
+    , "orders: list ["
+    , "  name: String"
+    , "  order: list (sep-by \" \" [quantity : Integer item : String])"
+    , "  ]"
+    ]

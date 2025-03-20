@@ -1,29 +1,28 @@
-{-# LANGUAGE OverloadedStrings #-}
-
-{-# HLINT ignore #-}
-
 import Control.Monad
-import Data.Text (Text)
-import Data.Text qualified as T
-
-readText :: (Read a) => Text -> a
-readText = read . T.unpack
-
 main = do
-  pricesLen <- readLn @Int
-  prices <- replicateM pricesLen $ do
-    line <- T.pack <$> getLine
-    let [item, price] = T.splitOn " " line
-    pure (item, readText @Int price)
+    prices <- do
+        count <- readLn @Int
+        replicateM count $ do
+            [item_tmp, price_tmp] <- words <$> getLine
+            let item = item_tmp
+            let price = read @Float price_tmp
+            pure (item, price)
 
-  ordersLen <- readLn @Int
-  orders <- replicateM ordersLen $ do
-    name <- T.pack <$> getLine
-    ordersLen <- readLn @Int
-    orders <- replicateM ordersLen $ do
-      line <- T.pack <$> getLine
-      let [quantity, item] = T.splitOn " " line
-      pure (readText @Int quantity, item)
-    pure (name, orders)
 
-  print orders
+    orders <- do
+        count <- readLn @Int
+        replicateM count $ do
+            name <- getLine
+            order <- do
+                count <- readLn @Int
+                replicateM count $ do
+                    [quantity_tmp, item_tmp] <- words <$> getLine
+                    let quantity = read @Int quantity_tmp
+                    let item = item_tmp
+                    pure (quantity, item)
+
+
+            pure (name, order)
+
+
+    pure ()

@@ -52,8 +52,6 @@ data TemplateParseRequest = TemplateParseRequest
   deriving stock (Eq, Show, Generic)
 instance ToSchema TemplateParseRequest where
   declareNamedSchema proxy = do
-    -- okResponse <- declareResponse "application/json" (Proxy @ParsedTemplate)
-
     genericDeclareNamedSchema defaultSchemaOptions proxy
       & mapped . schema . title ?~ "Submit a template for parsing"
       & mapped . schema . description ?~ "Submit a template for parsing, returning a unique ID that can be used to process the parsed template in other ways"

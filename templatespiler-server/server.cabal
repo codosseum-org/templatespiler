@@ -36,6 +36,7 @@ common shared
     , relude                     >=1.0
     , servant
     , servant-openapi3
+    , servant-prometheus
     , servant-server
     , templatespiler-converter
     , templatespiler-generator

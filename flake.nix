@@ -10,6 +10,9 @@
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
     flake-root.url = "github:srid/flake-root";
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
+
+    servant-prometheus.url = "github:serokell/servant-prometheus?rev=f067e984a953bbc253406f3390c45e0369cee3bb";
+    servant-prometheus.flake = false;
   };
 
   outputs = { self, pre-commit-hooks, ... } @ inputs:
@@ -38,6 +41,8 @@
             templatespiler-generator.source = ./templatespiler-generator;
 
             templatespiler-server.source = ./templatespiler-server;
+
+            servant-prometheus.source = inputs.servant-prometheus;
           };
 
           # Development shell configuration

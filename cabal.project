@@ -5,3 +5,7 @@ packages:
   templatespiler-integration-tests/
   templatespiler-server/
   
+source-repository-package
+   type: git
+   location: https://github.com/serokell/servant-prometheus.git
+   tag: f067e984a953bbc253406f3390c45e0369cee3bb

@@ -20,6 +20,7 @@ import Prettyprinter.Render.Text
 import Prometheus (register)
 import Prometheus.Metric.GHC (ghcMetrics)
 import Servant (Application, Handler, ServerError (..), ServerT, err400, hoistServer, serve, throwError, (:<|>) (..))
+import Servant.Prometheus qualified as SP
 import Templatespiler.Convert (convertTo, renderConvertResult)
 import Templatespiler.Emit.Common (ConvertResult (..), PDoc)
 import Templatespiler.Generator (generateInput)
@@ -33,12 +34,14 @@ data StartCommand
 
 startServer :: IO ()
 startServer = do
-  register ghcMetrics
+  _ <- register ghcMetrics
+  meters <- register $ SP.meters (Proxy @Api)
+
   let promMiddleware = prometheus $ PrometheusSettings ["metrics"] True True
   initialState <- State <$> newTVarIO mempty
   putStrLn "Starting server on port 8080..."
 
-  run 8080 $ promMiddleware $ app initialState
+  run 8080 $ SP.monitorServant meters $ promMiddleware $ app initialState
   putStrLn ""
 
 main :: IO ()
